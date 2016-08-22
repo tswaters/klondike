@@ -1,0 +1,5 @@
+{
+  "verbose": false,
+  "watch": ["index.js", "app/**/*.js", "api/**/*.js"],
+  "ignore": ["assets/**/*", "public"]
+}

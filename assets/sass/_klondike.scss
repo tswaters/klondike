@@ -1,0 +1,40 @@
+
+
+$offset: 100px;
+
+.klondike  {
+  position: relative;
+  width: $offset * 6 + $width;
+  margin: 0 auto;
+
+  .stack {
+    position: absolute;
+  }
+
+  .discard-stack {
+    left: $width + 20;
+    width: $width;
+    height: $height;
+  }
+
+  .play-stack {
+    top: $height + 15;
+    @for $i from 0 through 6 {
+      &:nth-child(#{$i + 1}) { left: #{$i * $offset}; }
+    }
+  }
+
+  .win-stack {
+    top: 0;
+    width: $width;
+    height: $height;
+    @for $i from 0 through 3 {
+      &:nth-child(#{$i + 1}) { right: #{(3 - $i) * $offset}; }
+    }
+  }
+
+  .card.selected {
+    background-color: $selected-card;
+  }
+}
+

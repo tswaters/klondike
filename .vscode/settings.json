@@ -1,0 +1,20 @@
+{
+  "files.trimTrailingWhitespace": true,
+  "editor.tabSize": 2,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "node_modules": true,
+    "public": true,
+    "typings": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "reports": true
+  },
+  "tslint.enable": true,
+  "eslint.enable": true,
+  "scss.validate": false,
+  "sasslint.enable": true,
+  "sasslint.configFile": ".sass-lint.yml"
+}

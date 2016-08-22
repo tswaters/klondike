@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Klondike</title>
+    <link rel="stylesheet" href="/css/page.css">
+  </head>
+  <body>
+    <section id="container" class="klondike">
+      <div id="stack" class="stack draw-stack"></div>
+      <div id="pile" class="stack discard-stack horizontal"></div>
+      <div class="top">
+        <div id="top-1" class="stack top-card win-stack"></div>
+        <div id="top-2" class="stack top-card win-stack"></div>
+        <div id="top-3" class="stack top-card win-stack"></div>
+        <div id="top-4" class="stack top-card win-stack"></div>
+      </div>
+      <div class="play">
+        <div id="stack-1" class="stack play-stack vertical"></div>
+        <div id="stack-2" class="stack play-stack vertical"></div>
+        <div id="stack-3" class="stack play-stack vertical"></div>
+        <div id="stack-4" class="stack play-stack vertical"></div>
+        <div id="stack-5" class="stack play-stack vertical"></div>
+        <div id="stack-6" class="stack play-stack vertical"></div>
+        <div id="stack-7" class="stack play-stack vertical"></div>
+      </div>
+    </section>
+    <script src="/js/program.js"></script>
+    <script>
+      new Program.Klondike()
+    </script>
+  </body>
+</html>

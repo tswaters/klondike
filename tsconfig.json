@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "removeComments": true,
+    "sourceMap": false,
+    "locale": "en-ca",
+    "target": "es6",
+    "declaration": false,
+    "noImplicitUseStrict": false,
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "out": "./public/js/program.js",
+    "inlineSourceMap": true,
+    "sourceRoot": "/ts"
+  },
+  "exclude": [
+    "node_modules",
+    "public"
+  ]
+}
