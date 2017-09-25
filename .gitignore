@@ -1,3 +1,4 @@
 node_modules
 public
 typings
+package-lock.json
