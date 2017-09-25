@@ -1,16 +1,18 @@
 {
   "compilerOptions": {
     "removeComments": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "locale": "en-ca",
-    "target": "es6",
+    "target": "es5",
     "declaration": false,
     "noImplicitUseStrict": false,
     "noEmitOnError": true,
     "noImplicitAny": true,
-    "out": "./public/js/program.js",
-    "inlineSourceMap": true,
-    "sourceRoot": "/ts"
+    "module": "commonjs",
+    "lib": [
+      "es2015",
+      "dom"
+    ]
   },
   "exclude": [
     "node_modules",

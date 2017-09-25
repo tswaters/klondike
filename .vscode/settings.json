@@ -5,8 +5,7 @@
     "**/.git": true,
     "**/.DS_Store": true,
     "node_modules": true,
-    "public": true,
-    "typings": true
+    "public": true
   },
   "search.exclude": {
     "**/node_modules": true,
