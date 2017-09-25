@@ -224,12 +224,12 @@ namespace Program {
       }
 
       const card = Card.DomToCard(node)
-      const query = `.win-stack${card.value === 'ace' ? ':empty' : `[data-suit="${card.suit}"]`}`
+      const query = `.win-stack${card.value.name === 'ace' ? ':empty' : `[data-suit="${card.suit.name}"]`}`
       const winSpot = <HTMLElement>document.querySelector(query)
-      if (!winSpot && card.value !== 'ace') { return }
-      const target = <HTMLElement>(card.value === 'ace' ? winSpot : winSpot.lastChild)
+      if (!winSpot && card.value.name !== 'ace') { return }
+      const target = <HTMLElement>(card.value.name === 'ace' ? winSpot : winSpot.lastChild)
 
-      winSpot.dataset['suit'] = card.suit
+      winSpot.dataset['suit'] = card.suit.name
 
       if (Klondike.movable(node, target)) {
         this.move(node, target)
@@ -327,10 +327,10 @@ namespace Program {
       const isValidWinMove = card2.suit === card1.suit && card1.index === card2.index + 1
 
       // moving a king to an empty spot is OK (assuming this is a play-stack)
-      if (targetIsPlayStack && card1.value === 'king') { return true }
+      if (targetIsPlayStack && card1.value.name === 'king') { return true }
 
       // moving an ace to an empty win-stack is OK
-      if (targetIsWinStack && card1.value === 'ace') { return true }
+      if (targetIsWinStack && card1.value.name === 'ace') { return true }
 
       // a play move is considered OK when the parent stack is a play stack
       if (targetParentIsPlayStack && isValidPlayMove) { return true }

@@ -1,31 +1,8 @@
 
 namespace Program {
 
-  const width = 65
+  const width = 75
   const height = 97
-
-  const values: {[value: string]: string} = {
-    ace: 'A',
-    two: '2',
-    three: '3',
-    four: '4',
-    five: '5',
-    six: '6',
-    seven: '7',
-    eight: '8',
-    nine: '9',
-    ten: '10',
-    jack: 'J',
-    queen: 'Q',
-    king: 'K'
-  }
-
-  const suits: {[suit: string]: string} = {
-    spade: '♠',
-    club: '♣',
-    heart: '♥',
-    diamond: '♦'
-  }
 
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
@@ -33,63 +10,86 @@ namespace Program {
   canvas.width = width
   canvas.height = height
 
-  function getDataUri (card: HTMLElement) {
+  function getDataUri (card: HTMLElement): string {
 
     ctx.clearRect(0, 0, width, height)
     ctx.fillStyle = ['heart', 'diamond'].indexOf(card.dataset['suit']) > -1 ? 'red' : 'black'
-    drawCorners(card.dataset['value'], card.dataset['suit'])
-    drawMiddle(card.dataset['value'], card.dataset['suit'])
+
+    const value = values.find(value => value.name === card.dataset['value'])
+    const suit = suits.find(value => value.name === card.dataset['suit'])
+
+    drawCorners(value, suit)
+    drawMiddle(value, suit)
     return canvas.toDataURL()
 
-    function drawCorners (value: string, suit: string) {
-      ctx.textAlign = 'left'
+    function drawCorners (value: datum, suit: datum) {
+      const valueX = 9
+      const valueY = 2
+      const suitX = 9
+      const suitY = 12
+      ctx.textAlign = 'center'
       ctx.textBaseline = 'top'
-      ctx.font = '10pt sans-serif'
-      ctx.fillText(values[value], 2, 2)
-      ctx.fillText(suits[suit], 2, 12)
+
+      ctx.font = 'bold 1.5em sans-serif'
+      ctx.fillText(value.label, valueX, valueY)
+
+      ctx.font = '2.0em sans-serif'
+      ctx.fillText(suit.label, suitX, suitY)
+
       ctx.save()
+
       ctx.translate(width, height)
       ctx.rotate(180 * Math.PI / 180)
-      ctx.fillText(values[value], 2, 2)
-      ctx.fillText(suits[suit], 2, 12)
+
+      ctx.font = 'bold 1.5em sans-serif'
+      ctx.fillText(value.label, valueX, valueY)
+
+      ctx.font = '2.0em sans-serif'
+      ctx.fillText(suit.label, suitX, suitY)
+
       ctx.restore()
     }
 
-    function drawMiddle (value: string, suit: string) {
+    function drawMiddle (value: datum, suit: datum) {
       let left = 0
       let top = 0
-      let positions: {x: number, y: number}[] = []
-      if (['ace', 'three', 'five', 'nine', 'jack', 'queen', 'king'].indexOf(value) > -1) {
-        positions.push({x: 2, y: 4})
-      }
-      if (['two', 'three'].indexOf(value) > -1) {
-        positions.push({x: 2, y: 1}, {x: 2, y: 7})
-      }
-      if (['four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'].indexOf(value) > -1) {
-        positions.push({x: 1, y: 1}, {x: 3, y: 1}, {x: 1, y: 7}, {x: 3, y: 7})
-      }
-      if (['six', 'seven'].indexOf(value) > -1) {
-        positions.push({x: 1, y: 4}, {x: 3, y: 4})
-      }
-      if (['seven', 'ten'].indexOf(value) > -1) {
-        positions.push({x: 2, y: 2})
-      }
-      if (['eight', 'nine', 'ten'].indexOf(value) > -1) {
-        positions.push({x: 1, y: 3}, {x: 3, y: 3}, {x: 1, y: 5}, {x: 3, y: 5})
-      }
-      if (value === 'ten') {
-        positions.push({x: 2, y: 6})
-      }
-      let fontSize = ['ace', 'jack', 'queen', 'king'].indexOf(value) > -1 ? '48pt' : '18pt'
+
+      const heightGutter = 0
+      const colHeight = height / 6
+
+      const xStarts = [
+        width * 0.25,
+        width * 0.50,
+        width * 0.75
+      ]
+
+      const yStarts = [
+        height * 0.2,
+        height * 0.3,
+        height * 0.4,
+        height * 0.5
+      ]
+
+      let fontSize = ['ace', 'jack', 'queen', 'king'].indexOf(value.name) > -1 ? '4.0em' : '2.0em'
       ctx.textBaseline = 'middle'
-      for (let i = 0; i < positions.length; i++) {
-        let x = positions[i].x
-        let y = positions[i].y
-        left = width * (((x - 1) * 3) + 2) / 10
-        top = height * ((y + 1) / 10)
-        ctx.textAlign = x === 1 ? 'left' : x === 2 ? 'center' : x === 3 ? 'right' : null
+
+      for (const {x, y} of value.positions) {
+        left = xStarts[x]
+        top = yStarts[y > 3 ? 6 - y : y]
+        ctx.textAlign = x === 0 ? 'left' : x === 1 ? 'center' : x === 2 ? 'right' : null
+
+        if (y > 3) {
+          ctx.save()
+          ctx.translate(width, height)
+          ctx.rotate(Math.PI)
+        }
+
         ctx.font = `${fontSize} sans-serif`
-        ctx.fillText(suits[suit], left, top)
+        ctx.fillText(suit.label, left, top)
+
+        if (y > 3) {
+          ctx.restore()
+        }
       }
     }
   }
@@ -98,15 +98,15 @@ namespace Program {
 
     isEmpty: boolean
 
-    value: string
+    value: datum
 
-    suit: string
+    suit: datum
 
     selector: string
 
     cardId: string
 
-    constructor (value: string = null, suit: string = null, empty = false) {
+    constructor (value: datum = null, suit: datum = null, empty = false) {
       this.isEmpty = empty
       this.value = value
       this.suit = suit
@@ -116,7 +116,9 @@ namespace Program {
 
     static DomToCard (node: HTMLSpanElement) {
       const isEmptyStack = node.classList.contains('stack') && node.childNodes.length === 0
-      return new Card(node.dataset['value'], node.dataset['suit'], isEmptyStack)
+      const value = values.find(datum => datum.name === node.dataset['value'])
+      const suit = suits.find(datum => datum.name === node.dataset['suit'])
+      return new Card(value, suit, isEmptyStack)
     }
 
     get index () {
@@ -124,11 +126,11 @@ namespace Program {
     }
 
     get isRed () {
-      return ['heart', 'diamond'].indexOf(this.suit) > -1
+      return ['heart', 'diamond'].indexOf(this.suit.name) > -1
     }
 
     get isBlack () {
-      return ['club', 'spade'].indexOf(this.suit) > -1
+      return ['club', 'spade'].indexOf(this.suit.name) > -1
     }
 
     get element (): HTMLSpanElement {
@@ -143,8 +145,8 @@ namespace Program {
       card.dataset['cardId'] = this.cardId
 
       if (this.suit && this.value) {
-        card.dataset['suit'] = this.suit
-        card.dataset['value'] = this.value
+        card.dataset['suit'] = this.suit.name
+        card.dataset['value'] = this.value.name
         card.style.backgroundImage = `url(${getDataUri(card)})`
       }
       else {

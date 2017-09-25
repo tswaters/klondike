@@ -1,9 +1,6 @@
 
 namespace Program {
 
-  const suits = ['club', 'spade', 'diamond', 'heart']
-  const values = ['ace', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'jack', 'queen', 'king']
-
   export class Deck {
 
     cards: Card[]
@@ -18,10 +15,8 @@ namespace Program {
     }
 
     shuffle (): void {
-      this.cards = suits.reduce((memo: Card[], suit: string) => {
-        for (let i = 0; i < values.length; i += 1) {
-          memo.push(new Card(values[i], suit))
-        }
+      this.cards = suits.reduce((memo: Card[], suit: datum) => {
+        memo.push(...values.map(value => new Card(value, suit)))
         return memo
       }, [])
     }
@@ -30,16 +25,14 @@ namespace Program {
       return values.indexOf(card.value)
     }
 
-    getCard (): Promise<Card> {
+    async getCard (): Promise<Card> {
       const method = 'POST'
       const headers = new Headers()
       headers.append('Content-Type', 'application/json')
       const body = JSON.stringify({min: 0, max: this.cards.length - 1})
-      return fetch('/random', {method, body, headers})
-        .then((res: Response) => res.json())
-        .then((res: IRandomNumberReturn) => {
-          return this.cards.splice(res.number, 1)[0]
-        })
+      const res = await fetch('/random', {method, body, headers})
+      const data: IRandomNumberReturn = await res.json()
+      return this.cards.splice(data.number, 1)[0]
     }
 
   }

@@ -46,6 +46,12 @@
 }
 
 @for $i from 0 through 51 {
-  .stack.vertical { .card:nth-child(#{$i + 1}) {top: #{20px * $i}} }
-  .stack.horizontal { .card:nth-child(#{$i + 1}) {left: #{20px * $i}} }
+  .stack.vertical { .card:nth-child(#{$i + 1}) {top: #{$card-gutter-vertical * $i}} }
+  .stack.horizontal { .card:nth-child(#{$i + 1}) {left: #{$card-gutter-horizontal * $i}} }
+}
+
+.foo {
+  > tr > td {
+    color: $black-color;
+  }
 }
