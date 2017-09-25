@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "debug": "nodemon --debug",
-    "lint": "npm run-script lint-typescript && npm run-script lint-sass",
+    "debug": "nodemon --inspect",
+    "lint": "npm run lint-typescript && npm run lint-sass && npm run lint-js",
     "lint-typescript": "tslint assets/ts/**/*.ts",
     "lint-sass": "sass-lint -c .sass-lint.yml -v assets/sass/*.scss",
+    "lint-js": "eslint **/*.js",
     "start": "cross-env NODE_ENV=production node index.js",
     "test": "mocha"
   },
@@ -15,12 +16,12 @@
   "license": "ISC",
   "devDependencies": {
     "async": "^2.0.0-rc.6",
-    "eslint": "^3.0.0",
+    "eslint": "^4.7.2",
     "mocha": "^2.5.3",
     "sass-lint": "^1.9.0",
     "supertest": "^1.2.0",
     "tslint": "^3.13.0",
-    "uglify-js": "github:mishoo/UglifyJS2#harmony"
+    "uglify-es": "^3.1.2"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
@@ -34,6 +35,6 @@
     "nodemon": "^1.9.2",
     "socket.io": "^1.4.8",
     "tsc-wrapper": "^1.0.0",
-    "typescript": "^1.8.10"
+    "typescript": "^2.5.2"
   }
 }

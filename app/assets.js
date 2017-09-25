@@ -8,56 +8,59 @@ const watch = require('node-watch')
 const promisify = require('es6-promisify')
 const fs = require('fs.extra')
 const sass = require('node-sass')
-const UglifyJS = require('uglify-js')
+const UglifyJS = require('uglify-es')
 const tscWrapper = require('tsc-wrapper')
 
 const write = promisify(fs.writeFile)
+const read = promisify(fs.readFile)
 const copy = promisify(fs.copy)
 const mkdirp = promisify(fs.mkdirp)
 const rmrf = promisify(fs.rmrf)
 const copyRecursive = promisify(fs.copyRecursive)
 const render = promisify(sass.render)
 
-module.exports = () => {
-  return generate()
-    .then(() => {
-      console.log('Finished generation...')
-      if (isProd) { return }
-      watch('./assets', fileName => {
-        console.log(`${fileName} has changed, regenerating assets`)
-        generate()
-          .then(() => console.log('Finished generation...'))
-          .catch(e => console.error(e))
-      })
+async function start () {
 
-    })
+  await generate()
+  if (isProd) { return true }
+
+  watch('./assets', fileName => {
+    console.log(`${fileName} has changed, regenerating assets`)
+    generate().catch(console.error)
+  })
 }
 
-function generate () {
+async function generate () {
 
-  return rmrf('./public')
+  await rmrf('./public')
+  await mkdirp('./public/js')
+  await mkdirp('./public/css')
 
-    .then(() => mkdirp('./public'))
-    .then(() => mkdirp('./public/css'))
-    .then(() => mkdirp('./public/js'))
+  await copy('./assets/index.html', './public/index.html')
+  await copy('./assets/cards.html', './public/cards.html')
+  await copyRecursive('./assets/images', './public/images')
 
-    // copy html and images to public, and typescript if not prod (for source maps)
-    .then(() => copy('./assets/index.html', './public/index.html'))
-    .then(() => copyRecursive('./assets/images', './public/images'))
-    .then(() => !isProd && copyRecursive('./assets/ts', './public/ts'))
+  if (!isProd) {
+    await copyRecursive('./assets/ts', './public/ts')
+  }
 
-    // compile typescript into public
-    .then(() => tscWrapper('./tsconfig.json', isProd))
+  await tscWrapper('./tsconfig.json', isProd)
 
-    // uglify program.js if in production
-    .then(() => {
-      if (!isProd) { return }
-      const result = UglifyJS.minify('./public/js/program.js')
-      return write('./public/js/program.js', result.code)
-    })
 
-    // compile sass and save to public
-    .then(() => render({file: './assets/sass/importer.scss', outputStyle: isProd ? 'compressed' : 'compact'}))
-    .then(sassFile => write('./public/css/page.css', sassFile.css))
+  if (isProd) {
+    const program = await read('./public/js/program.js', {encoding: 'utf8'})
+    const result = UglifyJS.minify(program, {compress: true, mangle: true})
+    if (result.error) { throw result.error }
+    await write('./public/js/program.js', result.code)
+  }
 
+  const sassFile = await render({
+    file: './assets/sass/importer.scss',
+    outputStyle: isProd ? 'compressed' : 'compact'
+  })
+
+  await write('./public/css/page.css', sassFile.css)
+  console.log('Finished generation...')
 }
+
+module.exports = start
