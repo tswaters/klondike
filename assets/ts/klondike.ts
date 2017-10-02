@@ -23,15 +23,15 @@ export default class Klondike {
   /**
    * keeps track of the number of blank cards left to be drawn (24 initially)
    */
-  pileCards: number
+  wasteCards: number
 
   /**
    * Keeps track of cards that are beneath #stack
    */
-  pile: Card[]
+  waste: Card[]
 
   /**
-   * Cards that have been brought into play from the pile
+   * Cards that have been brought into play from the waste
    */
   discards: Card[]
 
@@ -41,23 +41,23 @@ export default class Klondike {
   }
 
   async initialize (): Promise<void> {
-    this.pile = []
+    this.waste = []
     this.discards = []
-    this.pileCards = 24
+    this.wasteCards = 24
 
     const container = document.getElementById('container')
     this.listeners.push(addListener(container, 'click', this.container_onClick.bind(this), true))
     this.listeners.push(addListener(container, 'dblclick', this.container_onDblClick.bind(this), true))
 
-    const stack = document.getElementById('stack')
-    this.listeners.push(addListener(stack, 'click', this.drawCards.bind(this), true))
-    stack.appendChild(new Card().element)
+    const stock = document.getElementById('stock')
+    this.listeners.push(addListener(stock, 'click', this.drawCards.bind(this), true))
+    stock.appendChild(new Card().element)
 
     for (let i = 0; i <= 6; i++) {
-      const stack = document.getElementById(`stack-${i + 1}`)
+      const stack = document.getElementById(`tableau-${i + 1}`)
       const card = await this.deck.getCard()
       for (let j = 0; j < i; j++) {
-        stack.appendChild(new Card().element)
+          stack.appendChild(new Card().element)
       }
       stack.appendChild(card.element)
     }
@@ -73,28 +73,28 @@ export default class Klondike {
   }
 
   /**
-   * Click handler for #stack - this draws three cards or cycles elements in the pile
+   * Click handler for #stack - this draws three cards or cycles elements in the waste
    */
   async drawCards (e: MouseEvent) {
     const node = <HTMLElement>e.target
-    const pile = document.getElementById('pile')
-    const stack = document.getElementById('stack')
+    const waste = document.getElementById('waste')
+    const stock = document.getElementById('stock')
 
     // make sure selected card is blanked
     this.selectedCard = null
 
     // the stack is empty, user has clicked the stack.
-    // remove elements from pile, recycle pile from discards and re-add the blank card to #stack
+    // remove elements from waste, recycle waste from discards and re-add the blank card to #stack
 
-    if (node === stack) {
+    if (node === stock) {
 
-      while (pile.childNodes.length > 0) {
-        const removed = <HTMLElement>pile.removeChild(pile.firstChild)
+      while (waste.childNodes.length > 0) {
+        const removed = <HTMLElement>waste.removeChild(waste.firstChild)
         this.discards.push(Card.DomToCard(removed))
       }
 
       while (this.discards.length > 0) {
-        this.pile.push(this.discards.shift())
+        this.waste.push(this.discards.shift())
       }
 
       node.appendChild(new Card().element)
@@ -104,35 +104,35 @@ export default class Klondike {
 
     const cards: Card[] = []
 
-    if (this.pileCards > 0) {
-      this.pileCards -= 3
+    if (this.wasteCards > 0) {
+      this.wasteCards -= 3
       cards.push(await this.deck.getCard())
       cards.push(await this.deck.getCard())
       cards.push(await this.deck.getCard())
     } else {
-      while (this.pile.length > 0 && cards.length !== 3) {
-        cards.push(this.pile.shift())
+      while (this.waste.length > 0 && cards.length !== 3) {
+        cards.push(this.waste.shift())
       }
     }
 
-    // remove existing #pile cards, add to discards pile
+    // remove existing #waste cards, add to discards waste
 
-    while (pile.firstChild) {
-      const removed = <HTMLSpanElement>pile.removeChild(pile.firstChild)
+    while (waste.firstChild) {
+      const removed = <HTMLSpanElement>waste.removeChild(waste.firstChild)
       this.discards.push(Card.DomToCard(removed))
     }
 
-    // add the new pile cards to #pile
+    // add the new waste cards to #waste
 
     while (cards.length > 0) {
-      pile.appendChild(cards.shift().element)
+      waste.appendChild(cards.shift().element)
     }
 
-    // if no more cards to draw and pile is empty, we've reached the end
+    // if no more cards to draw and waste is empty, we've reached the end
     // show #stack as empty (remove the one blank card)
 
-    if (this.pile.length === 0 && this.pileCards === 0) {
-      stack.removeChild(stack.firstChild)
+    if (this.waste.length === 0 && this.wasteCards === 0) {
+      stock.removeChild(stock.firstChild)
     }
   }
 
@@ -165,7 +165,7 @@ export default class Klondike {
     // draw a card, replace blank card with it & exit out.
     // (except if parent is #stack - this is handled separately)
 
-    if (node.parentElement.id !== 'stack' && node.classList.contains('blank') && !node.nextSibling) {
+    if (node.parentElement.id !== 'stock' && node.classList.contains('blank') && !node.nextSibling) {
       const card = await this.deck.getCard()
       node.parentElement.replaceChild(card.element, node)
       return
@@ -192,7 +192,7 @@ export default class Klondike {
     }
 
     // don't attempt to move up cards that are already up
-    if (node.parentElement.classList.contains('win-stack')) {
+    if (node.parentElement.classList.contains('foundation')) {
       return
     }
 
@@ -202,7 +202,7 @@ export default class Klondike {
     }
 
     const card = Card.DomToCard(node)
-    const query = `.win-stack${card.value.name === 'ace' ? ':empty' : `[data-suit="${card.suit.name}"]`}`
+    const query = `.foundation${card.value.name === 'ace' ? ':empty' : `[data-suit="${card.suit.name}"]`}`
 
     const winSpot = <HTMLElement>document.querySelector(query)
     if (!winSpot && card.value.name !== 'ace') { return }
@@ -220,7 +220,7 @@ export default class Klondike {
    * Moves a card from one position to another.
    * - this function is guarded by return value of `movable` and does no checks.
    * - involves changing the parent of `card` to parent of `target`
-   * - if it's the last card in the #pile show last card in pile
+   * - if it's the last card in the #waste show last card in waste
    * - if there are cards on top of this one, ensure they are all moved
    */
   move (card: HTMLElement, target: HTMLElement): void {
@@ -244,13 +244,13 @@ export default class Klondike {
     card.classList.remove('selected')
     this.selectedCard = null
 
-    // when the pile is empty, attempt to show the card beneath
+    // when the waste is empty, attempt to show the card beneath
     // this might not be present, but if it is, show it.
 
-    if (oldParent.id === 'pile' && oldParent.childNodes.length === 0) {
-      const pileCard = this.discards.pop()
-      if (pileCard) {
-        oldParent.appendChild(pileCard.element)
+    if (parent.id === 'waste' && oldParent.childNodes.length === 0) {
+      const wasteCard = this.discards.pop()
+      if (wasteCard) {
+        parent.appendChild(wasteCard.element)
       }
     }
 
@@ -259,7 +259,7 @@ export default class Klondike {
   /**
    * Returns whether or not a card can be selected
    * - can't be a blank card
-   * - can only be the top-most card under #pile
+   * - can only be the top-most card under #waste
    * - can't be an empty stack
    * @param {HTMLElement} element card dom node
    */
@@ -270,8 +270,8 @@ export default class Klondike {
       return false
     }
 
-    // if parent is #pile, can only be top card
-    if (element.parentElement.id === 'pile' && element.nextSibling) {
+    // if parent is #waste, can only be top card
+    if (element.parentElement.id === 'waste' && element.nextSibling) {
       return false
     }
 
@@ -293,11 +293,11 @@ export default class Klondike {
     const card1: Card = Card.DomToCard(cardDom)
     const card2: Card = Card.DomToCard(target)
 
-    const targetIsPlayStack = target.classList.contains('play-stack')
-    const targetIsWinStack = target.classList.contains('win-stack')
+    const targetIsPlayStack = target.classList.contains('tableau')
+    const targetIsWinStack = target.classList.contains('foundation')
 
-    const targetParentIsPlayStack = target.parentElement.classList.contains('play-stack')
-    const targetParentIsWinStack = target.parentElement.classList.contains('win-stack')
+    const targetParentIsPlayStack = target.parentElement.classList.contains('tableau')
+    const targetParentIsWinStack = target.parentElement.classList.contains('foundation')
 
     // moving a card to a parent is OK if the number is sequential and cards have opposite colors
     const isValidPlayMove = card1.index + 1 === card2.index && (card1.isRed && card2.isBlack || card1.isBlack && card2.isRed)
@@ -305,10 +305,10 @@ export default class Klondike {
     // moving to the win stack is OK if suit is the same, and index is sequential
     const isValidWinMove = card2.suit === card1.suit && card1.index === card2.index + 1
 
-    // moving a king to an empty spot is OK (assuming this is a play-stack)
+    // moving a king to an empty spot is OK (assuming this is a tableau)
     if (targetIsPlayStack && card1.value.name === 'king') { return true }
 
-    // moving an ace to an empty win-stack is OK
+    // moving an ace to an empty foundation is OK
     if (targetIsWinStack && card1.value.name === 'ace') { return true }
 
     // a play move is considered OK when the parent stack is a play stack
