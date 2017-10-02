@@ -1,14 +1,23 @@
 
+$y-offset: 40px;
+$x-offset: $width + $stack-gutter;
 
-$offset: $width + $stack-gutter;
+#score {
+  position: absolute;
+  right: 0;
+}
 
 .klondike  {
   position: relative;
-  width: $offset * 6 + $width;
+  width: $x-offset * 6 + $width;
   margin: 0 auto;
 
   .stack {
     position: absolute;
+  }
+
+  #stock, #waste, .foundation {
+    top: $y-offset;
   }
 
   #waste {
@@ -18,18 +27,17 @@ $offset: $width + $stack-gutter;
   }
 
   .tableau {
-    top: $height + $stack-gutter;
+    top: $height + $stack-gutter + $y-offset;
     @for $i from 0 through 6 {
-      &:nth-child(#{$i + 1}) { left: #{$i * $offset}; }
+      &:nth-child(#{$i + 1}) { left: #{$i * $x-offset}; }
     }
   }
 
   .foundation {
-    top: 0;
     width: $width;
     height: $height;
     @for $i from 0 through 3 {
-      &:nth-child(#{$i + 1}) { right: #{(3 - $i) * $offset}; }
+      &:nth-child(#{$i + 1}) { right: #{(3 - $i) * $x-offset}; }
     }
   }
 

@@ -6,6 +6,11 @@ import {addListener, removeListeners} from './util'
 export default class Klondike {
 
   /**
+   * Current score
+   */
+  _score: number = 0
+
+  /**
    * Event listeners that have been attached
    */
   listeners: Function[] = []
@@ -41,6 +46,7 @@ export default class Klondike {
   }
 
   async initialize (): Promise<void> {
+    this.score = 0
     this.waste = []
     this.discards = []
     this.wasteCards = 24
@@ -61,6 +67,16 @@ export default class Klondike {
       }
       stack.appendChild(card.element)
     }
+  }
+
+  get score (): number {
+    return this._score
+  }
+
+  set score (value: number) {
+    this._score = value
+    if (this._score < 0) this._score = 0
+    document.getElementById('score').innerHTML = this._score.toString()
   }
 
   /**
@@ -167,6 +183,7 @@ export default class Klondike {
 
     if (node.parentElement.id !== 'stock' && node.classList.contains('blank') && !node.nextSibling) {
       const card = await this.deck.getCard()
+      this.score += 5
       node.parentElement.replaceChild(card.element, node)
       return
     }
@@ -225,20 +242,32 @@ export default class Klondike {
    */
   move (card: HTMLElement, target: HTMLElement): void {
 
+    const parent = card.parentElement
+    const fromWaste = parent.id === 'waste'
+    const fromFoundation = parent.classList.contains('foundation')
+    const fromTableau = parent.classList.contains('tableau')
+    const toFoundation = target.classList.contains('foundation') || target.parentElement.classList.contains('foundation')
+    const toTableau = target.classList.contains('tableau') || target.parentElement.classList.contains('tableau')
+
+    if (fromWaste && toFoundation) { this.score += 5 }
+    if (fromWaste && toTableau) { this.score += 10 }
+    if (fromTableau && toFoundation) { this.score += 10 }
+    if (fromFoundation && toTableau) { this.score -= 15 }
+
     const oldParent = card.parentElement
-    let targetParent = target.parentElement
+    let newParent = target.parentElement
 
     // special case, target is a stack, not a card
     if (target.classList.contains('stack')) {
-      targetParent = target
+      newParent = target
     }
 
     const cardAbove = card.previousSibling
-    const coalMine = <HTMLElement>(cardAbove ? cardAbove : oldParent)
+    const coalMine = <HTMLElement>(cardAbove ? cardAbove : parent)
     const canary: string = cardAbove ? 'nextSibling' : 'firstChild'
 
     while ((<any>coalMine)[canary]) {
-      targetParent.appendChild((<any>coalMine)[canary])
+      newParent.appendChild((<any>coalMine)[canary])
     }
 
     card.classList.remove('selected')
@@ -247,7 +276,7 @@ export default class Klondike {
     // when the waste is empty, attempt to show the card beneath
     // this might not be present, but if it is, show it.
 
-    if (parent.id === 'waste' && oldParent.childNodes.length === 0) {
+    if (parent.id === 'waste' && parent.childNodes.length === 0) {
       const wasteCard = this.discards.pop()
       if (wasteCard) {
         parent.appendChild(wasteCard.element)
