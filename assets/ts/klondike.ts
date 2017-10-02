@@ -42,10 +42,13 @@ export default class Klondike {
 
   constructor () {
     this.deck = new Deck()
+
+    addListener(document.getElementById('new-game'), 'click', this.newGame.bind(this), false)
     this.initialize()
   }
 
   async initialize (): Promise<void> {
+    this.deck.shuffle()
     this.score = 0
     this.waste = []
     this.discards = []
@@ -79,6 +82,11 @@ export default class Klondike {
     document.getElementById('score').innerHTML = this._score.toString()
   }
 
+  newGame () {
+    this.finish()
+    this.initialize()
+  }
+
   /**
    * Called once all cards have been placed in the win stack
    * - Remove event handlers attached in initialize
@@ -86,6 +94,11 @@ export default class Klondike {
    */
   finish () {
     removeListeners(this.listeners)
+
+    Array.from(document.querySelectorAll('.stack')).forEach(stack => {
+      while (stack.firstChild) { stack.removeChild(stack.firstChild) }
+    })
+
   }
 
   /**
