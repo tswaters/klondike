@@ -40,36 +40,27 @@ export default class Klondike {
     this.initialize()
   }
 
-  initialize (): void {
+  async initialize (): Promise<void> {
     this.pile = []
     this.discards = []
     this.pileCards = 24
 
-    const getStack = (blankCards: number): Promise<void> => {
-      const stack = document.getElementById(`stack-${blankCards + 1}`)
-      return this.deck.getCard().then((card) => {
-        for (let x = 0; x < blankCards; x++) {
-          stack.appendChild(new Card().element)
-        }
-        stack.appendChild(card.element)
-      })
-    }
-
     const container = document.getElementById('container')
-    const stack = document.getElementById('stack')
-
     this.listeners.push(addListener(container, 'click', this.container_onClick.bind(this), true))
     this.listeners.push(addListener(container, 'dblclick', this.container_onDblClick.bind(this), true))
+
+    const stack = document.getElementById('stack')
     this.listeners.push(addListener(stack, 'click', this.drawCards.bind(this), true))
     stack.appendChild(new Card().element)
 
-    getStack(0)
-      .then(() => getStack(1))
-      .then(() => getStack(2))
-      .then(() => getStack(3))
-      .then(() => getStack(4))
-      .then(() => getStack(5))
-      .then(() => getStack(6))
+    for (let i = 0; i <= 6; i++) {
+      const stack = document.getElementById(`stack-${i + 1}`)
+      const card = await this.deck.getCard()
+      for (let j = 0; j < i; j++) {
+        stack.appendChild(new Card().element)
+      }
+      stack.appendChild(card.element)
+    }
   }
 
   /**
@@ -84,7 +75,7 @@ export default class Klondike {
   /**
    * Click handler for #stack - this draws three cards or cycles elements in the pile
    */
-  drawCards (e: MouseEvent) {
+  async drawCards (e: MouseEvent) {
     const node = <HTMLElement>e.target
     const pile = document.getElementById('pile')
     const stack = document.getElementById('stack')
@@ -111,61 +102,45 @@ export default class Klondike {
       return
     }
 
-    new Promise((resolve) => {
+    const cards: Card[] = []
 
-      const newCards: Card[] = []
-
-      // there are cards left to be drawn
-      // pick three cards and resolve them
-
-      if (this.pileCards > 0) {
-        this.pileCards -= 3
-        return this.deck.getCard().then((card) => {newCards.push(card)})
-          .then(() => this.deck.getCard().then((card) => newCards.push(card)))
-          .then(() => this.deck.getCard().then((card) => newCards.push(card)))
-          .then(() => resolve(newCards))
+    if (this.pileCards > 0) {
+      this.pileCards -= 3
+      cards.push(await this.deck.getCard())
+      cards.push(await this.deck.getCard())
+      cards.push(await this.deck.getCard())
+    } else {
+      while (this.pile.length > 0 && cards.length !== 3) {
+        cards.push(this.pile.shift())
       }
+    }
 
-      // take three cards off the pile
-      // if pile is exhausted, remove the .blank card on the stack
+    // remove existing #pile cards, add to discards pile
 
-      while (this.pile.length > 0 && newCards.length !== 3) {
-        newCards.push(this.pile.shift())
-      }
+    while (pile.firstChild) {
+      const removed = <HTMLSpanElement>pile.removeChild(pile.firstChild)
+      this.discards.push(Card.DomToCard(removed))
+    }
 
-      return resolve(newCards)
+    // add the new pile cards to #pile
 
-    })
-    .then((cards: Card[]) => {
+    while (cards.length > 0) {
+      pile.appendChild(cards.shift().element)
+    }
 
-      // remove existing #pile cards, add to discards pile
+    // if no more cards to draw and pile is empty, we've reached the end
+    // show #stack as empty (remove the one blank card)
 
-      while (pile.firstChild) {
-        const removed = <HTMLSpanElement>pile.removeChild(pile.firstChild)
-        this.discards.push(Card.DomToCard(removed))
-      }
-
-      // add the new pile cards to #pile
-
-      while (cards.length > 0) {
-        pile.appendChild(cards.shift().element)
-      }
-
-      // if no more cards to draw and pile is empty, we've reached the end
-      // show #stack as empty (remove the one blank card)
-
-      if (this.pile.length === 0 && this.pileCards === 0) {
-        stack.removeChild(stack.firstChild)
-      }
-
-    })
+    if (this.pile.length === 0 && this.pileCards === 0) {
+      stack.removeChild(stack.firstChild)
+    }
   }
 
   /**
    * Click handler for the container - this uses capture, so target is the top-most element
    * @param {MouseEvent} e event object
    */
-  container_onClick (e: MouseEvent): void {
+  async container_onClick (e: MouseEvent): Promise<void> {
     const node = <HTMLElement>e.target
 
     // no card is selected and this is a selectable card
@@ -191,7 +166,8 @@ export default class Klondike {
     // (except if parent is #stack - this is handled separately)
 
     if (node.parentElement.id !== 'stack' && node.classList.contains('blank') && !node.nextSibling) {
-      this.deck.getCard().then(card => node.parentElement.replaceChild(card.element, node))
+      const card = await this.deck.getCard()
+      node.parentElement.replaceChild(card.element, node)
       return
     }
 
@@ -227,11 +203,12 @@ export default class Klondike {
 
     const card = Card.DomToCard(node)
     const query = `.win-stack${card.value.name === 'ace' ? ':empty' : `[data-suit="${card.suit.name}"]`}`
+
     const winSpot = <HTMLElement>document.querySelector(query)
     if (!winSpot && card.value.name !== 'ace') { return }
-    const target = <HTMLElement>(card.value.name === 'ace' ? winSpot : winSpot.lastChild)
+    else if (card.value.name === 'ace') { winSpot.dataset['suit'] = card.suit.name }
 
-    winSpot.dataset['suit'] = card.suit.name
+    const target = <HTMLElement>(card.value.name === 'ace' ? winSpot : winSpot.lastChild)
 
     if (Klondike.movable(node, target)) {
       this.move(node, target)
