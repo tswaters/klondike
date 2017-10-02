@@ -1,6 +1,7 @@
 
 import Card from './card'
 import {datum, suits, values} from './data'
+import {random} from './util'
 
 export default class Deck {
 
@@ -27,13 +28,8 @@ export default class Deck {
   }
 
   async getCard (): Promise<Card> {
-    const method = 'POST'
-    const headers = new Headers()
-    headers.append('Content-Type', 'application/json')
-    const body = JSON.stringify({min: 0, max: this.cards.length - 1})
-    const res = await fetch('/random', {method, body, headers})
-    const data: number = await res.json()
-    return this.cards.splice(data, 1)[0]
+    const num = await random(0, this.cards.length - 1)
+    return this.cards.splice(num, 1)[0]
   }
 
 }

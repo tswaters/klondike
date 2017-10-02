@@ -6,6 +6,7 @@
   "scripts": {
     "prebuild": "rimraf public",
     "build": "webpack -p",
+    "build:isolated": "cross-env ISOLATED=true webpack -p",
     "lint": "npm run lint:ts && npm run lint:sass && npm run lint:js",
     "lint:ts": "tslint assets/ts/**/*.ts",
     "lint:sass": "sass-lint -c .sass-lint.yml -v assets/sass/*.scss",
@@ -35,6 +36,7 @@
     "webpack": "^3.6.0"
   },
   "dependencies": {
+    "@types/node": "^8.0.31",
     "body-parser": "^1.15.2",
     "cross-env": "^2.0.0",
     "express": "^4.14.0",

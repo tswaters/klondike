@@ -2,6 +2,7 @@
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const {DefinePlugin} = require('webpack')
 const path = require('path')
 
 module.exports = {
@@ -10,8 +11,7 @@ module.exports = {
   output: {
     path: path.resolve('./public'),
     filename: 'bundle.js',
-    chunkFilename: '[name].chunkhash.js',
-    publicPath: '/'
+    chunkFilename: '[name].chunkhash.js'
   },
   resolve: {
     extensions: ['.webpack.js', '.web.js', '.ts', '.js', '.scss']
@@ -47,6 +47,9 @@ module.exports = {
       minify: {
         collapseWhitespace: true
       }
+    }),
+    new DefinePlugin({
+      'process.env.ISOLATED': JSON.stringify(process.env.ISOLATED)
     })
   ]
 }

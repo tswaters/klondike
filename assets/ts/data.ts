@@ -50,8 +50,8 @@ export const values: datum[] = [
 })
 
 export const suits: datum[] = [
-  {label: '♠', name: 'spade'},
-  {label: '♣', name: 'club'},
-  {label: '♥', name: 'heart'},
-  {label: '♦', name: 'diamond'}
+  {label: '\u2660', name: 'spade'},
+  {label: '\u2663', name: 'club'},
+  {label: '\u2665', name: 'heart'},
+  {label: '\u2666', name: 'diamond'}
 ]
