@@ -3,19 +3,24 @@
     "removeComments": true,
     "sourceMap": true,
     "locale": "en-ca",
-    "target": "es5",
+    "target": "es6",
     "declaration": false,
+    "strictNullChecks": true,
     "noImplicitUseStrict": false,
+    "allowUnreachableCode": false,
+    "noUnusedLocals": true,
     "noEmitOnError": true,
     "noImplicitAny": true,
     "module": "commonjs",
+    "jsx": "react",
     "lib": [
       "es2015",
+      "es2017",
       "dom"
     ]
   },
   "exclude": [
     "node_modules",
-    "public"
+    "dist"
   ]
 }

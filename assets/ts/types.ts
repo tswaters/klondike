@@ -1,4 +1,0 @@
-
-interface IRandomNumberReturn {
-  number: number
-}

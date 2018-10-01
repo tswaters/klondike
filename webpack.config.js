@@ -1,55 +1,106 @@
 'use strict'
 
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const OfflinePlugin = require('offline-plugin')
 const {DefinePlugin} = require('webpack')
 const path = require('path')
+const packageJson = require('./package.json')
 
-module.exports = {
-  entry: path.resolve('./assets/ts/index.ts'),
-  devtool: 'inline-source-map',
-  output: {
-    path: path.resolve('./public'),
-    filename: 'bundle.js',
-    chunkFilename: '[name].chunkhash.js'
-  },
-  resolve: {
-    extensions: ['.webpack.js', '.web.js', '.ts', '.js', '.scss']
-  },
-  module: {
-    loaders: [
-      {test: /\.ts$/, loader: 'ts-loader'},
-      {test: /\.scss$/, use: ExtractTextPlugin.extract({
-        fallback: 'style-loader',
-        use: [{
-          loader: 'css-loader',
-          options: {
-            sourceMap: true,
-            importLoaders: 1
-          }
-        }, {
-          loader: 'sass-loader',
-          options: {
-            sourceMap: true
-          }
-        }]
-      })}
-    ]
-  },
-  plugins: [
-    new ExtractTextPlugin({
-      filename: 'styles.css',
-      allChunks: true
+module.exports = (env, argv) => {
+
+  const chunkhash = argv.mode === 'production' ? '.[chunkhash]' : ''
+
+  const rules = [
+    {
+      test: /\.tsx?$/,
+      loader: 'awesome-typescript-loader'
+    },
+    {
+      test: /\.scss$/,
+      use: [{
+        loader: MiniCssExtractPlugin.loader
+      }, {
+        loader: 'typings-for-css-modules-loader',
+        options: {
+          sourceMap: true,
+          importLoaders: 1,
+          modules: true,
+          namedExport: true,
+          camelCase: true,
+          localIdentName: argv.mode === 'production'
+            ? '[hash:base64:5]'
+            : '[path][name]__[local]--[hash:base64:5]'
+        }
+      }, {
+        loader: 'sass-loader',
+        options: {
+          sourceMap: true
+        }
+      }]
+    }
+  ]
+
+  const plugins = [
+    new MiniCssExtractPlugin({
+      filename: `[name]${chunkhash}.css`,
+      chunkFilename: `[id]${chunkhash}.css`
     }),
     new HtmlWebpackPlugin({
-      template: 'assets/html/index.html',
+      template: 'src/html/index.html',
       filename: './index.html',
       minify: {
-        collapseWhitespace: true
+        collapseWhitespace: argv.mode === 'production'
       }
     }),
     new DefinePlugin({
-      'process.env.ISOLATED': JSON.stringify(process.env.ISOLATED)
+      'process.env.version': JSON.stringify(packageJson.version)
+    }),
+    new OfflinePlugin({
+      ServiceWorker: {
+        minify: argv.mode === 'production',
+        events: true
+      }
     })
   ]
+
+  return {
+    name: 'klondike',
+    devtool: argv.mode === 'production'
+      ? 'source-map'
+      : 'eval-source-map',
+    entry: {
+      klondike: './src/ts/index.tsx'
+    },
+    target: 'web',
+    output: {
+      path: path.resolve('./dist'),
+      filename: `[name]${chunkhash}.js`
+    },
+    optimization: {
+      splitChunks: {
+        chunks: 'all'
+      },
+      minimizer: [
+        new TerserPlugin({sourceMap: true}),
+        new OptimizeCSSAssetsPlugin({})
+      ]
+    },
+    resolve: {
+      extensions: [
+        '.webpack.js',
+        '.web.js',
+        '.ts',
+        '.tsx',
+        '.js',
+        '.scss'
+      ]
+    },
+    module: {
+      rules
+    },
+    plugins
+  }
 }

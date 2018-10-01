@@ -1,4 +1,3 @@
 node_modules
-public
+dist
 typings
-package-lock.json
