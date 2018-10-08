@@ -25,3 +25,8 @@ export const getWaste = createSelector(
   (state: StoreState) => state.waste,
   waste => waste
 )
+
+export const getDeck = createSelector(
+  (state: StoreState) => state.deck,
+  deck => deck
+)

@@ -1,6 +1,5 @@
 
 import {createSelector} from 'reselect'
-import Deck from '../lib/Deck'
 import {ThunkResult} from './index'
 import {useStock, addCardsToStock} from './stock'
 import {addCardsToWaste, recycleWaste} from './waste'
@@ -9,6 +8,8 @@ import {Card, ValueType} from '../lib/Card'
 import {equals, get_selection, movable_to_tableau, get_top_card, movable_to_foundation} from '../lib/util'
 import {incrementScore} from './score'
 import {getWaste, getTableau, getFoundation, getStock} from '../redux/selectors'
+import {getRandomCard} from './deck'
+import {appendCard} from './tableau'
 
 export const INITIALIZE = 'INITIALIZE'
 export type INITIALIZE = typeof INITIALIZE
@@ -51,8 +52,18 @@ const getAllStacks = createSelector([
   ...tableau
 ])
 
+export function initialize(): ThunkResult<void> {
+  return (dispatch, getState) => {
+    dispatch({type: INITIALIZE})
 
-export const initialize = (): Initialize => ({type: INITIALIZE})
+    const tableau = getTableau(getState())
+    tableau.stacks.forEach(stack => {
+      const card = dispatch(getRandomCard())
+      dispatch(appendCard({card}, stack))
+    })
+
+  }
+}
 
 const selectCard = (stack: Stack, card: StackCard): SelectAction => ({type: SELECT_CARD, card, stack})
 
@@ -185,7 +196,8 @@ export function clickTableau (stack: Stack, card?: StackCard): ThunkResult<void>
         dispatch(selectCard(stack, card))
       } else if (card) {
         dispatch(incrementScore(5))
-        dispatch(replaceTop(stack, Deck.getCard()))
+        const card = dispatch(getRandomCard())
+        dispatch(replaceTop(stack, card))
       }
       return
     }
@@ -228,8 +240,13 @@ export function clickStock (): ThunkResult<void> {
       // if we haven't finished drawing from left,
       // choose random cards from the deck to add to waste.
 
+      const cards = []
+      for (let i = 0; i < 3; i++) {
+        cards.push(dispatch(getRandomCard()))
+      }
+
       dispatch(useStock(3))
-      dispatch(addCardsToWaste([Deck.getCard(), Deck.getCard(), Deck.getCard()]))
+      dispatch(addCardsToWaste(cards))
 
     } else if (stock_stack.cards.length > 0) {
 

@@ -6,6 +6,7 @@ import {Provider} from 'react-redux'
 import configStore from './store'
 import {initialize} from './redux/actions'
 import {Container} from './components/Container'
+import {ThunkDispatch} from './redux'
 
 offline.install({
   onUpdateReady () { offline.applyUpdate() },
@@ -14,7 +15,7 @@ offline.install({
 
 const store = configStore()
 
-store.dispatch(initialize())
+; (store.dispatch as ThunkDispatch)(initialize())
 
 ReactDOM.render(
   <Provider store={store}>

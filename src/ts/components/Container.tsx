@@ -3,7 +3,6 @@ import * as React from 'react'
 import {connect} from 'react-redux'
 import {createSelector} from 'reselect'
 import {StackComponent} from './Stack'
-import Deck from '../lib/Deck'
 import {container, top, play, newGame, score, version} from '../../styles/cards.scss'
 import {StoreState, ThunkDispatch} from '../redux'
 import {Stack, StackCard, StackType, StackDirection} from '../lib/Stack'
@@ -43,7 +42,6 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
   }
 
   handleNewGameClick () {
-    Deck.shuffle()
     this.props.handleNewGame()
   }
 
