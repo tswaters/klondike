@@ -8,7 +8,7 @@ import {get_selection, movable_to_tableau, get_top_card, movable_to_foundation} 
 import {incrementScore} from './score'
 import {getWaste, getTableau, getFoundation, getStock} from '../redux/selectors'
 import {checkpoint} from './undoable'
-import {getRandomCard} from './deck'
+import {getRandomCards} from './deck'
 
 export const INITIALIZE = 'INITIALIZE'
 export type INITIALIZE = typeof INITIALIZE
@@ -61,9 +61,9 @@ export function initialize(): ThunkResult<void> {
     dispatch({type: INITIALIZE})
 
     const tableau = getTableau(getState())
-    tableau.stacks.forEach(stack => {
-      const card = dispatch(getRandomCard())
-      dispatch(appendCards(stack, [card]))
+    const cards = dispatch(getRandomCards(tableau.stacks.length))
+    tableau.stacks.forEach((stack, index) => {
+      dispatch(appendCards(stack, [cards[index]]))
     })
 
   }
@@ -219,8 +219,8 @@ export function clickTableau (stack: Stack, card?: StackCard): ThunkResult<void>
       } else if (card) {
         dispatch(checkpoint())
         dispatch(incrementScore(5))
-        const card = dispatch(getRandomCard())
-        dispatch(replaceTop(stack, card))
+        const card = dispatch(getRandomCards(1))
+        dispatch(replaceTop(stack, card[0]))
       }
       return
     }
@@ -264,11 +264,7 @@ export function clickStock (): ThunkResult<void> {
     if (left > 0) {
 
       dispatch(useStock(3))
-      dispatch(appendCards(waste_stack, [
-        dispatch(getRandomCard()),
-        dispatch(getRandomCard()),
-        dispatch(getRandomCard())
-      ]))
+      dispatch(appendCards(waste_stack, dispatch(getRandomCards(3))))
 
     } else if (stock_stack.cards.length > 0) {
 

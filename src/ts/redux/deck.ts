@@ -11,19 +11,24 @@ export type DeckStore = {
 
 const REMOVE_CARD = 'REMOVE_CARD'
 type REMOVE_CARD = typeof REMOVE_CARD
-type RemoveCardAction = {type: REMOVE_CARD, card: Card}
-export const removeCard = (card: Card): RemoveCardAction => ({type: REMOVE_CARD, card})
+type RemoveCardAction = {type: REMOVE_CARD, cards: Card[]}
+export const removeCards = (cards: Card[]): RemoveCardAction => ({type: REMOVE_CARD, cards})
 
 export type DeckActions = RemoveCardAction
 
-export const getRandomCard = (): ThunkResult<Card> => {
+export const getRandomCards = (count: Number): ThunkResult<Card[]> => {
   return (dispatch, getState) => {
 
     const current_deck = getDeck(getState())
-    const new_card = current_deck.cards[random(0, current_deck.cards.length - 1)]
+    const deck_cards = [...current_deck.cards]
+    const cards = []
+    for (let i = 0; i < count; i++) {
+      const index = random(0, deck_cards.length - 1)
+      cards.push(...deck_cards.splice(index, 1))
+    }
 
-    dispatch(removeCard(new_card))
-    return new_card
+    dispatch(removeCards(cards))
+    return cards
   }
 }
 
@@ -46,7 +51,7 @@ function deckReducer (
 
   if (action.type === REMOVE_CARD) {
     return {
-      cards: state.cards.filter(card => card !== action.card)
+      cards: state.cards.filter(card => action.cards.indexOf(card) === -1)
     }
   }
 
