@@ -9,6 +9,7 @@ import {StoreState, ThunkDispatch} from '../redux'
 import {Stack, StackCard, StackType, StackDirection} from '../lib/Stack'
 import {initialize, clickStock, clickTableau, clickWaste, clickFoundation, doubleClick} from '../redux/actions'
 import {WasteStore} from '../redux/waste'
+import {getWaste, getTableau, getFoundation, getStock, getScore} from '../redux/selectors'
 
 type ContainerConnectedProps = {
   tableau: Stack[],
@@ -127,17 +128,17 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
 }
 
 const selector = createSelector([
-  (state: StoreState) => state.tableau.stacks,
-  (state: StoreState) => state.foundation.stacks,
-  (state: StoreState) => state.stock.stack,
-  (state: StoreState) => state.waste,
-  (state: StoreState) => state.score.score
+  getTableau,
+  getFoundation,
+  getStock,
+  getWaste,
+  getScore
 ], (
-  tableau,
-  foundation,
-  stock,
+  {stacks: tableau},
+  {stacks: foundation},
+  {stack: stock},
   waste,
-  score
+  {score}
 ) => ({
   tableau,
   foundation,

@@ -1,13 +1,14 @@
 
 import {createSelector} from 'reselect'
 import Deck from '../lib/Deck'
-import {ThunkResult, StoreState} from './index'
+import {ThunkResult} from './index'
 import {useStock, addCardsToStock} from './stock'
 import {addCardsToWaste, recycleWaste} from './waste'
 import {StackCard, Stack, StackType} from '../lib/Stack'
 import {Card, ValueType} from '../lib/Card'
 import {equals, get_selection, movable_to_tableau, get_top_card, movable_to_foundation} from '../lib/util'
 import {incrementScore} from './score'
+import {getWaste, getTableau, getFoundation, getStock} from '../redux/selectors'
 
 export const INITIALIZE = 'INITIALIZE'
 export type INITIALIZE = typeof INITIALIZE
@@ -37,10 +38,19 @@ export type GlobalActions =
   ReplaceTopAction
 
 const getAllStacks = createSelector([
-  (state: StoreState) => state.foundation.stacks,
-  (state: StoreState) => state.waste.stacks,
-  (state: StoreState) => state.tableau.stacks
-], (foundation, waste, tableau) => [...foundation, ...waste, ...tableau])
+  getFoundation,
+  getWaste,
+  getTableau
+], (
+  {stacks: foundation},
+  {stacks: waste},
+  {stacks: tableau}
+) => [
+  ...foundation,
+  ...waste,
+  ...tableau
+])
+
 
 export const initialize = (): Initialize => ({type: INITIALIZE})
 
@@ -73,7 +83,7 @@ export function doubleClick (stack: Stack, stackCard?: StackCard): ThunkResult<v
       return
     }
 
-    const {foundation} = getState()
+    const foundation = getFoundation(getState())
 
     const foundation_stack = (
       card.value === ValueType.ace
@@ -208,10 +218,9 @@ export function clickTableau (stack: Stack, card?: StackCard): ThunkResult<void>
 export function clickStock (): ThunkResult<void> {
   return (dispatch, getState) => {
 
-    const {
-      stock: {stack: stock_stack, left},
-      waste: {stacks: [waste_stack]}
-    } = getState()
+    const state = getState()
+    const {stacks: [waste_stack]} = getWaste(state)
+    const {stack: stock_stack, left} = getStock(state)
 
     if (left > 0) {
 
