@@ -8,6 +8,7 @@ import {Card, ValueType} from '../lib/Card'
 import {equals, get_selection, movable_to_tableau, get_top_card, movable_to_foundation} from '../lib/util'
 import {incrementScore} from './score'
 import {getWaste, getTableau, getFoundation, getStock} from '../redux/selectors'
+import {checkpoint} from './undoable'
 import {getRandomCard} from './deck'
 import {appendCard} from './tableau'
 
@@ -111,6 +112,8 @@ export function doubleClick (stack: Stack, stackCard?: StackCard): ThunkResult<v
 
     if (movable_to_foundation(card, top_card)) {
 
+      dispatch(checkpoint())
+
       if (stack.type === StackType.waste) {
         dispatch(incrementScore(5))
       }
@@ -148,6 +151,8 @@ export function clickFoundation (stack: Stack, card?: StackCard): ThunkResult<vo
     const {card: selected_card, stack: from_stack} = selection
 
     if (movable_to_foundation(selected_card, top_card)) {
+
+      dispatch(checkpoint())
 
       if (from_stack.type === StackType.waste) {
         dispatch(incrementScore(5))
@@ -195,6 +200,7 @@ export function clickTableau (stack: Stack, card?: StackCard): ThunkResult<void>
       if (card && card.card) {
         dispatch(selectCard(stack, card))
       } else if (card) {
+        dispatch(checkpoint())
         dispatch(incrementScore(5))
         const card = dispatch(getRandomCard())
         dispatch(replaceTop(stack, card))
@@ -211,6 +217,8 @@ export function clickTableau (stack: Stack, card?: StackCard): ThunkResult<void>
     const {card: selected_card, stack: from_stack} = selection
 
     if (card === top_card && movable_to_tableau(selected_card, top_card)) {
+
+      dispatch(checkpoint())
 
       if (from_stack.type === StackType.waste) {
         dispatch(incrementScore(10))
@@ -233,6 +241,8 @@ export function clickStock (): ThunkResult<void> {
     const state = getState()
     const {stacks: [waste_stack]} = getWaste(state)
     const {stack: stock_stack, left} = getStock(state)
+
+    dispatch(checkpoint())
 
     if (left > 0) {
 

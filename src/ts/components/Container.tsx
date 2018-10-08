@@ -9,6 +9,7 @@ import {Stack, StackCard, StackType, StackDirection} from '../lib/Stack'
 import {initialize, clickStock, clickTableau, clickWaste, clickFoundation, doubleClick} from '../redux/actions'
 import {WasteStore} from '../redux/waste'
 import {getWaste, getTableau, getFoundation, getStock, getScore} from '../redux/selectors'
+import {undo, redo} from '../redux/undoable'
 
 type ContainerConnectedProps = {
   tableau: Stack[],
@@ -24,7 +25,9 @@ type ContainerActionProps = {
   handleTableauClick: (stack: Stack, card?: StackCard) => void,
   handleWasteClick: (stack: Stack, card?: StackCard) => void,
   handleFoundationClick: (stack: Stack, card?: StackCard) => void,
-  handleDoubleClick: (stack: Stack, card?: StackCard) => void
+  handleDoubleClick: (stack: Stack, card?: StackCard) => void,
+  handleUndo: () => void,
+  handleRedo: () => void
 }
 
 type ContainerProps = ContainerConnectedProps & ContainerActionProps
@@ -39,10 +42,28 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
     this.handleWasteClick = this.handleWasteClick.bind(this)
     this.handleFoundationClick = this.handleFoundationClick.bind(this)
     this.handleDoubleClick = this.handleDoubleClick.bind(this)
+    this.handleKeyDown = this.handleKeyDown.bind(this)
+  }
+
+  componentDidMount () {
+    document.addEventListener('keydown', this.handleKeyDown)
+  }
+
+  componentWillUnmount () {
+    document.removeEventListener('keydown', this.handleKeyDown)
   }
 
   handleNewGameClick () {
     this.props.handleNewGame()
+  }
+
+  handleKeyDown (e: KeyboardEvent) {
+    if (e.keyCode !== 90) { return }
+    if (e.ctrlKey && e.shiftKey) {
+      this.props.handleRedo()
+    } else if (e.ctrlKey) {
+      this.props.handleUndo()
+    }
   }
 
   handleStockClick (stack: Stack, card?: StackCard) {
@@ -151,7 +172,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch): ContainerActionProps => ({
   handleTableauClick: (stack, card) => dispatch(clickTableau(stack, card)),
   handleWasteClick: (stack, card) => dispatch(clickWaste(stack, card)),
   handleFoundationClick: (stack, card) => dispatch(clickFoundation(stack, card)),
-  handleDoubleClick: (stack, card) => dispatch(doubleClick(stack, card))
+  handleDoubleClick: (stack, card) => dispatch(doubleClick(stack, card)),
+  handleUndo: () => dispatch(undo()),
+  handleRedo: () => dispatch(redo())
 })
 
 const mapStateToProps = (state: StoreState): ContainerConnectedProps => selector(state)

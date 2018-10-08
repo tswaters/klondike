@@ -8,22 +8,24 @@ import waste, {WasteStore, WasteActions} from './waste'
 import stock, {StockStore, StockActions} from './stock'
 import score, {ScoreStore, ScoreActions} from './score'
 import deck, {DeckStore, DeckActions} from './deck'
+import {History, UndoableActions} from './undoable'
 
 export type StoreActions =
   GlobalActions |
   ScoreActions |
   WasteActions |
   StockActions |
+  UndoableActions |
   DeckActions |
   TableauActions
 
 export type StoreState = {
-  deck: DeckStore,
-  tableau: TableauStore,
-  foundation: FoundationStore,
-  waste: WasteStore,
-  stock: StockStore,
-  score: ScoreStore
+  deck: History<DeckStore>,
+  tableau: History<TableauStore>,
+  foundation: History<FoundationStore>,
+  waste: History<WasteStore>,
+  stock: History<StockStore>,
+  score: History<ScoreStore>
 }
 
 export type ThunkResult<R> = ThunkAction<R, StoreState, null, StoreActions>

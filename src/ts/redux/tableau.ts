@@ -23,7 +23,7 @@ export type TableauStore = {
 
 const initialState: TableauStore = {stacks: []}
 
-export default function tableauReducer (
+function tableauReducer (
   state: TableauStore = initialState,
   action: GlobalActions | TableauActions
 ): TableauStore {
@@ -91,3 +91,5 @@ export default function tableauReducer (
   return state
 
 }
+
+export default undoable(tableauReducer)

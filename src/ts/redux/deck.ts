@@ -1,5 +1,6 @@
 import {Card, Cards} from '../lib/Card'
 import {GlobalActions, INITIALIZE} from './actions'
+import {undoable} from './undoable'
 import {equals, random} from '../lib/util'
 import {ThunkResult} from '.'
 import {getDeck} from './selectors'
@@ -30,7 +31,7 @@ const initialState: DeckStore = {
   cards: []
 }
 
-export default function deckReducer (
+function deckReducer (
   state: DeckStore = initialState,
   action: DeckActions | GlobalActions
 ): DeckStore {
@@ -51,3 +52,5 @@ export default function deckReducer (
 
   return state
 }
+
+export default undoable(deckReducer)

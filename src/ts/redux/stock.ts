@@ -1,4 +1,5 @@
 
+import {undoable} from './undoable'
 import {INITIALIZE, GlobalActions} from './actions'
 import {Stack, StackCard, StackType} from '../lib/Stack'
 import {Card} from '../lib/Card'
@@ -28,7 +29,7 @@ export type StockStore = {
 
 const initialState: StockStore = {stack: {type: StackType.stock, cards: [{}]}, left: 24}
 
-export default function tableauReducer (
+function stockReducer (
   state: StockStore = initialState,
   action: StockActions | GlobalActions
 ): StockStore {
@@ -71,3 +72,5 @@ export default function tableauReducer (
   return state
 
 }
+
+export default undoable(stockReducer)

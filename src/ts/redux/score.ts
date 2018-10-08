@@ -1,5 +1,6 @@
 
 import {INITIALIZE, GlobalActions} from './actions'
+import {undoable} from './undoable'
 
 const INCREMENT_SCORE = 'INCREMENT_SCORE'
 type INCREMENT_SCORE = typeof INCREMENT_SCORE
@@ -21,7 +22,7 @@ export type ScoreActions = IncrementAction
 
 const initialState: ScoreStore = {score: 0}
 
-export default function scoreReducer (
+function scoreReducer (
   state: ScoreStore = initialState,
   action: IncrementAction | GlobalActions
 ): ScoreStore {
@@ -37,3 +38,5 @@ export default function scoreReducer (
   return state
 
 }
+
+export default undoable(scoreReducer)

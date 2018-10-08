@@ -3,6 +3,7 @@ import {INITIALIZE, GlobalActions, SELECT_CARD, DESELECT_CARD, MOVE_CARDS} from 
 import {select_card, deselect_card, move_cards} from '../lib/util'
 import {Stack, StackType} from '../lib/Stack'
 import {Card} from '../lib/Card'
+import {undoable} from './undoable'
 
 const RECYCLE_WASTE = 'RECYCLE_WASTE'
 type RECYCLE_WASTE = typeof RECYCLE_WASTE
@@ -23,7 +24,7 @@ export type WasteStore = {
 
 const initialState: WasteStore = {stacks: [{type: StackType.waste, cards: []}], showing: 0}
 
-export default function tableauReducer (
+function wasteReducer (
   state: WasteStore = initialState,
   action: WasteActions | GlobalActions
 ): WasteStore {
@@ -67,3 +68,5 @@ export default function tableauReducer (
   return state
 
 }
+
+export default undoable(wasteReducer)
