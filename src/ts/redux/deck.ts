@@ -1,7 +1,7 @@
 import {Card, Cards} from '../lib/Card'
 import {GlobalActions, INITIALIZE} from './actions'
 import {undoable} from './undoable'
-import {equals, random} from '../lib/util'
+import {random} from '../lib/util'
 import {ThunkResult} from '.'
 import {getDeck} from './selectors'
 
@@ -46,7 +46,7 @@ function deckReducer (
 
   if (action.type === REMOVE_CARD) {
     return {
-      cards: state.cards.filter(card => !equals(card, action.card))
+      cards: state.cards.filter(card => card !== action.card)
     }
   }
 

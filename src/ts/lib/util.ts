@@ -6,12 +6,8 @@ export const random = (min: number, max: number): number => {
   return Math.floor(Math.random() * max) + min
 }
 
-export function equals (card1: Card, card2: Card): boolean {
-  return card1.suit === card2.suit && card1.value === card2.value
-}
-
 function contains (stack: Stack, card: Card) {
-  return stack.cards.some((item: StackCard) => !!item.card && equals(item.card, card))
+  return stack.cards.some((item: StackCard) => !!item.card && item.card === card)
 }
 
 export function get_top_card (stack: Stack): StackCard | null {
@@ -38,7 +34,7 @@ export function select_card (stacks: Stack[], stackCard: StackCard): Stack[] {
       ...stack,
       cards: stack.cards.map(stackCard => {
         if (!stackCard.card) { return stackCard }
-        if (!equals(stackCard.card, card)) { return stackCard }
+        if (stackCard.card !== card) { return stackCard }
         return {...stackCard, selected: true}
       }),
       selection: card

@@ -4,7 +4,7 @@ import {ThunkResult} from './index'
 import {useStock} from './stock'
 import {StackCard, Stack, StackType} from '../lib/Stack'
 import {Card, ValueType} from '../lib/Card'
-import {equals, get_selection, movable_to_tableau, get_top_card, movable_to_foundation} from '../lib/util'
+import {get_selection, movable_to_tableau, get_top_card, movable_to_foundation} from '../lib/util'
 import {incrementScore} from './score'
 import {getWaste, getTableau, getFoundation, getStock} from '../redux/selectors'
 import {checkpoint} from './undoable'
@@ -85,7 +85,7 @@ const moveCards = (
 
   if (index == null) {
     if (from_card == null) { throw new Error('from card reqired when index not provided')}
-    index = from.cards.findIndex(card => !!card.card && equals(card.card, from_card))
+    index = from.cards.findIndex(card => !!card.card && card.card === from_card)
   }
 
   const cards = from.cards.slice(index)
