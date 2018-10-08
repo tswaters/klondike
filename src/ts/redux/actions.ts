@@ -1,8 +1,7 @@
 
 import {createSelector} from 'reselect'
 import {ThunkResult} from './index'
-import {useStock, addCardsToStock} from './stock'
-import {addCardsToWaste, recycleWaste} from './waste'
+import {useStock} from './stock'
 import {StackCard, Stack, StackType} from '../lib/Stack'
 import {Card, ValueType} from '../lib/Card'
 import {equals, get_selection, movable_to_tableau, get_top_card, movable_to_foundation} from '../lib/util'
@@ -10,7 +9,6 @@ import {incrementScore} from './score'
 import {getWaste, getTableau, getFoundation, getStock} from '../redux/selectors'
 import {checkpoint} from './undoable'
 import {getRandomCard} from './deck'
-import {appendCard} from './tableau'
 
 export const INITIALIZE = 'INITIALIZE'
 export type INITIALIZE = typeof INITIALIZE
@@ -32,12 +30,17 @@ export const REPLACE_TOP = 'REPLACE_TOP'
 type REPLACE_TOP = typeof REPLACE_TOP
 type ReplaceTopAction = {type: REPLACE_TOP, stack: Stack, card: Card}
 
+export const APPEND_CARDS = 'APPEND_CARDS'
+type APPEND_CARDS = typeof APPEND_CARDS
+type AppendCardAction = {type: APPEND_CARDS, stack: Stack, cards: Card[]}
+
 export type GlobalActions =
   Initialize |
   SelectAction |
   DeselectAction |
   MoveCardAction |
-  ReplaceTopAction
+  ReplaceTopAction |
+  AppendCardAction
 
 const getAllStacks = createSelector([
   getFoundation,
@@ -60,7 +63,7 @@ export function initialize(): ThunkResult<void> {
     const tableau = getTableau(getState())
     tableau.stacks.forEach(stack => {
       const card = dispatch(getRandomCard())
-      dispatch(appendCard({card}, stack))
+      dispatch(appendCards(stack, [card]))
     })
 
   }
@@ -70,9 +73,23 @@ const selectCard = (stack: Stack, card: StackCard): SelectAction => ({type: SELE
 
 const deselectCard = (): DeselectAction => ({type: DESELECT_CARD})
 
-const moveCards = (from: Stack, to: Stack, selectedCard: Card): MoveCardAction => {
-  const index = from.cards.findIndex(card => !!card.card && equals(card.card, selectedCard))
+const appendCards = (stack: Stack, cards: Card[]): AppendCardAction => ({type: APPEND_CARDS, cards, stack})
+
+const moveCards = (
+  from: Stack,
+  to: Stack,
+  from_card: Card | null = null,
+  index: number | null = null,
+  reverse: Boolean = false
+): MoveCardAction => {
+
+  if (index == null) {
+    if (from_card == null) { throw new Error('from card reqired when index not provided')}
+    index = from.cards.findIndex(card => !!card.card && equals(card.card, from_card))
+  }
+
   const cards = from.cards.slice(index)
+  if (reverse) { cards.reverse() }
   return {type: MOVE_CARDS, from, to, cards}
 }
 
@@ -240,43 +257,26 @@ export function clickStock (): ThunkResult<void> {
 
     const state = getState()
     const {stacks: [waste_stack]} = getWaste(state)
-    const {stack: stock_stack, left} = getStock(state)
+    const {stacks: [stock_stack], left} = getStock(state)
 
     dispatch(checkpoint())
 
     if (left > 0) {
 
-      // stock starts off with 0 cards and 24 "left"
-      // if we haven't finished drawing from left,
-      // choose random cards from the deck to add to waste.
-
-      const cards = []
-      for (let i = 0; i < 3; i++) {
-        cards.push(dispatch(getRandomCard()))
-      }
-
       dispatch(useStock(3))
-      dispatch(addCardsToWaste(cards))
+      dispatch(appendCards(waste_stack, [
+        dispatch(getRandomCard()),
+        dispatch(getRandomCard()),
+        dispatch(getRandomCard())
+      ]))
 
     } else if (stock_stack.cards.length > 0) {
 
-      // after recycling the waste, stock will now have cards
-      // `useStock` with 0 left will remove items off the top
-      // take those 3 items and add them to the waste pile
-      const cards_to_add = stock_stack.cards.slice(-3).map(x => x.card).filter(x => x != null).reverse() as Card[]
-
-      dispatch(useStock(3))
-      dispatch(addCardsToWaste(cards_to_add))
+      dispatch(moveCards(stock_stack, waste_stack, null, -3, true))
 
     } else {
 
-      // take all the cards in waste in add them to the stock
-      // recycling removes all items.
-
-      const cards_to_add = waste_stack.cards.map(x => x.card).filter(x => x != null).reverse() as Card[]
-
-      dispatch(addCardsToStock(cards_to_add))
-      dispatch(recycleWaste())
+      dispatch(moveCards(waste_stack, stock_stack, null, 0, true))
 
     }
 

@@ -79,6 +79,21 @@ export function move_cards (stacks: Stack[], from: Stack | null, to: Stack, card
   })
 }
 
+export function append_cards (stacks: Stack[], to: Stack, cards: Card[]) {
+  return stacks.map(stack => {
+    if (stack !== to) {
+      return stack
+    }
+    return {
+      ...stack,
+      cards: [
+        ...stack.cards,
+        ...cards.map(card => ({card}))
+      ]
+    }
+  })
+}
+
 export function movable_to_foundation (card1: Card, card2?: StackCard | null) {
 
   if (card2 == null) {

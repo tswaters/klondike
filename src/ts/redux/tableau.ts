@@ -1,21 +1,8 @@
 
-import {INITIALIZE, GlobalActions, SELECT_CARD, DESELECT_CARD, MOVE_CARDS, REPLACE_TOP} from './actions'
-import {Stack, StackType, StackCard} from '../lib/Stack'
-import {select_card, deselect_card, move_cards} from '../lib/util'
+import {INITIALIZE, GlobalActions, SELECT_CARD, DESELECT_CARD, MOVE_CARDS, REPLACE_TOP, APPEND_CARDS} from './actions'
+import {Stack, StackType} from '../lib/Stack'
+import {select_card, deselect_card, move_cards, append_cards} from '../lib/util'
 import {undoable} from './undoable'
-
-const APPEND_CARD = 'APPEND_CARD'
-type APPEND_CARD = typeof APPEND_CARD
-
-type AppendCardAction = {
-  type: APPEND_CARD,
-  stack: Stack,
-  card: StackCard
-}
-
-export const appendCard = (card: StackCard, stack: Stack): AppendCardAction => ({type: APPEND_CARD, card, stack})
-
-export type TableauActions = AppendCardAction
 
 export type TableauStore = {
   readonly stacks: Stack[]
@@ -25,7 +12,7 @@ const initialState: TableauStore = {stacks: []}
 
 function tableauReducer (
   state: TableauStore = initialState,
-  action: GlobalActions | TableauActions
+  action: GlobalActions
 ): TableauStore {
 
   if (action.type === INITIALIZE) {
@@ -42,19 +29,20 @@ function tableauReducer (
     return {stacks}
   }
 
-  if (action.type === SELECT_CARD) {
-    if (state.stacks.every(stack => stack !== action.stack)) { return state }
+  if (action.type === SELECT_CARD && state.stacks.some(stack => stack === action.stack)) {
     return {...state, stacks: select_card(state.stacks, action.card)}
   }
 
-  if (action.type === DESELECT_CARD) {
-    if (state.stacks.every(stack => stack.selection == null)) { return state }
+  if (action.type === DESELECT_CARD && state.stacks.some(stack => !!stack.selection)) {
     return {...state, stacks: deselect_card(state.stacks)}
   }
 
-  if (action.type === MOVE_CARDS) {
-    if (state.stacks.every(stack => [action.from, action.to].indexOf(stack) === -1)) { return state }
+  if (action.type === MOVE_CARDS && state.stacks.some(stack => [action.from, action.to].indexOf(stack) > -1)) {
     return {...state, stacks: move_cards(state.stacks, action.from, action.to, action.cards)}
+  }
+
+  if (action.type === APPEND_CARDS && state.stacks.some(stack => action.stack === stack)) {
+    return {...state, stacks: append_cards(state.stacks, action.stack, action.cards)}
   }
 
   if (action.type === REPLACE_TOP) {
@@ -73,20 +61,6 @@ function tableauReducer (
     }
   }
 
-  if (action.type === APPEND_CARD) {
-    return {
-      ...state,
-      stacks: state.stacks.map(stack => {
-        if (stack !== action.stack) {
-          return stack
-        }
-        return {
-          ...stack,
-          cards: [...stack.cards, action.card]
-        }
-      })
-    }
-  }
 
   return state
 

@@ -17,7 +17,8 @@ type StackOwnProps = {
   width: number,
   height: number,
   offset: number,
-  radius: number
+  radius: number,
+  left?: number
 }
 
 type StackConnectedProps = {
@@ -83,7 +84,7 @@ export class StackComponent extends React.PureComponent<StackProps> {
   }
 
   get cards () {
-    return this.props.hidden && this.props.stack.cards.length > 0
+    return this.props.hidden && (this.props.stack.cards.length > 0 || this.props.left && this.props.left > 0)
       ? [{}]
       : this.props.stack.cards.slice(-this.props.max)
   }

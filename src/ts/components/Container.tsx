@@ -10,11 +10,12 @@ import {initialize, clickStock, clickTableau, clickWaste, clickFoundation, doubl
 import {WasteStore} from '../redux/waste'
 import {getWaste, getTableau, getFoundation, getStock, getScore} from '../redux/selectors'
 import {undo, redo} from '../redux/undoable'
+import {StockStore} from '../redux/stock'
 
 type ContainerConnectedProps = {
   tableau: Stack[],
   foundation: Stack[],
-  stock: Stack,
+  stock: StockStore,
   waste: WasteStore,
   score: number
 }
@@ -100,10 +101,11 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
         </div>
         <div className={top}>
           <StackComponent
-            stack={this.props.stock}
+            stack={this.props.stock.stacks[0]}
             onClick={this.handleStockClick}
             direction={StackDirection.none}
             type={StackType.stock}
+            left={this.props.stock.left}
             hidden={true}
           />
           <StackComponent
@@ -155,7 +157,7 @@ const selector = createSelector([
 ], (
   {stacks: tableau},
   {stacks: foundation},
-  {stack: stock},
+  stock,
   waste,
   {score}
 ) => ({
