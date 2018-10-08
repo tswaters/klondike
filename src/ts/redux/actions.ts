@@ -212,11 +212,12 @@ export function clickTableau (stack: Stack, card?: StackCard): ThunkResult<void>
 
     const stacks = getAllStacks(getState())
     const selection = get_selection(stacks)
+    const top_card = get_top_card(stack)
 
     if (!selection) {
       if (card && card.card) {
         dispatch(selectCard(stack, card))
-      } else if (card) {
+      } else if (card && top_card && top_card.card == null) {
         dispatch(checkpoint())
         dispatch(incrementScore(5))
         const card = dispatch(getRandomCards(1))
@@ -230,7 +231,6 @@ export function clickTableau (stack: Stack, card?: StackCard): ThunkResult<void>
       return
     }
 
-    const top_card = get_top_card(stack)
     const {card: selected_card, stack: from_stack} = selection
 
     if (card === top_card && movable_to_tableau(selected_card, top_card)) {
