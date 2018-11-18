@@ -7,7 +7,7 @@ export const random = (min: number, max: number): number => {
 }
 
 function contains (stack: Stack, card: Card) {
-  return stack.cards.some((item: StackCard) => !!item.card && item.card === card)
+  return stack.cards.some((item: StackCard) => item.card === card)
 }
 
 export function get_top_card (stack: Stack): StackCard | null {
@@ -54,14 +54,14 @@ export function deselect_card (stacks: Stack[]): Stack[] {
   })
 }
 
-export function move_cards (stacks: Stack[], from: Stack | null, to: Stack, cards: StackCard[]): Stack[] {
+export function move_cards (stacks: Stack[], from: Stack, to: Stack, cards: StackCard[], hidden: boolean): Stack[] {
   return stacks.map(stack => {
     if (stack === to) {
       return {
         ...stack,
         cards: [
           ...stack.cards,
-          ...cards.map(card => ({ ...card, selected: false }) )
+          ...cards.map(card => ({ ...card, selected: false, hidden }) )
         ]
       }
     }
@@ -75,7 +75,7 @@ export function move_cards (stacks: Stack[], from: Stack | null, to: Stack, card
   })
 }
 
-export function append_cards (stacks: Stack[], to: Stack, cards: Card[]) {
+export function append_cards (stacks: Stack[], to: Stack, cards: StackCard[]) {
   return stacks.map(stack => {
     if (stack !== to) {
       return stack
@@ -84,7 +84,7 @@ export function append_cards (stacks: Stack[], to: Stack, cards: Card[]) {
       ...stack,
       cards: [
         ...stack.cards,
-        ...cards.map(card => ({card}))
+        ...cards
       ]
     }
   })

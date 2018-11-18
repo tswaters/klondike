@@ -34,7 +34,7 @@ function wasteReducer (
       showing: action.to === state.stacks[0]
         ? Math.min(state.stacks[0].cards.length + action.cards.length, 3)
         : Math.max(1, state.showing - 1),
-      stacks: move_cards(state.stacks, action.from, action.to, action.cards)
+      stacks: move_cards(state.stacks, action.from, action.to, action.cards, action.hidden)
     }
   }
 

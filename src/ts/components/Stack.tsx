@@ -17,8 +17,7 @@ type StackOwnProps = {
   width: number,
   height: number,
   offset: number,
-  radius: number,
-  left?: number
+  radius: number
 }
 
 type StackConnectedProps = {
@@ -84,9 +83,7 @@ export class StackComponent extends React.PureComponent<StackProps> {
   }
 
   get cards () {
-    return this.props.hidden && (this.props.stack.cards.length > 0 || this.props.left && this.props.left > 0)
-      ? [{}]
-      : this.props.stack.cards.slice(-this.props.max)
+    return this.props.stack.cards.slice(-this.props.max)
   }
 
   handleCanvasDoubleClick (evt: React.MouseEvent<Element>) {
@@ -199,12 +196,12 @@ export class StackComponent extends React.PureComponent<StackProps> {
 
   drawCard (ctx: CanvasRenderingContext2D, stack_card: StackCard, {x, y}: Point) {
 
-    const {card, selected} = stack_card
+    const {card, hidden, selected} = stack_card
 
     this.drawBoxRadius(ctx, {x, y})
     ctx.stroke()
 
-    if (!card) {
+    if (hidden) {
       ctx.fillStyle = '#0aa'
       ctx.fill()
       return

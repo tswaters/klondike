@@ -1,22 +1,23 @@
-import {Card, Cards} from '../lib/Card'
+import {Cards} from '../lib/Card'
 import {GlobalActions, INITIALIZE} from './actions'
 import {undoable} from './undoable'
 import {random} from '../lib/util'
 import {ThunkResult} from '.'
 import {getDeck} from './selectors'
+import {StackCard} from '../lib/Stack'
 
 export type DeckStore = {
-  readonly cards: Card[]
+  readonly cards: StackCard[]
 }
 
 const REMOVE_CARD = 'REMOVE_CARD'
 type REMOVE_CARD = typeof REMOVE_CARD
-type RemoveCardAction = {type: REMOVE_CARD, cards: Card[]}
-export const removeCards = (cards: Card[]): RemoveCardAction => ({type: REMOVE_CARD, cards})
+type RemoveCardAction = {type: REMOVE_CARD, cards: StackCard[]}
+export const removeCards = (cards: StackCard[]): RemoveCardAction => ({type: REMOVE_CARD, cards})
 
 export type DeckActions = RemoveCardAction
 
-export const getRandomCards = (count: Number): ThunkResult<Card[]> => {
+export const getRandomCards = (count: Number): ThunkResult<StackCard[]> => {
   return (dispatch, getState) => {
 
     const current_deck = getDeck(getState())
@@ -44,7 +45,7 @@ function deckReducer (
   if (action.type === INITIALIZE) {
     const cards = []
     for (const card of Cards) {
-      cards.push({...card})
+      cards.push({card: {...card}})
     }
     return {cards}
   }

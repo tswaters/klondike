@@ -2,7 +2,8 @@
 import {Card} from './Card'
 
 export type StackCard = {
-  card?: Card
+  card: Card
+  hidden?: boolean
   selected?: boolean
 }
 

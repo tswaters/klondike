@@ -107,8 +107,8 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
             onClick={this.handleStockClick}
             direction={StackDirection.none}
             type={StackType.stock}
-            left={this.props.stock.left}
             hidden={true}
+            max={1}
           />
           <StackComponent
             stack={this.props.waste.stacks[0]}
@@ -116,6 +116,7 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
             onDoubleClick={this.handleDoubleClick}
             direction={StackDirection.horizontal}
             type={StackType.waste}
+            hidden={false}
             max={this.props.waste.showing}
             offset={15}
           />

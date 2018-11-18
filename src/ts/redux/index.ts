@@ -5,7 +5,7 @@ import {GlobalActions} from './actions'
 import tableau, {TableauStore} from './tableau'
 import foundation, {FoundationStore} from './foundation'
 import waste, {WasteStore} from './waste'
-import stock, {StockStore, StockActions} from './stock'
+import stock, {StockStore} from './stock'
 import score, {ScoreStore, ScoreActions} from './score'
 import deck, {DeckStore, DeckActions} from './deck'
 import {History, UndoableActions} from './undoable'
@@ -13,7 +13,6 @@ import {History, UndoableActions} from './undoable'
 export type StoreActions =
   GlobalActions |
   ScoreActions |
-  StockActions |
   UndoableActions |
   DeckActions
 

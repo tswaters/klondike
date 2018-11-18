@@ -35,7 +35,7 @@ function foundationReducer (
   }
 
   if (action.type === MOVE_CARDS && state.stacks.some(stack => [action.from, action.to].indexOf(stack) > -1)) {
-    return {...state, stacks: move_cards(state.stacks, action.from, action.to, action.cards)}
+    return {...state, stacks: move_cards(state.stacks, action.from, action.to, action.cards, action.hidden)}
   }
 
   return state

@@ -1,5 +1,5 @@
 
-import {INITIALIZE, GlobalActions, SELECT_CARD, DESELECT_CARD, MOVE_CARDS, REPLACE_TOP, APPEND_CARDS} from './actions'
+import {INITIALIZE, GlobalActions, SELECT_CARD, DESELECT_CARD, MOVE_CARDS, REVEAL_TOP, APPEND_CARDS} from './actions'
 import {Stack, StackType} from '../lib/Stack'
 import {select_card, deselect_card, move_cards, append_cards} from '../lib/util'
 import {undoable} from './undoable'
@@ -8,7 +8,17 @@ export type TableauStore = {
   readonly stacks: Stack[]
 }
 
-const initialState: TableauStore = {stacks: []}
+const initialState: TableauStore = {
+  stacks: [
+    {type: StackType.tableau, cards: []},
+    {type: StackType.tableau, cards: []},
+    {type: StackType.tableau, cards: []},
+    {type: StackType.tableau, cards: []},
+    {type: StackType.tableau, cards: []},
+    {type: StackType.tableau, cards: []},
+    {type: StackType.tableau, cards: []}
+  ]
+}
 
 function tableauReducer (
   state: TableauStore = initialState,
@@ -16,17 +26,7 @@ function tableauReducer (
 ): TableauStore {
 
   if (action.type === INITIALIZE) {
-
-    const stacks: Stack[] = []
-    for (let i = 0; i <= 6; i++) {
-      const stack: Stack = {type: StackType.tableau, cards: []}
-      for (let j = 0; j < i; j++) {
-          stack.cards.push({})
-      }
-      stacks.push(stack)
-    }
-
-    return {stacks}
+    return {...initialState}
   }
 
   if (action.type === SELECT_CARD && state.stacks.some(stack => stack === action.stack)) {
@@ -38,14 +38,14 @@ function tableauReducer (
   }
 
   if (action.type === MOVE_CARDS && state.stacks.some(stack => [action.from, action.to].indexOf(stack) > -1)) {
-    return {...state, stacks: move_cards(state.stacks, action.from, action.to, action.cards)}
+    return {...state, stacks: move_cards(state.stacks, action.from, action.to, action.cards, action.hidden)}
   }
 
   if (action.type === APPEND_CARDS && state.stacks.some(stack => action.stack === stack)) {
     return {...state, stacks: append_cards(state.stacks, action.stack, action.cards)}
   }
 
-  if (action.type === REPLACE_TOP) {
+  if (action.type === REVEAL_TOP) {
     return {
       ...state,
       stacks: state.stacks.map(stack => {
@@ -54,7 +54,7 @@ function tableauReducer (
           ...stack,
           cards: stack.cards.map((card, index) => {
             if (index < stack.cards.length - 1) { return card }
-            return {card: action.card}
+            return {...card, hidden: false}
           })
         }
       })
