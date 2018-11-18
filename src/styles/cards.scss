@@ -22,6 +22,12 @@ $x-offset: $width + $stack-gutter;
   user-select: none;
 }
 
+.fireworks {
+  width: 100%;
+  height: $height + ($border-width * 2) + $y-offset + ($stack-gutter * 15);
+  position: absolute;
+}
+
 .top, .play, .stock, .waste, .foundation { position: absolute; }
 
 .tableau {

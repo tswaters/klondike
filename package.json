@@ -40,6 +40,7 @@
     "@types/redux-logger": "^3.0.6",
     "body-parser": "^1.18.3",
     "classnames": "^2.2.6",
+    "fireworks-canvas": "^2.2.4",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-redux": "^5.0.7",

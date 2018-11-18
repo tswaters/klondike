@@ -1,4 +1,5 @@
 export const container: string;
+export const fireworks: string;
 export const top: string;
 export const play: string;
 export const stock: string;
