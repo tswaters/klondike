@@ -134,7 +134,7 @@ export function doubleClick (stack: Stack, stackCard?: StackCard): ThunkResult<v
 
     const foundation = getFoundation(getState())
 
-    const foundation_stack = (
+    const foundation_stack =
       card.value === ValueType.ace
         ? foundation.stacks.find(stack => stack.cards.length === 0)
         : foundation.stacks.find(stack => {
@@ -143,8 +143,8 @@ export function doubleClick (stack: Stack, stackCard?: StackCard): ThunkResult<v
           if (first == null) { return false }
           return first.suit === card.suit
         })
-    ) as Stack
 
+    if (!foundation_stack) { return }
     const top_card = get_top_card(foundation_stack)
 
     if (movable_to_foundation(card, top_card)) {
