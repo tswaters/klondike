@@ -1,5 +1,5 @@
 import {Cards} from '../lib/Card'
-import {GlobalActions, INITIALIZE} from './actions'
+import {GlobalActions, INITIALIZE} from './globals'
 import {undoable} from './undoable'
 import {random} from '../lib/util'
 import {ThunkResult} from '.'

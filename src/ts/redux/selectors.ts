@@ -30,3 +30,17 @@ export const getDeck = createSelector(
   (state: StoreState) => state.deck.present,
   deck => deck
 )
+
+export const getAllStacks = createSelector([
+  getFoundation,
+  getWaste,
+  getTableau
+], (
+  {stacks: foundation},
+  {stacks: waste},
+  {stacks: tableau}
+) => [
+  ...foundation,
+  ...waste,
+  ...tableau
+])

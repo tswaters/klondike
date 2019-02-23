@@ -1,7 +1,7 @@
 
 import {combineReducers} from 'redux'
 import {ThunkAction, ThunkDispatch} from 'redux-thunk'
-import {GlobalActions} from './actions'
+import {GlobalActions} from './globals'
 import tableau, {TableauStore} from './tableau'
 import foundation, {FoundationStore} from './foundation'
 import waste, {WasteStore} from './waste'

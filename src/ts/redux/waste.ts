@@ -1,5 +1,5 @@
 
-import {INITIALIZE, GlobalActions, SELECT_CARD, DESELECT_CARD, MOVE_CARDS, APPEND_CARDS} from './actions'
+import {INITIALIZE, GlobalActions, SELECT_CARD, DESELECT_CARD, MOVE_CARDS, APPEND_CARDS} from './globals'
 import {select_card, deselect_card, move_cards, append_cards} from '../lib/util'
 import {Stack, StackType} from '../lib/Stack'
 import {undoable} from './undoable'

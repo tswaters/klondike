@@ -1,59 +1,13 @@
 
-import {createSelector} from 'reselect'
 import {ThunkResult} from './index'
 import {StackCard, Stack, StackType} from '../lib/Stack'
 import {Card, ValueType} from '../lib/Card'
 import {get_selection, movable_to_tableau, get_top_card, movable_to_foundation} from '../lib/util'
 import {incrementScore} from './score'
-import {getWaste, getTableau, getFoundation, getStock} from '../redux/selectors'
+import {getWaste, getTableau, getFoundation, getStock, getAllStacks} from '../redux/selectors'
 import {checkpoint} from './undoable'
 import {getRandomCards} from './deck'
-
-export const INITIALIZE = 'INITIALIZE'
-export type INITIALIZE = typeof INITIALIZE
-type Initialize = {type: INITIALIZE}
-
-export const SELECT_CARD = 'SELECT_CARD'
-type SELECT_CARD = typeof SELECT_CARD
-type SelectAction = {type: SELECT_CARD, stack: Stack, card: StackCard}
-
-export const DESELECT_CARD = 'DESELECT_CARD'
-type DESELECT_CARD = typeof DESELECT_CARD
-type DeselectAction = {type: DESELECT_CARD}
-
-export const MOVE_CARDS = 'MOVE_CARDS'
-type MOVE_CARDS = typeof MOVE_CARDS
-type MoveCardAction = {type: MOVE_CARDS, from: Stack, to: Stack, cards: StackCard[], hidden: boolean}
-
-export const REVEAL_TOP = 'REVEAL_TOP'
-type REVEAL_TOP = typeof REVEAL_TOP
-type RevealTopCardAction = {type: REVEAL_TOP, stack: Stack}
-
-export const APPEND_CARDS = 'APPEND_CARDS'
-type APPEND_CARDS = typeof APPEND_CARDS
-type AppendCardAction = {type: APPEND_CARDS, stack: Stack, cards: StackCard[]}
-
-export type GlobalActions =
-  Initialize |
-  SelectAction |
-  DeselectAction |
-  MoveCardAction |
-  RevealTopCardAction |
-  AppendCardAction
-
-const getAllStacks = createSelector([
-  getFoundation,
-  getWaste,
-  getTableau
-], (
-  {stacks: foundation},
-  {stacks: waste},
-  {stacks: tableau}
-) => [
-  ...foundation,
-  ...waste,
-  ...tableau
-])
+import { INITIALIZE, SelectAction, SELECT_CARD, DeselectAction, DESELECT_CARD, AppendCardAction, APPEND_CARDS, MoveCardAction, MOVE_CARDS, RevealTopCardAction, REVEAL_TOP } from './globals'
 
 export function initialize(): ThunkResult<void> {
   return (dispatch, getState) => {

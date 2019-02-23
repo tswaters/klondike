@@ -1,6 +1,6 @@
 
 import {Reducer, Action, AnyAction} from 'redux'
-import {INITIALIZE} from './actions'
+import {INITIALIZE} from './globals'
 
 export type History <State> = {
   past: State[],

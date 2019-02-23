@@ -1,5 +1,6 @@
 'use strict'
 
+const CircularDependencyPlugin = require('circular-dependency-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
@@ -44,6 +45,11 @@ module.exports = (env, argv) => {
   ]
 
   const plugins = [
+    new CircularDependencyPlugin({
+      failOnError: true,
+      allowAsyncCycles: false,
+      cwd: process.cwd(),
+    }),
     new MiniCssExtractPlugin({
       filename: `[name]${chunkhash}.css`,
       chunkFilename: `[id]${chunkhash}.css`

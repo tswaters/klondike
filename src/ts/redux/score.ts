@@ -1,5 +1,5 @@
 
-import {INITIALIZE, GlobalActions} from './actions'
+import {INITIALIZE, GlobalActions} from './globals'
 import {undoable} from './undoable'
 
 const INCREMENT_SCORE = 'INCREMENT_SCORE'

@@ -1,6 +1,6 @@
 
 import {undoable} from './undoable'
-import {INITIALIZE, GlobalActions, APPEND_CARDS, MOVE_CARDS} from './actions'
+import {INITIALIZE, GlobalActions, APPEND_CARDS, MOVE_CARDS} from './globals'
 import {Stack, StackType} from '../lib/Stack'
 import {append_cards, move_cards} from '../lib/util'
 
