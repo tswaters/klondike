@@ -6,6 +6,7 @@
     "prebuild": "rimraf dist",
     "build": "webpack --mode=production",
     "build:watch": "webpack --mode=development -w",
+    "format": "prettier --write **/*.{js,ts,tsx}",
     "lint": "npm run lint:ts && npm run lint:sass",
     "lint:ts": "tslint --project .",
     "lint:sass": "sass-lint -c .sass-lint.yml -v assets/sass/*.scss"
@@ -21,6 +22,7 @@
     "node-sass": "^4.9.3",
     "offline-plugin": "^5.0.5",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "prettier": "^1.16.4",
     "sass-lint": "^1.12.1",
     "sass-loader": "^6.0.7",
     "style-loader": "^0.18.2",

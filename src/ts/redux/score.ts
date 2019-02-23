@@ -1,42 +1,39 @@
-
-import {INITIALIZE, GlobalActions} from './globals'
-import {undoable} from './undoable'
+import { INITIALIZE, GlobalActions } from './globals'
+import { undoable } from './undoable'
 
 const INCREMENT_SCORE = 'INCREMENT_SCORE'
 type INCREMENT_SCORE = typeof INCREMENT_SCORE
 
 type IncrementAction = {
-  type: INCREMENT_SCORE,
+  type: INCREMENT_SCORE
   score: number
 }
 
-export function incrementScore (score: number): IncrementAction {
-  return {type: INCREMENT_SCORE, score}
+export function incrementScore(score: number): IncrementAction {
+  return { type: INCREMENT_SCORE, score }
 }
 
 export type ScoreStore = {
-  score: number
+  readonly score: number
 }
 
 export type ScoreActions = IncrementAction
 
-const initialState: ScoreStore = {score: 0}
+const initialState: ScoreStore = { score: 0 }
 
-function scoreReducer (
+function scoreReducer(
   state: ScoreStore = initialState,
-  action: IncrementAction | GlobalActions
+  action: ScoreActions | GlobalActions
 ): ScoreStore {
-
   if (action.type === INITIALIZE) {
-    return {score: 0}
+    return { score: 0 }
   }
 
   if (action.type === INCREMENT_SCORE) {
-    return {score: state.score + action.score}
+    return { score: state.score + action.score }
   }
 
   return state
-
 }
 
 export default undoable(scoreReducer)

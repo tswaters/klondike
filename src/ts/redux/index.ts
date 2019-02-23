@@ -1,27 +1,26 @@
-
-import {combineReducers} from 'redux'
-import {ThunkAction, ThunkDispatch} from 'redux-thunk'
-import {GlobalActions} from './globals'
-import tableau, {TableauStore} from './tableau'
-import foundation, {FoundationStore} from './foundation'
-import waste, {WasteStore} from './waste'
-import stock, {StockStore} from './stock'
-import score, {ScoreStore, ScoreActions} from './score'
-import deck, {DeckStore, DeckActions} from './deck'
-import {History, UndoableActions} from './undoable'
+import { combineReducers } from 'redux'
+import { ThunkAction, ThunkDispatch } from 'redux-thunk'
+import { GlobalActions } from './globals'
+import tableau, { TableauStore } from './tableau'
+import foundation, { FoundationStore } from './foundation'
+import waste, { WasteStore } from './waste'
+import stock, { StockStore } from './stock'
+import score, { ScoreStore, ScoreActions } from './score'
+import deck, { DeckStore, DeckActions } from './deck'
+import { History, UndoableActions } from './undoable'
 
 export type StoreActions =
-  GlobalActions |
-  ScoreActions |
-  UndoableActions |
-  DeckActions
+  | GlobalActions
+  | ScoreActions
+  | UndoableActions
+  | DeckActions
 
 export type StoreState = {
-  deck: History<DeckStore>,
-  tableau: History<TableauStore>,
-  foundation: History<FoundationStore>,
-  waste: History<WasteStore>,
-  stock: History<StockStore>,
+  deck: History<DeckStore>
+  tableau: History<TableauStore>
+  foundation: History<FoundationStore>
+  waste: History<WasteStore>
+  stock: History<StockStore>
   score: History<ScoreStore>
 }
 

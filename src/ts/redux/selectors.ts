@@ -1,5 +1,5 @@
-import {createSelector} from 'reselect'
-import {StoreState} from './index'
+import { createSelector } from 'reselect'
+import { StoreState } from './index'
 
 export const getFoundation = createSelector(
   (state: StoreState) => state.foundation.present,
@@ -31,16 +31,11 @@ export const getDeck = createSelector(
   deck => deck
 )
 
-export const getAllStacks = createSelector([
-  getFoundation,
-  getWaste,
-  getTableau
-], (
-  {stacks: foundation},
-  {stacks: waste},
-  {stacks: tableau}
-) => [
-  ...foundation,
-  ...waste,
-  ...tableau
-])
+export const getAllStacks = createSelector(
+  [getFoundation, getWaste, getTableau],
+  ({ stacks: foundation }, { stacks: waste }, { stacks: tableau }) => [
+    ...foundation,
+    ...waste,
+    ...tableau
+  ]
+)

@@ -1,11 +1,9 @@
-
-import {createStore, applyMiddleware} from 'redux'
+import { createStore, applyMiddleware } from 'redux'
 import thunk, { ThunkMiddleware } from 'redux-thunk'
-import {createLogger} from 'redux-logger'
-import reducer, {StoreState, StoreActions} from './redux'
+import { createLogger } from 'redux-logger'
+import reducer, { StoreState, StoreActions } from './redux'
 
-export default function configStore (state?: object) {
-
+export default function configStore(state?: object) {
   const middleware = []
 
   middleware.push(thunk as ThunkMiddleware<StoreState, StoreActions>)
@@ -14,9 +12,5 @@ export default function configStore (state?: object) {
     middleware.push(createLogger())
   }
 
-  return createStore(
-    reducer,
-    state!,
-    applyMiddleware(...middleware)
-  )
+  return createStore(reducer, state!, applyMiddleware(...middleware))
 }

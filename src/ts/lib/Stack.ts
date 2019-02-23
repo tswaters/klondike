@@ -1,5 +1,4 @@
-
-import {Card} from './Card'
+import { Card } from './Card'
 
 export type StackCard = {
   card: Card
@@ -21,7 +20,7 @@ export enum StackType {
 }
 
 export type Stack = {
-  cards: StackCard[],
-  selection?: Card,
+  cards: StackCard[]
+  selection?: Card
   type: StackType
 }

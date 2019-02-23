@@ -1,10 +1,5 @@
 import { Stack, StackCard } from '../lib/Stack'
 
-export enum ScoreType {
-  regular,
-  vegas
-}
-
 export const INITIALIZE = 'INITIALIZE'
 type INITIALIZE = typeof INITIALIZE
 export type Initialize = { type: INITIALIZE }
@@ -43,7 +38,6 @@ export const CHANGE_SCORE_TYPE = 'CHANGE_SCORE_TYPE'
 type CHANGE_SCORE_TYPE = typeof CHANGE_SCORE_TYPE
 export type ChangeScoreAction = {
   type: CHANGE_SCORE_TYPE
-  scoreType: ScoreType
 }
 
 export type GlobalActions =

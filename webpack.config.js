@@ -6,12 +6,11 @@ const TerserPlugin = require('terser-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const OfflinePlugin = require('offline-plugin')
-const {DefinePlugin} = require('webpack')
+const { DefinePlugin } = require('webpack')
 const path = require('path')
 const packageJson = require('./package.json')
 
 module.exports = (env, argv) => {
-
   const chunkhash = argv.mode === 'production' ? '.[chunkhash]' : ''
 
   const rules = [
@@ -21,26 +20,31 @@ module.exports = (env, argv) => {
     },
     {
       test: /\.scss$/,
-      use: [{
-        loader: MiniCssExtractPlugin.loader
-      }, {
-        loader: 'typings-for-css-modules-loader',
-        options: {
-          sourceMap: true,
-          importLoaders: 1,
-          modules: true,
-          namedExport: true,
-          camelCase: true,
-          localIdentName: argv.mode === 'production'
-            ? '[hash:base64:5]'
-            : '[path][name]__[local]--[hash:base64:5]'
+      use: [
+        {
+          loader: MiniCssExtractPlugin.loader
+        },
+        {
+          loader: 'typings-for-css-modules-loader',
+          options: {
+            sourceMap: true,
+            importLoaders: 1,
+            modules: true,
+            namedExport: true,
+            camelCase: true,
+            localIdentName:
+              argv.mode === 'production'
+                ? '[hash:base64:5]'
+                : '[path][name]__[local]--[hash:base64:5]'
+          }
+        },
+        {
+          loader: 'sass-loader',
+          options: {
+            sourceMap: true
+          }
         }
-      }, {
-        loader: 'sass-loader',
-        options: {
-          sourceMap: true
-        }
-      }]
+      ]
     }
   ]
 
@@ -48,7 +52,7 @@ module.exports = (env, argv) => {
     new CircularDependencyPlugin({
       failOnError: true,
       allowAsyncCycles: false,
-      cwd: process.cwd(),
+      cwd: process.cwd()
     }),
     new MiniCssExtractPlugin({
       filename: `[name]${chunkhash}.css`,
@@ -74,9 +78,7 @@ module.exports = (env, argv) => {
 
   return {
     name: 'klondike',
-    devtool: argv.mode === 'production'
-      ? 'source-map'
-      : 'eval-source-map',
+    devtool: argv.mode === 'production' ? 'source-map' : 'eval-source-map',
     entry: {
       klondike: './src/ts/index.tsx'
     },
@@ -90,19 +92,12 @@ module.exports = (env, argv) => {
         chunks: 'all'
       },
       minimizer: [
-        new TerserPlugin({sourceMap: true}),
+        new TerserPlugin({ sourceMap: true }),
         new OptimizeCSSAssetsPlugin({})
       ]
     },
     resolve: {
-      extensions: [
-        '.webpack.js',
-        '.web.js',
-        '.ts',
-        '.tsx',
-        '.js',
-        '.scss'
-      ]
+      extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.scss']
     },
     module: {
       rules

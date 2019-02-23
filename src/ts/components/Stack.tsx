@@ -1,27 +1,25 @@
-
 import * as React from 'react'
-import {stock, waste, tableau, foundation} from '../../styles/cards.scss'
-import {Stack, StackCard, StackType, StackDirection} from '../lib/Stack'
+import { stock, waste, tableau, foundation } from '../../styles/cards.scss'
+import { Stack, StackCard, StackType, StackDirection } from '../lib/Stack'
 
 type CardClickEvent = (stack: Stack, card: StackCard) => void
 
 type StackOwnProps = {
-  type: StackType,
-  direction: StackDirection,
-  children?: React.ReactNode,
-  stack: Stack,
-  onClick?: CardClickEvent,
+  type: StackType
+  direction: StackDirection
+  children?: React.ReactNode
+  stack: Stack
+  onClick?: CardClickEvent
   onDoubleClick?: CardClickEvent
-  max: number,
-  hidden: boolean,
-  width: number,
-  height: number,
-  offset: number,
+  max: number
+  hidden: boolean
+  width: number
+  height: number
+  offset: number
   radius: number
 }
 
-type StackConnectedProps = {
-}
+type StackConnectedProps = {}
 
 type StackProps = StackOwnProps & StackConnectedProps
 
@@ -31,7 +29,6 @@ type Point = {
 }
 
 export class StackComponent extends React.PureComponent<StackProps> {
-
   static defaultProps = {
     max: Infinity,
     hidden: false,
@@ -43,7 +40,7 @@ export class StackComponent extends React.PureComponent<StackProps> {
 
   private ref = React.createRef<HTMLCanvasElement>()
 
-  constructor (props: StackProps) {
+  constructor(props: StackProps) {
     super(props)
     this.handleCanvasClick = this.handleCanvasClick.bind(this)
     this.handleCanvasDoubleClick = this.handleCanvasDoubleClick.bind(this)
@@ -51,14 +48,18 @@ export class StackComponent extends React.PureComponent<StackProps> {
 
   get stack_style(): string {
     switch (this.props.type) {
-      case StackType.foundation: return foundation
-      case StackType.tableau: return tableau
-      case StackType.stock: return stock
-      case StackType.waste: return waste
+      case StackType.foundation:
+        return foundation
+      case StackType.tableau:
+        return tableau
+      case StackType.stock:
+        return stock
+      case StackType.waste:
+        return waste
     }
   }
 
-  get canvas_width () {
+  get canvas_width() {
     switch (this.props.direction) {
       case StackDirection.none:
       case StackDirection.vertical:
@@ -66,11 +67,11 @@ export class StackComponent extends React.PureComponent<StackProps> {
       case StackDirection.horizontal:
         return this.cards.length === 0
           ? this.props.height
-          : (this.props.offset * (this.cards.length - 1) + this.props.width)
+          : this.props.offset * (this.cards.length - 1) + this.props.width
     }
   }
 
-  get canvas_height () {
+  get canvas_height() {
     switch (this.props.direction) {
       case StackDirection.none:
       case StackDirection.horizontal:
@@ -82,56 +83,64 @@ export class StackComponent extends React.PureComponent<StackProps> {
     }
   }
 
-  get cards () {
+  get cards() {
     return this.props.stack.cards.slice(-this.props.max)
   }
 
-  handleCanvasDoubleClick (evt: React.MouseEvent<Element>) {
-    const {cards} = this
-    const {stack, offset, direction, onDoubleClick} = this.props
-    const {nativeEvent: e} = evt
-    if (!onDoubleClick) { return }
+  handleCanvasDoubleClick(evt: React.MouseEvent<Element>) {
+    const { cards } = this
+    const { stack, offset, direction, onDoubleClick } = this.props
+    const { nativeEvent: e } = evt
+    if (!onDoubleClick) {
+      return
+    }
 
     const prop = direction === StackDirection.horizontal ? 'offsetX' : 'offsetY'
     const index = Math.min(cards.length - 1, Math.floor(e[prop] / offset))
     onDoubleClick(stack, cards[index])
   }
 
-  handleCanvasClick (evt: React.MouseEvent<Element>) {
-    const {cards} = this
-    const {stack, offset, direction, onClick} = this.props
-    const {nativeEvent: e} = evt
-    if (!onClick) { return }
+  handleCanvasClick(evt: React.MouseEvent<Element>) {
+    const { cards } = this
+    const { stack, offset, direction, onClick } = this.props
+    const { nativeEvent: e } = evt
+    if (!onClick) {
+      return
+    }
 
     const prop = direction === StackDirection.horizontal ? 'offsetX' : 'offsetY'
     const index = Math.min(cards.length - 1, Math.floor(e[prop] / offset))
     onClick(stack, cards[index])
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.updateCanvas()
   }
 
-  componentDidUpdate () {
+  componentDidUpdate() {
     this.updateCanvas()
   }
 
-  updateCanvas () {
+  updateCanvas() {
     const canvas = this.ref.current
-    if (!canvas) { return }
+    if (!canvas) {
+      return
+    }
 
     const ctx = canvas.getContext('2d')
-    if (!ctx) { return }
+    if (!ctx) {
+      return
+    }
 
-    const {cards} = this
-    const {direction, offset} = this.props
+    const { cards } = this
+    const { direction, offset } = this.props
 
     ctx.save()
     ctx.translate(0.5, 0.5)
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     if (cards.length === 0) {
-      this.drawBoxRadius(ctx, {x: 0, y: 0})
+      this.drawBoxRadius(ctx, { x: 0, y: 0 })
       ctx.stroke()
     }
 
@@ -141,10 +150,10 @@ export class StackComponent extends React.PureComponent<StackProps> {
 
       if (i < cards.length - 1) {
         ctx.save()
-        this.drawClipRegion(ctx, {x, y})
+        this.drawClipRegion(ctx, { x, y })
       }
 
-      this.drawCard(ctx, cards[i], {x, y})
+      this.drawCard(ctx, cards[i], { x, y })
 
       if (i < cards.length - 1) {
         ctx.restore()
@@ -153,11 +162,11 @@ export class StackComponent extends React.PureComponent<StackProps> {
     ctx.restore()
   }
 
-  drawClipRegion (ctx: CanvasRenderingContext2D, {x, y}: Point) {
-
-    const {direction, radius, offset, width, height} = this.props
+  drawClipRegion(ctx: CanvasRenderingContext2D, { x, y }: Point) {
+    const { direction, radius, offset, width, height } = this.props
     const clip_width = direction === StackDirection.horizontal ? offset : width
-    const clip_height = direction === StackDirection.horizontal ? height : offset
+    const clip_height =
+      direction === StackDirection.horizontal ? height : offset
 
     ctx.beginPath()
     if (direction === StackDirection.horizontal) {
@@ -165,12 +174,22 @@ export class StackComponent extends React.PureComponent<StackProps> {
       ctx.lineTo(x + clip_width + radius, y)
       ctx.quadraticCurveTo(x + clip_width, y, x + clip_width, y + radius)
       ctx.lineTo(x + clip_width, y + clip_height - radius)
-      ctx.quadraticCurveTo(x + clip_width, y + clip_height, x + clip_width + radius, y + clip_height)
+      ctx.quadraticCurveTo(
+        x + clip_width,
+        y + clip_height,
+        x + clip_width + radius,
+        y + clip_height
+      )
       ctx.lineTo(x, y + clip_height)
     } else {
       ctx.moveTo(x + clip_width, y)
       ctx.lineTo(x + clip_width, y + clip_height + radius)
-      ctx.quadraticCurveTo(x + clip_width, y + clip_height, x + clip_width - radius, y + clip_height)
+      ctx.quadraticCurveTo(
+        x + clip_width,
+        y + clip_height,
+        x + clip_width - radius,
+        y + clip_height
+      )
       ctx.lineTo(x + radius, y + clip_height)
       ctx.quadraticCurveTo(x, y + clip_height, x, y + clip_height + radius)
       ctx.lineTo(x, y)
@@ -179,8 +198,8 @@ export class StackComponent extends React.PureComponent<StackProps> {
     ctx.clip()
   }
 
-  drawBoxRadius (ctx: CanvasRenderingContext2D, {x, y}: Point) {
-    const {radius, height, width} = this.props
+  drawBoxRadius(ctx: CanvasRenderingContext2D, { x, y }: Point) {
+    const { radius, height, width } = this.props
     ctx.beginPath()
     ctx.moveTo(x + radius, y)
     ctx.lineTo(x + width - radius, y)
@@ -194,11 +213,14 @@ export class StackComponent extends React.PureComponent<StackProps> {
     ctx.closePath()
   }
 
-  drawCard (ctx: CanvasRenderingContext2D, stack_card: StackCard, {x, y}: Point) {
+  drawCard(
+    ctx: CanvasRenderingContext2D,
+    stack_card: StackCard,
+    { x, y }: Point
+  ) {
+    const { card, hidden, selected } = stack_card
 
-    const {card, hidden, selected} = stack_card
-
-    this.drawBoxRadius(ctx, {x, y})
+    this.drawBoxRadius(ctx, { x, y })
     ctx.stroke()
 
     if (hidden) {
@@ -212,7 +234,7 @@ export class StackComponent extends React.PureComponent<StackProps> {
       ctx.fill()
     }
 
-    const {value, suit, drawing} = card
+    const { value, suit, drawing } = card
 
     ctx.fillStyle = drawing.color
     ctx.textAlign = 'center'
@@ -250,7 +272,7 @@ export class StackComponent extends React.PureComponent<StackProps> {
     }
   }
 
-  render () {
+  render() {
     return (
       <canvas
         onDoubleClick={this.handleCanvasDoubleClick}

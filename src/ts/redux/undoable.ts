@@ -1,44 +1,46 @@
+import { Reducer, Action, AnyAction } from 'redux'
+import { INITIALIZE } from './globals'
 
-import {Reducer, Action, AnyAction} from 'redux'
-import {INITIALIZE} from './globals'
-
-export type History <State> = {
-  past: State[],
-  present: State,
+export type History<State> = {
+  past: State[]
+  present: State
   future: State[]
 }
 
 const UNDO = 'UNDO'
 type UNDO = typeof UNDO
-type UndoAction = {type: UNDO}
-export const undo = (): UndoAction => ({type: UNDO})
+type UndoAction = { type: UNDO }
+export const undo = (): UndoAction => ({ type: UNDO })
 
 const REDO = 'REDO'
 type REDO = typeof REDO
-type RedoAction = {type: REDO}
-export const redo = (): RedoAction => ({type: REDO})
+type RedoAction = { type: REDO }
+export const redo = (): RedoAction => ({ type: REDO })
 
 const CHECKPOINT = 'CHECKPOINT'
 type CHECKPOINT = typeof CHECKPOINT
-type CheckpointAction = {type: CHECKPOINT}
-export const checkpoint = (): CheckpointAction => ({type: CHECKPOINT})
+type CheckpointAction = { type: CHECKPOINT }
+export const checkpoint = (): CheckpointAction => ({ type: CHECKPOINT })
 
 export type UndoableActions = UndoAction | RedoAction | CheckpointAction
 
-export function undoable <S, A extends AnyAction = Action>(reducer: Reducer<S, A>) {
-
+export function undoable<S, A extends AnyAction = Action>(
+  reducer: Reducer<S, A>
+) {
   const initialState: History<S> = {
     past: [],
     present: reducer(undefined, {} as A),
     future: []
   }
 
-  return function (state = initialState, action: A) {
-    const {past, present, future} = state
+  return function(state = initialState, action: A) {
+    const { past, present, future } = state
 
     if (action.type === UNDO) {
       const previous = past[past.length - 1]
-      if (!previous) { return state }
+      if (!previous) {
+        return state
+      }
 
       const newPast = past.slice(0, past.length - 1)
       return {
@@ -50,7 +52,9 @@ export function undoable <S, A extends AnyAction = Action>(reducer: Reducer<S, A
 
     if (action.type === REDO) {
       const next = future[0]
-      if (!next) { return state }
+      if (!next) {
+        return state
+      }
 
       const newFuture = future.slice(1)
       return {
