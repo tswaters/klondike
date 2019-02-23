@@ -28,7 +28,7 @@ type Position = {
   left: number
   top: number
   rotated: boolean
-  textAlign: string
+  textAlign: CanvasTextAlign
 }
 
 type Drawing = {
@@ -154,7 +154,7 @@ function getDrawing(suit: SuitType, value: ValueType): Drawing {
     }
   }
 
-  const getTextAlign = (x: xpos) => {
+  const getTextAlign = (x: xpos): CanvasTextAlign => {
     switch (x) {
       case 0:
         return 'left'
