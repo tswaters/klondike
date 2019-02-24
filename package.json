@@ -1,6 +1,6 @@
 {
   "name": "klondike",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "Simple solitaire game",
   "scripts": {
     "prebuild": "rimraf dist",
