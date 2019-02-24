@@ -4,7 +4,7 @@ import { GlobalActions } from './globals'
 import tableau, { TableauStore } from './tableau'
 import foundation, { FoundationStore } from './foundation'
 import waste, { WasteStore } from './waste'
-import stock, { StockStore } from './stock'
+import stock, { StockStore, StockActions } from './stock'
 import score, { ScoreStore, ScoreActions } from './score'
 import deck, { DeckStore, DeckActions } from './deck'
 import { History, UndoableActions } from './undoable'
@@ -14,6 +14,7 @@ export type StoreActions =
   | ScoreActions
   | UndoableActions
   | DeckActions
+  | StockActions
 
 export type StoreState = {
   deck: History<DeckStore>

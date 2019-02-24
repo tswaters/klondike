@@ -133,6 +133,7 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
             type={StackType.stock}
             hidden={true}
             max={1}
+            drawsLeft={this.props.stock.drawsLeft}
           />
           <StackComponent
             stack={this.props.waste.stacks[0]}

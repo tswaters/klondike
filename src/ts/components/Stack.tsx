@@ -17,6 +17,7 @@ type StackOwnProps = {
   height: number
   offset: number
   radius: number
+  drawsLeft?: number
 }
 
 type StackConnectedProps = {}
@@ -142,6 +143,16 @@ export class StackComponent extends React.PureComponent<StackProps> {
     if (cards.length === 0) {
       this.drawBoxRadius(ctx, { x: 0, y: 0 })
       ctx.stroke()
+
+      if (this.props.drawsLeft === 0) {
+        ctx.save()
+        ctx.font = '48px sans-serif'
+        ctx.fillStyle = 'red'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('X', this.props.width / 2, this.props.height / 2)
+        ctx.restore()
+      }
     }
 
     for (let i = 0; i < cards.length; i++) {

@@ -32,6 +32,7 @@ import {
   ScoringType,
   ScoreType
 } from './globals'
+import { decrementDraws } from './stock'
 
 export function initialize(newScoringType?: ScoringType): ThunkResult<void> {
   return (dispatch, getState) => {
@@ -278,8 +279,13 @@ export function clickStock(): ThunkResult<void> {
       stacks: [waste_stack]
     } = getWaste(state)
     const {
-      stacks: [stock_stack]
+      stacks: [stock_stack],
+      drawsLeft
     } = getStock(state)
+
+    if (stock_stack.cards.length === 0 && drawsLeft === 0) {
+      return
+    }
 
     dispatch(checkpoint())
     dispatch(deselectCard())
@@ -288,6 +294,7 @@ export function clickStock(): ThunkResult<void> {
       dispatch(moveCards(stock_stack, waste_stack, null, -3, true, false))
     } else {
       dispatch(moveCards(waste_stack, stock_stack, null, 0, true, true))
+      dispatch(decrementDraws())
     }
   }
 }
