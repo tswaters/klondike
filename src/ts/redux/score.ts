@@ -1,5 +1,6 @@
 import { INITIALIZE, GlobalActions, ScoreType, ScoringType } from './globals'
 import { undoable } from './undoable'
+import { getSavedScore } from '../lib/persist'
 
 const INCREMENT_SCORE = 'INCREMENT_SCORE'
 type INCREMENT_SCORE = typeof INCREMENT_SCORE
@@ -20,15 +21,18 @@ export type ScoreStore = {
 
 export type ScoreActions = IncrementAction
 
-const initialState: ScoreStore = { score: 0, scoringType: ScoringType.regular }
+const score = getSavedScore()
+const initialState: ScoreStore = { score, scoringType: ScoringType.regular }
 
 function scoreReducer(
   state: ScoreStore = initialState,
   action: ScoreActions | GlobalActions
 ): ScoreStore {
   if (action.type === INITIALIZE) {
+    const oldScore = getSavedScore()
+
     return {
-      score: action.scoringType === ScoringType.vegas ? state.score - 52 : 0,
+      score: action.scoringType === ScoringType.vegas ? oldScore - 52 : 0,
       scoringType: action.scoringType
     }
   }

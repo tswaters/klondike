@@ -2,6 +2,10 @@ import { createStore, applyMiddleware } from 'redux'
 import thunk, { ThunkMiddleware } from 'redux-thunk'
 import { createLogger } from 'redux-logger'
 import reducer, { StoreState, StoreActions } from './redux'
+import subscribe from 'redux-subscribe-reselect'
+import { ScoreStore } from './redux/score'
+import { getScore } from './redux/selectors'
+import { saveScore } from './lib/persist'
 
 export default function configStore(state?: object) {
   const middleware = []
@@ -12,5 +16,7 @@ export default function configStore(state?: object) {
     middleware.push(createLogger())
   }
 
-  return createStore(reducer, state!, applyMiddleware(...middleware))
+  const store = createStore(reducer, state!, applyMiddleware(...middleware))
+  subscribe(store, getScore, (score: ScoreStore) => saveScore(score))
+  return store
 }
