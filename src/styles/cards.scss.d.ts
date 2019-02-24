@@ -8,4 +8,5 @@ export const foundation: string
 export const tableau: string
 export const version: string
 export const newGame: string
+export const switchScoreType: string
 export const score: string

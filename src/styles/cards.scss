@@ -80,11 +80,15 @@ $x-offset: $width + $stack-gutter;
 }
 
 .new-game,
+.switch-score-type,
 .score {
   position: absolute;
 }
 .new-game {
   left: 0;
+}
+.switch-score-type {
+  left: 90px;
 }
 .score {
   right: 0;

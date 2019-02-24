@@ -9,7 +9,8 @@ import {
   play,
   newGame,
   score,
-  version
+  version,
+  switchScoreType
 } from '../../styles/cards.scss'
 import { StoreState, ThunkDispatch } from '../redux'
 import { Stack, StackCard, StackType, StackDirection } from '../lib/Stack'
@@ -31,17 +32,20 @@ import {
 } from '../redux/selectors'
 import { undo, redo } from '../redux/undoable'
 import { StockStore } from '../redux/stock'
+import { ScoreStore } from '../redux/score'
+import { ScoringType } from '../redux/globals'
 
 type ContainerConnectedProps = {
   tableau: Stack[]
   foundation: Stack[]
   stock: StockStore
   waste: WasteStore
-  score: number
+  score: ScoreStore
 }
 
 type ContainerActionProps = {
   handleNewGame: () => void
+  handleSwitchGameType: (newScoringType: ScoringType) => void
   handleStockClick: (stack: Stack, card?: StackCard) => void
   handleTableauClick: (stack: Stack, card?: StackCard) => void
   handleWasteClick: (stack: Stack, card?: StackCard) => void
@@ -63,6 +67,7 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
     this.handleFoundationClick = this.handleFoundationClick.bind(this)
     this.handleDoubleClick = this.handleDoubleClick.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
+    this.handleSwitchGameTypeClick = this.handleSwitchGameTypeClick.bind(this)
   }
 
   componentDidMount() {
@@ -75,6 +80,10 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
 
   handleNewGameClick() {
     this.props.handleNewGame()
+  }
+
+  handleSwitchGameTypeClick() {
+    this.props.handleSwitchGameType(this.otherGameType)
   }
 
   handleKeyDown(e: KeyboardEvent) {
@@ -108,6 +117,12 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
     this.props.handleDoubleClick(stack, card)
   }
 
+  get otherGameType() {
+    return this.props.score.scoringType === ScoringType.vegas
+      ? ScoringType.regular
+      : ScoringType.vegas
+  }
+
   render() {
     return (
       <div className={container}>
@@ -120,9 +135,17 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
           >
             {'New Game'}
           </button>
+          <button
+            id="change-type"
+            className={switchScoreType}
+            onClick={this.handleSwitchGameTypeClick}
+          >
+            {' Switch to '}
+            {ScoringType[this.otherGameType]}
+          </button>
           <label id="score" className={score}>
             {'Score: '}
-            {this.props.score}
+            {this.props.score.score}
           </label>
         </div>
         <div className={top}>
@@ -176,7 +199,7 @@ class ContainerComponent extends React.PureComponent<ContainerProps> {
 
 const selector = createSelector(
   [getTableau, getFoundation, getStock, getWaste, getScore],
-  ({ stacks: tableau }, { stacks: foundation }, stock, waste, { score }) => ({
+  ({ stacks: tableau }, { stacks: foundation }, stock, waste, score) => ({
     tableau,
     foundation,
     stock,
@@ -187,6 +210,7 @@ const selector = createSelector(
 
 const mapDispatchToProps = (dispatch: ThunkDispatch): ContainerActionProps => ({
   handleNewGame: () => dispatch(initialize()),
+  handleSwitchGameType: newGameType => dispatch(initialize(newGameType)),
   handleStockClick: () => dispatch(clickStock()),
   handleTableauClick: (stack, card) => dispatch(clickTableau(stack, card)),
   handleWasteClick: (stack, card) => dispatch(clickWaste(stack, card)),
