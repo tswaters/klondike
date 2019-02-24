@@ -28,12 +28,19 @@ import {
   DeselectAction,
   MoveCardAction,
   RevealTopCardAction,
-  SelectAction
+  SelectAction,
+  ScoringType,
+  ScoreType
 } from './globals'
 
-export function initialize(): ThunkResult<void> {
+export function initialize(newScoringType?: ScoringType): ThunkResult<void> {
   return (dispatch, getState) => {
-    dispatch({ type: INITIALIZE })
+    let scoringType = newScoringType
+    if (scoringType == null) {
+      scoringType = getState().score.present.scoringType
+    }
+
+    dispatch({ type: INITIALIZE, scoringType })
 
     const stock = getStock(getState())
 
@@ -146,11 +153,11 @@ export function doubleClick(
       dispatch(checkpoint())
 
       if (stack.type === StackType.waste) {
-        dispatch(incrementScore(5))
+        dispatch(incrementScore(ScoreType.wasteToFoundation))
       }
 
       if (stack.type === StackType.tableau) {
-        dispatch(incrementScore(10))
+        dispatch(incrementScore(ScoreType.tableauToFoundation))
       }
 
       dispatch(moveCards(stack, foundation_stack, card))
@@ -186,11 +193,11 @@ export function clickFoundation(
       dispatch(checkpoint())
 
       if (from_stack.type === StackType.waste) {
-        dispatch(incrementScore(5))
+        dispatch(incrementScore(ScoreType.wasteToFoundation))
       }
 
       if (from_stack.type === StackType.tableau) {
-        dispatch(incrementScore(10))
+        dispatch(incrementScore(ScoreType.tableauToFoundation))
       }
 
       dispatch(moveCards(from_stack, stack, selected_card))
@@ -234,7 +241,7 @@ export function clickTableau(
         dispatch(selectCard(stack, card))
       } else if (card && top_card && top_card.hidden === true) {
         dispatch(checkpoint())
-        dispatch(incrementScore(5))
+        dispatch(incrementScore(ScoreType.revealCard))
         dispatch(reveal(stack))
       }
       return
@@ -251,11 +258,11 @@ export function clickTableau(
       dispatch(checkpoint())
 
       if (from_stack.type === StackType.waste) {
-        dispatch(incrementScore(10))
+        dispatch(incrementScore(ScoreType.wasteToTableau))
       }
 
       if (from_stack.type === StackType.foundation) {
-        dispatch(incrementScore(-10))
+        dispatch(incrementScore(ScoreType.foundationToTableau))
       }
 
       dispatch(moveCards(from_stack, stack, selected_card))

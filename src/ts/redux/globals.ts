@@ -1,8 +1,21 @@
 import { Stack, StackCard } from '../lib/Stack'
 
+export enum ScoringType {
+  vegas,
+  regular
+}
+
+export enum ScoreType {
+  wasteToTableau,
+  wasteToFoundation,
+  tableauToFoundation,
+  revealCard,
+  foundationToTableau
+}
+
 export const INITIALIZE = 'INITIALIZE'
 type INITIALIZE = typeof INITIALIZE
-export type Initialize = { type: INITIALIZE }
+export type Initialize = { type: INITIALIZE; scoringType: ScoringType }
 
 export const SELECT_CARD = 'SELECT_CARD'
 type SELECT_CARD = typeof SELECT_CARD
