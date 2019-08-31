@@ -51,7 +51,8 @@ class Fireworks extends React.PureComponent<FireworksProps> {
   }
 
   render() {
-    return <div className={fireworks} ref={this.ref} />
+    const display = this.props.active ? '' : 'none'
+    return <div style={{ display }} className={fireworks} ref={this.ref} />
   }
 }
 
