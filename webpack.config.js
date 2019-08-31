@@ -25,18 +25,22 @@ module.exports = (env, argv) => {
           loader: MiniCssExtractPlugin.loader
         },
         {
-          loader: 'typings-for-css-modules-loader',
+          loader: 'css-loader',
           options: {
             sourceMap: true,
             importLoaders: 1,
-            modules: true,
-            namedExport: true,
-            camelCase: true,
-            localIdentName:
-              argv.mode === 'production'
-                ? '[hash:base64:5]'
-                : '[path][name]__[local]--[hash:base64:5]'
+            localsConvention: 'camelCase',
+            modules: {
+              localIdentName:
+                argv.mode === 'production'
+                  ? '[hash:base64:5]'
+                  : '[path][name]__[local]--[hash:base64:5]'
+            }
           }
+        },
+        {
+          loader: '@teamsupercell/typings-for-css-modules-loader',
+          options: {}
         },
         {
           loader: 'sass-loader',
