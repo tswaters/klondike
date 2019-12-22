@@ -153,5 +153,5 @@ function valueToInt(value: ValueType): number {
   if (value === ValueType.king) {
     return 13
   }
-  return parseInt(value)
+  return parseInt(value, 10)
 }
