@@ -7,31 +7,36 @@
     "build": "webpack",
     "format": "prettier --write **/*.{js,ts,tsx,scss}",
     "lint": "npm run lint:ts && npm run lint:sass",
-    "lint:ts": "tslint --project .",
-    "lint:sass": "sass-lint -c .sass-lint.yml -v assets/sass/*.scss",
+    "lint:ts": "eslint .",
+    "lint:sass": "stylelint \"src/styles/*.scss\"",
     "start": "npm run build -- --mode=development -w"
   },
   "author": "Tyler Waters <tyler.waters@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@teamsupercell/typings-for-css-modules-loader": "^2.1.0",
+    "@typescript-eslint/eslint-plugin": "^2.12.0",
+    "@typescript-eslint/parser": "^2.12.0",
     "awesome-typescript-loader": "^5.2.1",
     "circular-dependency-plugin": "^5.2.0",
     "css-loader": "^3.4.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-react": "^7.17.0",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.9.0",
-    "node-sass": "^4.13.0",
     "offline-plugin": "^5.0.7",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "prettier": "^1.19.1",
-    "sass-lint": "^1.13.1",
+    "sass": "^1.24.0",
     "sass-loader": "^8.0.0",
     "style-loader": "^1.1.1",
+    "stylelint": "^12.0.0",
+    "stylelint-config-sass-guidelines": "^6.2.0",
+    "stylelint-config-standard": "^19.0.0",
+    "stylelint-scss": "^3.13.0",
     "terser-webpack-plugin": "^2.3.1",
-    "tslint": "^5.20.1",
-    "tslint-react": "^4.1.0",
     "typescript": "^3.7.4",
-    "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.41.4",
     "webpack-cli": "^3.3.10"
   },
@@ -51,5 +56,91 @@
     "redux-subscribe-reselect": "^2.0.1",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0"
+  },
+  "eslintIgnore": [
+    "dist",
+    "node_modules"
+  ],
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "eslint:recommended"
+    ],
+    "env": {
+      "es6": true,
+      "browser": true
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/*.ts",
+          "**/*.tsx"
+        ],
+        "parser": "@typescript-eslint/parser",
+        "plugins": [
+          "@typescript-eslint"
+        ],
+        "parserOptions": {
+          "sourceType": "module",
+          "ecmaVersion": 2019,
+          "ecmaFeatures": {
+            "jsx": true
+          },
+          "project": "./tsconfig.json"
+        },
+        "extends": [
+          "plugin:@typescript-eslint/eslint-recommended",
+          "plugin:@typescript-eslint/recommended",
+          "plugin:@typescript-eslint/recommended-requiring-type-checking"
+        ]
+      },
+      {
+        "files": "webpack.config.js",
+        "parserOptions": {
+          "sourceType": "script"
+        },
+        "env": {
+          "node": true
+        },
+        "rules": {
+          "@typescript-eslint/*": "off"
+        }
+      }
+    ]
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
+  "stylelint": {
+    "extends": [
+      "stylelint-config-standard",
+      "stylelint-config-sass-guidelines"
+    ],
+    "plugins": [
+      "stylelint-scss"
+    ],
+    "rules": {
+      "order/properties-alphabetical-order": null,
+      "selector-pseudo-class-no-unknown": [
+        true,
+        {
+          "ignorePseudoClasses": [
+            "global"
+          ]
+        }
+      ],
+      "rule-empty-line-before": [
+        "always",
+        {
+          "ignore": [
+            "inside-block"
+          ]
+        }
+      ],
+      "declaration-empty-line-before": [
+        "never"
+      ]
+    }
   }
 }

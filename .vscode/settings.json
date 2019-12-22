@@ -11,8 +11,6 @@
     "**/node_modules": true,
     "reports": true
   },
-  "tslint.enable": true,
   "eslint.enable": true,
-  "scss.validate": false,
   "editor.formatOnSave": true
 }
