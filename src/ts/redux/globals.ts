@@ -1,4 +1,10 @@
 import { Stack, StackCard } from '../lib/Stack'
+import {
+  deselect_card,
+  move_cards,
+  append_cards,
+  select_card
+} from '../lib/util'
 
 export enum ScoringType {
   vegas,
@@ -46,6 +52,39 @@ export type AppendCardAction = {
   stack: Stack
   cards: StackCard[]
 }
+
+export type StackLike = {
+  readonly stacks: Stack[]
+}
+
+export const selectCard = <S extends StackLike>(
+  state: S,
+  action: SelectAction
+) =>
+  state.stacks.some(stack => stack === action.stack)
+    ? { ...state, stacks: select_card(state.stacks, action) }
+    : state
+
+export const deselectCard = <S extends StackLike>(state: S) =>
+  state.stacks.some(stack => !!stack.selection)
+    ? { ...state, stacks: deselect_card(state.stacks) }
+    : state
+
+export const moveCards = <S extends StackLike>(
+  state: S,
+  action: MoveCardAction
+) =>
+  state.stacks.some(stack => [action.from, action.to].indexOf(stack) > -1)
+    ? { ...state, stacks: move_cards(state.stacks, action) }
+    : state
+
+export const appendCards = <S extends StackLike>(
+  state: S,
+  action: AppendCardAction
+) =>
+  state.stacks.some(stack => action.stack === stack)
+    ? { ...state, stacks: append_cards(state.stacks, action) }
+    : state
 
 export const CHANGE_SCORE_TYPE = 'CHANGE_SCORE_TYPE'
 type CHANGE_SCORE_TYPE = typeof CHANGE_SCORE_TYPE

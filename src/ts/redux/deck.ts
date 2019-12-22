@@ -7,7 +7,7 @@ import { getDeck } from './selectors'
 import { StackCard } from '../lib/Stack'
 
 export type DeckStore = {
-  readonly cards: StackCard[]
+  readonly deck: StackCard[]
 }
 
 const REMOVE_CARD = 'REMOVE_CARD'
@@ -22,12 +22,15 @@ export type DeckActions = RemoveCardAction
 
 export const getRandomCards = (count: Number): ThunkResult<StackCard[]> => {
   return (dispatch, getState) => {
-    const current_deck = getDeck(getState())
-    const deck_cards = [...current_deck.cards]
+    const { deck } = getDeck(getState())
+    const deck_cards = [...deck]
     const cards = []
     for (let i = 0; i < count; i++) {
       const index = random(0, deck_cards.length)
       cards.push(...deck_cards.splice(index, 1))
+      // splicing here for perf considerations
+      // we're removing cars as they are chosen & do 1 dispatch to `removeCarts` with all that were chosen.
+      // doing it in an immutable style would require a dispatch for each card
     }
 
     dispatch(removeCards(cards))
@@ -36,7 +39,7 @@ export const getRandomCards = (count: Number): ThunkResult<StackCard[]> => {
 }
 
 const initialState: DeckStore = {
-  cards: []
+  deck: []
 }
 
 function deckReducer(
@@ -44,16 +47,16 @@ function deckReducer(
   action: DeckActions | GlobalActions
 ): DeckStore {
   if (action.type === INITIALIZE) {
-    const cards = []
+    const deck = []
     for (const card of Cards) {
-      cards.push({ card: { ...card } })
+      deck.push({ card: { ...card } })
     }
-    return { cards }
+    return { deck }
   }
 
   if (action.type === REMOVE_CARD) {
     return {
-      cards: state.cards.filter(card => action.cards.indexOf(card) === -1)
+      deck: state.deck.filter(card => action.cards.indexOf(card) === -1)
     }
   }
 

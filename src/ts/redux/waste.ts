@@ -1,10 +1,4 @@
-import {
-  select_card,
-  deselect_card,
-  move_cards,
-  append_cards
-} from '../lib/util'
-import { Stack, StackType } from '../lib/Stack'
+import { StackType } from '../lib/Stack'
 import { undoable } from './undoable'
 import {
   GlobalActions,
@@ -12,11 +6,16 @@ import {
   SELECT_CARD,
   DESELECT_CARD,
   MOVE_CARDS,
-  APPEND_CARDS
+  APPEND_CARDS,
+  selectCard,
+  deselectCard,
+  appendCards,
+  StackLike,
+  MoveCardAction
 } from './globals'
+import { move_cards } from '../lib/util'
 
-export type WasteStore = {
-  readonly stacks: Stack[] // this is an array for consistency with other stores
+export type WasteStore = StackLike & {
   readonly showing: number
 }
 
@@ -25,62 +24,34 @@ const initialState: WasteStore = {
   showing: 0
 }
 
+const reducers: {
+  [key: string]: (state: WasteStore, action: GlobalActions) => WasteStore
+} = {
+  [INITIALIZE]: () => ({ ...initialState }),
+  [SELECT_CARD]: selectCard,
+  [DESELECT_CARD]: deselectCard,
+  [MOVE_CARDS]: (state, action: MoveCardAction) =>
+    state.stacks.some(stack => [action.from, action.to].indexOf(stack) > -1)
+      ? {
+          ...state,
+          showing:
+            action.to === state.stacks[0]
+              ? Math.min(state.stacks[0].cards.length + action.cards.length, 3)
+              : Math.max(1, state.showing - 1),
+          stacks: move_cards(state.stacks, action)
+        }
+      : state,
+  [APPEND_CARDS]: appendCards
+}
+
 function wasteReducer(
   state: WasteStore = initialState,
   action: GlobalActions
 ): WasteStore {
-  if (action.type === INITIALIZE) {
-    return { ...initialState }
+  const reducer = reducers[action.type]
+  if (reducer != null) {
+    return reducer(state, action)
   }
-
-  if (
-    action.type === SELECT_CARD &&
-    state.stacks.some(stack => stack === action.stack)
-  ) {
-    return { ...state, stacks: select_card(state.stacks, action.card) }
-  }
-
-  if (
-    action.type === DESELECT_CARD &&
-    state.stacks.some(stack => !!stack.selection)
-  ) {
-    return { ...state, stacks: deselect_card(state.stacks) }
-  }
-
-  if (
-    action.type === MOVE_CARDS &&
-    state.stacks.some(stack => [action.from, action.to].indexOf(stack) > -1)
-  ) {
-    return {
-      ...state,
-      showing:
-        action.to === state.stacks[0]
-          ? Math.min(state.stacks[0].cards.length + action.cards.length, 3)
-          : Math.max(1, state.showing - 1),
-      stacks: move_cards(
-        state.stacks,
-        action.from,
-        action.to,
-        action.cards,
-        action.hidden
-      )
-    }
-  }
-
-  if (
-    action.type === APPEND_CARDS &&
-    state.stacks.some(stack => action.stack === stack)
-  ) {
-    return {
-      ...state,
-      showing:
-        action.stack === state.stacks[0]
-          ? Math.min(state.stacks[0].cards.length + action.cards.length, 3)
-          : Math.max(1, state.showing - 1),
-      stacks: append_cards(state.stacks, action.stack, action.cards)
-    }
-  }
-
   return state
 }
 

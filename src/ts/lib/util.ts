@@ -1,5 +1,10 @@
 import { Card, ValueType } from './Card'
 import { Stack, StackCard } from './Stack'
+import {
+  MoveCardAction,
+  AppendCardAction,
+  SelectAction
+} from '../redux/globals'
 
 export const random = (min: number, max: number): number => {
   return Math.floor(Math.random() * max) + min
@@ -26,7 +31,10 @@ export function get_selection(
   return null
 }
 
-export function select_card(stacks: Stack[], stackCard: StackCard): Stack[] {
+export function select_card(
+  stacks: Stack[],
+  { card: stackCard }: SelectAction
+): Stack[] {
   const card = stackCard.card
   if (card == null) {
     return stacks
@@ -69,10 +77,7 @@ export function deselect_card(stacks: Stack[]): Stack[] {
 
 export function move_cards(
   stacks: Stack[],
-  from: Stack,
-  to: Stack,
-  cards: StackCard[],
-  hidden: boolean
+  { from, to, cards, hidden }: MoveCardAction
 ): Stack[] {
   return stacks.map(stack => {
     if (stack === to) {
@@ -94,16 +99,18 @@ export function move_cards(
   })
 }
 
-export function append_cards(stacks: Stack[], to: Stack, cards: StackCard[]) {
-  return stacks.map(stack => {
-    if (stack !== to) {
-      return stack
-    }
-    return {
-      ...stack,
-      cards: [...stack.cards, ...cards]
-    }
-  })
+export function append_cards(
+  stacks: Stack[],
+  { stack, cards }: AppendCardAction
+) {
+  return stacks.map(existingStack =>
+    existingStack !== stack
+      ? existingStack
+      : {
+          ...existingStack,
+          cards: [...existingStack.cards, ...cards]
+        }
+  )
 }
 
 export function movable_to_foundation(card1: Card, card2?: StackCard | null) {
