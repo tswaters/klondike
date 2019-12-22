@@ -26,7 +26,7 @@ export const getRandomCards = (count: Number): ThunkResult<StackCard[]> => {
     const deck_cards = [...current_deck.cards]
     const cards = []
     for (let i = 0; i < count; i++) {
-      const index = random(0, deck_cards.length - 1)
+      const index = random(0, deck_cards.length)
       cards.push(...deck_cards.splice(index, 1))
     }
 
