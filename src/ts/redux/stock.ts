@@ -53,10 +53,10 @@ const reducers: {
   [MOVE_CARDS]: moveCards
 }
 
-function stockReducer(
+const stockReducer = (
   state: StockStore = initialState,
   action: GlobalActions | StockActions
-): StockStore {
+): StockStore => {
   const reducer = reducers[action.type]
   if (reducer != null) {
     return reducer(state, action)

@@ -211,7 +211,7 @@ const selector = createSelector(
 const mapDispatchToProps = (dispatch: ThunkDispatch): ContainerActionProps => ({
   handleNewGame: () => dispatch(initialize()),
   handleSwitchGameType: newGameType => dispatch(initialize(newGameType)),
-  handleStockClick: () => dispatch(clickStock()),
+  handleStockClick: (stack, card) => dispatch(clickStock(stack, card)),
   handleTableauClick: (stack, card) => dispatch(clickTableau(stack, card)),
   handleWasteClick: (stack, card) => dispatch(clickWaste(stack, card)),
   handleFoundationClick: (stack, card) =>

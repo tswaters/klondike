@@ -1,7 +1,7 @@
 import { ScoreStore } from '../redux/score'
 import { ScoringType } from '../redux/globals'
 
-export function saveScore(score: ScoreStore): void {
+export const saveScore = (score: ScoreStore): void => {
   try {
     if (score.scoringType === ScoringType.vegas) {
       localStorage.setItem('score', score.score.toString())
@@ -11,7 +11,7 @@ export function saveScore(score: ScoreStore): void {
   }
 }
 
-export function getSavedScore(): number {
+export const getSavedScore = (): number => {
   try {
     let score = localStorage.getItem('score')
     if (score == null) {

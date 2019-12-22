@@ -44,10 +44,10 @@ const reducers: {
   [APPEND_CARDS]: appendCards
 }
 
-function wasteReducer(
+const wasteReducer = (
   state: WasteStore = initialState,
   action: GlobalActions
-): WasteStore {
+): WasteStore => {
   const reducer = reducers[action.type]
   if (reducer != null) {
     return reducer(state, action)

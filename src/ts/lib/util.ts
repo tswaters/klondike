@@ -6,21 +6,18 @@ import {
   SelectAction
 } from '../redux/globals'
 
-export const random = (min: number, max: number): number => {
-  return Math.floor(Math.random() * max) + min
-}
+export const random = (min: number, max: number): number =>
+  Math.floor(Math.random() * max) + min
 
-function contains(stack: Stack, card: Card) {
-  return stack.cards.some((item: StackCard) => item.card === card)
-}
+const contains = (stack: Stack, card: Card) =>
+  stack.cards.some((item: StackCard) => item.card === card)
 
-export function get_top_card(stack: Stack): StackCard | null {
-  return stack.cards[stack.cards.length - 1]
-}
+export const get_top_card = (stack: Stack): StackCard | null =>
+  stack.cards[stack.cards.length - 1]
 
-export function get_selection(
-  stacks: Stack[]
-): { card: Card; stack: Stack } | null {
+type Selection = { card: Card; stack: Stack } | null
+
+export const get_selection = (stacks: Stack[]): Selection => {
   for (let i = 0; i < stacks.length; i++) {
     const stack = stacks[i]
     if (stack.selection == null) {
@@ -31,10 +28,10 @@ export function get_selection(
   return null
 }
 
-export function select_card(
+export const select_card = (
   stacks: Stack[],
   { card: stackCard }: SelectAction
-): Stack[] {
+) => {
   const card = stackCard.card
   if (card == null) {
     return stacks
@@ -60,8 +57,8 @@ export function select_card(
   })
 }
 
-export function deselect_card(stacks: Stack[]): Stack[] {
-  return stacks.map(stack => {
+export const deselect_card = (stacks: Stack[]) =>
+  stacks.map(stack => {
     if (!stack.selection) {
       return stack
     }
@@ -73,13 +70,12 @@ export function deselect_card(stacks: Stack[]): Stack[] {
       )
     }
   })
-}
 
-export function move_cards(
+export const move_cards = (
   stacks: Stack[],
   { from, to, cards, hidden }: MoveCardAction
-): Stack[] {
-  return stacks.map(stack => {
+) =>
+  stacks.map(stack => {
     if (stack === to) {
       return {
         ...stack,
@@ -97,13 +93,12 @@ export function move_cards(
     }
     return stack
   })
-}
 
-export function append_cards(
+export const append_cards = (
   stacks: Stack[],
   { stack, cards }: AppendCardAction
-) {
-  return stacks.map(existingStack =>
+) =>
+  stacks.map(existingStack =>
     existingStack !== stack
       ? existingStack
       : {
@@ -111,9 +106,8 @@ export function append_cards(
           cards: [...existingStack.cards, ...cards]
         }
   )
-}
 
-export function movable_to_foundation(card1: Card, card2?: StackCard | null) {
+export const movable_to_foundation = (card1: Card, card2: StackCard | null) => {
   if (card2 == null) {
     return card1.value === ValueType.ace
   }
@@ -129,7 +123,7 @@ export function movable_to_foundation(card1: Card, card2?: StackCard | null) {
   )
 }
 
-export function movable_to_tableau(card1: Card, card2?: StackCard | null) {
+export const movable_to_tableau = (card1: Card, card2?: StackCard | null) => {
   if (card2 == null) {
     return card1.value === ValueType.king
   }
@@ -147,7 +141,7 @@ export function movable_to_tableau(card1: Card, card2?: StackCard | null) {
   )
 }
 
-function valueToInt(value: ValueType): number {
+const valueToInt = (value: ValueType): number => {
   if (value === ValueType.ace) {
     return 1
   }

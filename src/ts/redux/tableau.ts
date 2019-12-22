@@ -53,10 +53,10 @@ const reducers: {
   })
 }
 
-function tableauReducer(
+const tableauReducer = (
   state: TableauStore = initialState,
   action: GlobalActions
-): TableauStore {
+): TableauStore => {
   const reducer = reducers[action.type]
   if (reducer != null) {
     return reducer(state, action)

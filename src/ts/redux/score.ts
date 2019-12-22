@@ -10,9 +10,10 @@ type IncrementAction = {
   scoreType: ScoreType
 }
 
-export function incrementScore(scoreType: ScoreType): IncrementAction {
-  return { type: INCREMENT_SCORE, scoreType }
-}
+export const incrementScore = (scoreType: ScoreType): IncrementAction => ({
+  type: INCREMENT_SCORE,
+  scoreType
+})
 
 export type ScoreStore = {
   readonly score: number
@@ -24,10 +25,10 @@ export type ScoreActions = IncrementAction
 const score = getSavedScore()
 const initialState: ScoreStore = { score, scoringType: ScoringType.regular }
 
-function scoreReducer(
+const scoreReducer = (
   state: ScoreStore = initialState,
   action: ScoreActions | GlobalActions
-): ScoreStore {
+): ScoreStore => {
   if (action.type === INITIALIZE) {
     const oldScore = getSavedScore()
 

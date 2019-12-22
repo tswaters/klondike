@@ -24,16 +24,16 @@ export const checkpoint = (): CheckpointAction => ({ type: CHECKPOINT })
 
 export type UndoableActions = UndoAction | RedoAction | CheckpointAction
 
-export function undoable<S, A extends AnyAction = Action>(
+export const undoable = <S, A extends AnyAction = Action>(
   reducer: Reducer<S, A>
-) {
+) => {
   const initialState: History<S> = {
     past: [],
     present: reducer(undefined, {} as A),
     future: []
   }
 
-  return function(state = initialState, action: A) {
+  return (state = initialState, action: A) => {
     const { past, present, future } = state
 
     if (action.type === UNDO) {

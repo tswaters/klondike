@@ -51,19 +51,8 @@ export type Card = {
 }
 
 export const Cards: Card[] = []
-for (const [, value] of Object.entries(ValueType)) {
-  for (const [, suit] of Object.entries(SuitType)) {
-    Cards.push({
-      suit,
-      value,
-      isRed: [SuitType.diamond, SuitType.heart].indexOf(suit) > -1,
-      isBlack: [SuitType.club, SuitType.spade].indexOf(suit) > -1,
-      drawing: getDrawing(suit, value)
-    })
-  }
-}
 
-function getDrawing(suit: SuitType, value: ValueType): Drawing {
+const getDrawing = (suit: SuitType, value: ValueType): Drawing => {
   type ypos = 0 | 1 | 2 | 3 | 4 | 5 | 6
   type xpos = 0 | 1 | 2
 
@@ -183,5 +172,17 @@ function getDrawing(suit: SuitType, value: ValueType): Drawing {
     color,
     fontSize,
     positions
+  }
+}
+
+for (const [, value] of Object.entries(ValueType)) {
+  for (const [, suit] of Object.entries(SuitType)) {
+    Cards.push({
+      suit,
+      value,
+      isRed: [SuitType.diamond, SuitType.heart].indexOf(suit) > -1,
+      isBlack: [SuitType.club, SuitType.spade].indexOf(suit) > -1,
+      drawing: getDrawing(suit, value)
+    })
   }
 }

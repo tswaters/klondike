@@ -42,10 +42,10 @@ const initialState: DeckStore = {
   deck: []
 }
 
-function deckReducer(
+const deckReducer = (
   state: DeckStore = initialState,
   action: DeckActions | GlobalActions
-): DeckStore {
+): DeckStore => {
   if (action.type === INITIALIZE) {
     const deck = []
     for (const card of Cards) {
