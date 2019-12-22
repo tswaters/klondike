@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux'
-import { ThunkAction, ThunkDispatch } from 'redux-thunk'
+import { ThunkAction, ThunkDispatch as ReduxThunkDispatch } from 'redux-thunk'
 import { GlobalActions } from './globals'
 import tableau, { TableauStore } from './tableau'
 import foundation, { FoundationStore } from './foundation'
@@ -26,7 +26,7 @@ export type StoreState = {
 }
 
 export type ThunkResult<R> = ThunkAction<R, StoreState, null, StoreActions>
-export type ThunkDispatch = ThunkDispatch<StoreState, null, StoreActions>
+export type ThunkDispatch = ReduxThunkDispatch<StoreState, null, StoreActions>
 
 export default combineReducers<StoreState, StoreActions>({
   deck,
