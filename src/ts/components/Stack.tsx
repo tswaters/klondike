@@ -142,7 +142,6 @@ export class StackComponent extends React.PureComponent<StackProps> {
 
     if (cards.length === 0) {
       this.drawBoxRadius(ctx, { x: 0, y: 0 })
-      ctx.stroke()
 
       if (this.props.drawsLeft === 0) {
         ctx.save()
@@ -222,6 +221,7 @@ export class StackComponent extends React.PureComponent<StackProps> {
     ctx.lineTo(x, y + radius)
     ctx.quadraticCurveTo(x, y, x + radius, y)
     ctx.closePath()
+    ctx.stroke()
   }
 
   drawCard(
@@ -232,7 +232,6 @@ export class StackComponent extends React.PureComponent<StackProps> {
     const { card, hidden, selected } = stack_card
 
     this.drawBoxRadius(ctx, { x, y })
-    ctx.stroke()
 
     if (hidden) {
       ctx.fillStyle = '#0aa'
