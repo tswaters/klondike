@@ -4,6 +4,7 @@
     "sourceMap": true,
     "locale": "en-ca",
     "target": "es6",
+    "skipLibCheck": true,
     "declaration": false,
     "strictNullChecks": true,
     "noImplicitUseStrict": false,
@@ -13,14 +14,7 @@
     "noImplicitAny": true,
     "module": "commonjs",
     "jsx": "react",
-    "lib": [
-      "es2015",
-      "es2017",
-      "dom"
-    ]
+    "lib": ["es2015", "es2017", "dom"]
   },
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "exclude": ["node_modules", "dist"]
 }

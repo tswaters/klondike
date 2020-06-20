@@ -9,14 +9,14 @@ export type StackCard = {
 export enum StackDirection {
   horizontal = 'horizontal',
   vertical = 'vertical',
-  none = ''
+  none = '',
 }
 
 export enum StackType {
   tableau = 'tableau',
   foundation = 'foundation',
   stock = 'stock',
-  waste = 'waste'
+  waste = 'waste',
 }
 
 export type Stack = {

@@ -13,7 +13,7 @@ import {
   StackLike,
   moveCards,
   appendCards,
-  selectCard
+  selectCard,
 } from './globals'
 
 export type TableauStore = StackLike
@@ -26,8 +26,8 @@ const initialState: TableauStore = {
     { type: StackType.tableau, cards: [] },
     { type: StackType.tableau, cards: [] },
     { type: StackType.tableau, cards: [] },
-    { type: StackType.tableau, cards: [] }
-  ]
+    { type: StackType.tableau, cards: [] },
+  ],
 }
 
 const reducers: {
@@ -40,22 +40,24 @@ const reducers: {
   [MOVE_CARDS]: moveCards,
   [REVEAL_TOP]: (state, action: RevealTopCardAction) => ({
     ...state,
-    stacks: state.stacks.map(stack =>
+    stacks: state.stacks.map((stack) =>
       stack === action.stack
         ? {
             ...stack,
             cards: stack.cards.map((card, index) =>
-              index < stack.cards.length - 1 ? card : { ...card, hidden: false }
-            )
+              index < stack.cards.length - 1
+                ? card
+                : { ...card, hidden: false },
+            ),
           }
-        : stack
-    )
-  })
+        : stack,
+    ),
+  }),
 }
 
 const tableauReducer = (
   state: TableauStore = initialState,
-  action: GlobalActions
+  action: GlobalActions,
 ): TableauStore => {
   const reducer = reducers[action.type]
   if (reducer != null) {

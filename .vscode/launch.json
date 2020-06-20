@@ -9,9 +9,7 @@
       "stopOnEntry": false,
       "args": [],
       "cwd": "${workspaceRoot}",
-      "runtimeArgs": [
-          "--nolazy"
-      ],
+      "runtimeArgs": ["--nolazy"],
       "externalConsole": false,
       "sourceMaps": true,
       "runtimeExecutable": null,

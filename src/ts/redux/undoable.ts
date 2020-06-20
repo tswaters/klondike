@@ -25,12 +25,12 @@ export const checkpoint = (): CheckpointAction => ({ type: CHECKPOINT })
 export type UndoableActions = UndoAction | RedoAction | CheckpointAction
 
 export const undoable = <S, A extends AnyAction = Action>(
-  reducer: Reducer<S, A>
+  reducer: Reducer<S, A>,
 ) => {
   const initialState: History<S> = {
     past: [],
     present: reducer(undefined, {} as A),
-    future: []
+    future: [],
   }
 
   return (state = initialState, action: A) => {
@@ -46,7 +46,7 @@ export const undoable = <S, A extends AnyAction = Action>(
       return {
         past: newPast,
         present: previous,
-        future: [present, ...future]
+        future: [present, ...future],
       }
     }
 
@@ -60,7 +60,7 @@ export const undoable = <S, A extends AnyAction = Action>(
       return {
         past: [...past, present],
         present: next,
-        future: newFuture
+        future: newFuture,
       }
     }
 
@@ -70,7 +70,7 @@ export const undoable = <S, A extends AnyAction = Action>(
       return {
         past: [],
         present: newPresent,
-        future: []
+        future: [],
       }
     }
 
@@ -78,7 +78,7 @@ export const undoable = <S, A extends AnyAction = Action>(
       return {
         past: [...past, present],
         present: newPresent,
-        future: []
+        future: [],
       }
     }
 
@@ -89,7 +89,7 @@ export const undoable = <S, A extends AnyAction = Action>(
     return {
       past,
       present: newPresent,
-      future
+      future,
     }
   }
 }

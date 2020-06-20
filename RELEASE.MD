@@ -1,4 +1,3 @@
-
 ## initial
 
 ```sh
@@ -9,6 +8,7 @@ git push -u origin gh-pages
 ```
 
 ## ongoing
+
 ```sh
 npm run build
 git symbolic-ref HEAD refs/heads/gh-pages
@@ -19,6 +19,7 @@ git push --quiet origin gh-pages
 ```
 
 ## go back
+
 ```sh
 git symbolic-ref HEAD refs/heads/master
 git reset --mixed

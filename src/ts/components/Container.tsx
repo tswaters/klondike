@@ -10,7 +10,7 @@ import {
   newGame,
   score,
   version,
-  switchScoreType
+  switchScoreType,
 } from '../../styles/cards.scss'
 import { StoreState, ThunkDispatch } from '../redux'
 import { Stack, StackCard, StackType, StackDirection } from '../lib/Stack'
@@ -20,7 +20,7 @@ import {
   clickTableau,
   clickWaste,
   clickFoundation,
-  doubleClick
+  doubleClick,
 } from '../redux/actions'
 import { WasteStore } from '../redux/waste'
 import {
@@ -28,7 +28,7 @@ import {
   getTableau,
   getFoundation,
   getStock,
-  getScore
+  getScore,
 } from '../redux/selectors'
 import { undo, redo } from '../redux/undoable'
 import { StockStore } from '../redux/stock'
@@ -204,13 +204,13 @@ const selector = createSelector(
     foundation,
     stock,
     waste,
-    score
+    score,
   })
 )
 
 const mapDispatchToProps = (dispatch: ThunkDispatch): ContainerActionProps => ({
   handleNewGame: () => dispatch(initialize()),
-  handleSwitchGameType: newGameType => dispatch(initialize(newGameType)),
+  handleSwitchGameType: (newGameType) => dispatch(initialize(newGameType)),
   handleStockClick: (stack, card) => dispatch(clickStock(stack, card)),
   handleTableauClick: (stack, card) => dispatch(clickTableau(stack, card)),
   handleWasteClick: (stack, card) => dispatch(clickWaste(stack, card)),
@@ -218,7 +218,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch): ContainerActionProps => ({
     dispatch(clickFoundation(stack, card)),
   handleDoubleClick: (stack, card) => dispatch(doubleClick(stack, card)),
   handleUndo: () => dispatch(undo()),
-  handleRedo: () => dispatch(redo())
+  handleRedo: () => dispatch(redo()),
 })
 
 const mapStateToProps = (state: StoreState): ContainerConnectedProps =>

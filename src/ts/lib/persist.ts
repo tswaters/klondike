@@ -13,12 +13,12 @@ export const saveScore = (score: ScoreStore): void => {
 
 export const getSavedScore = (): number => {
   try {
-    let score = localStorage.getItem('score')
+    const score = localStorage.getItem('score')
     if (score == null) {
       return 0
     }
 
-    let parsed = parseInt(score, 10)
+    const parsed = parseInt(score, 10)
     if (Number.isNaN(parsed)) {
       return 0
     }

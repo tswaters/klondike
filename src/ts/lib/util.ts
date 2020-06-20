@@ -3,7 +3,7 @@ import { Stack, StackCard } from './Stack'
 import {
   MoveCardAction,
   AppendCardAction,
-  SelectAction
+  SelectAction,
 } from '../redux/globals'
 
 export const random = (min: number, max: number): number =>
@@ -36,14 +36,14 @@ export const select_card = (
   if (card == null) {
     return stacks
   }
-  return stacks.map(stack => {
+  return stacks.map((stack) => {
     if (!contains(stack, card)) {
       return stack
     }
 
     return {
       ...stack,
-      cards: stack.cards.map(stackCard => {
+      cards: stack.cards.map((stackCard) => {
         if (!stackCard.card) {
           return stackCard
         }
@@ -52,22 +52,22 @@ export const select_card = (
         }
         return { ...stackCard, selected: true }
       }),
-      selection: card
+      selection: card,
     }
   })
 }
 
 export const deselect_card = (stacks: Stack[]) =>
-  stacks.map(stack => {
+  stacks.map((stack) => {
     if (!stack.selection) {
       return stack
     }
     return {
       ...stack,
       selection: void 0,
-      cards: stack.cards.map(card =>
+      cards: stack.cards.map((card) =>
         !card.selected ? card : { ...card, selected: void 0 }
-      )
+      ),
     }
   })
 
@@ -75,20 +75,20 @@ export const move_cards = (
   stacks: Stack[],
   { from, to, cards, hidden }: MoveCardAction
 ) =>
-  stacks.map(stack => {
+  stacks.map((stack) => {
     if (stack === to) {
       return {
         ...stack,
         cards: [
           ...stack.cards,
-          ...cards.map(card => ({ ...card, selected: false, hidden }))
-        ]
+          ...cards.map((card) => ({ ...card, selected: false, hidden })),
+        ],
       }
     }
     if (stack === from) {
       return {
         ...stack,
-        cards: stack.cards.filter(stackCard => cards.indexOf(stackCard) === -1)
+        cards: stack.cards.filter((stackCard) => !cards.includes(stackCard)),
       }
     }
     return stack
@@ -98,12 +98,12 @@ export const append_cards = (
   stacks: Stack[],
   { stack, cards }: AppendCardAction
 ) =>
-  stacks.map(existingStack =>
+  stacks.map((existingStack) =>
     existingStack !== stack
       ? existingStack
       : {
           ...existingStack,
-          cards: [...existingStack.cards, ...cards]
+          cards: [...existingStack.cards, ...cards],
         }
   )
 

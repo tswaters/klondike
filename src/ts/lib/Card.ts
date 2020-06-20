@@ -14,14 +14,14 @@ export enum ValueType {
   ten = '10',
   jack = 'J',
   queen = 'Q',
-  king = 'K'
+  king = 'K',
 }
 
 enum SuitType {
   heart = '\u2665',
   diamond = '\u2666',
   spade = '\u2660',
-  club = '\u2663'
+  club = '\u2663',
 }
 
 type Position = {
@@ -56,15 +56,18 @@ const getDrawing = (suit: SuitType, value: ValueType): Drawing => {
   type ypos = 0 | 1 | 2 | 3 | 4 | 5 | 6
   type xpos = 0 | 1 | 2
 
-  const color =
-    [SuitType.diamond, SuitType.heart].indexOf(suit) > -1 ? 'red' : 'black'
+  const color = [SuitType.diamond, SuitType.heart].includes(suit)
+    ? 'red'
+    : 'black'
 
-  const fontSize =
-    [ValueType.ace, ValueType.jack, ValueType.queen, ValueType.king].indexOf(
-      value
-    ) > -1
-      ? '72px'
-      : '20px'
+  const fontSize = [
+    ValueType.ace,
+    ValueType.jack,
+    ValueType.queen,
+    ValueType.king,
+  ].includes(value)
+    ? '72px'
+    : '20px'
 
   const pos: { x: xpos; y: ypos }[] = []
 
@@ -76,13 +79,13 @@ const getDrawing = (suit: SuitType, value: ValueType): Drawing => {
       ValueType.nine,
       ValueType.jack,
       ValueType.queen,
-      ValueType.king
-    ].indexOf(value) > -1
+      ValueType.king,
+    ].includes(value)
   ) {
     pos.push({ x: 1, y: 3 })
   }
 
-  if ([ValueType.two, ValueType.three].indexOf(value) > -1) {
+  if ([ValueType.two, ValueType.three].includes(value)) {
     pos.push({ x: 1, y: 0 }, { x: 1, y: 6 })
   }
 
@@ -94,25 +97,25 @@ const getDrawing = (suit: SuitType, value: ValueType): Drawing => {
       ValueType.seven,
       ValueType.eight,
       ValueType.nine,
-      ValueType.ten
-    ].indexOf(value) > -1
+      ValueType.ten,
+    ].includes(value)
   ) {
     pos.push({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 0, y: 6 }, { x: 2, y: 6 })
   }
 
-  if ([ValueType.six, ValueType.seven, ValueType.eight].indexOf(value) > -1) {
+  if ([ValueType.six, ValueType.seven, ValueType.eight].includes(value)) {
     pos.push({ x: 0, y: 3 }, { x: 2, y: 3 })
   }
 
-  if ([ValueType.seven, ValueType.ten, ValueType.eight].indexOf(value) > -1) {
+  if ([ValueType.seven, ValueType.ten, ValueType.eight].includes(value)) {
     pos.push({ x: 1, y: 1 })
   }
 
-  if ([ValueType.nine, ValueType.ten].indexOf(value) > -1) {
+  if ([ValueType.nine, ValueType.ten].includes(value)) {
     pos.push({ x: 0, y: 2 }, { x: 2, y: 2 }, { x: 0, y: 4 }, { x: 2, y: 4 })
   }
 
-  if ([ValueType.ten, ValueType.eight].indexOf(value) > -1) {
+  if ([ValueType.ten, ValueType.eight].includes(value)) {
     pos.push({ x: 1, y: 5 })
   }
 
@@ -159,7 +162,7 @@ const getDrawing = (suit: SuitType, value: ValueType): Drawing => {
       textAlign: getTextAlign(x),
       rotated: y > 3,
       left: getLeft(x),
-      top: getTop(y)
+      top: getTop(y),
     }
   })
 
@@ -171,7 +174,7 @@ const getDrawing = (suit: SuitType, value: ValueType): Drawing => {
     suitYOffset: 12,
     color,
     fontSize,
-    positions
+    positions,
   }
 }
 
@@ -180,9 +183,9 @@ for (const [, value] of Object.entries(ValueType)) {
     Cards.push({
       suit,
       value,
-      isRed: [SuitType.diamond, SuitType.heart].indexOf(suit) > -1,
-      isBlack: [SuitType.club, SuitType.spade].indexOf(suit) > -1,
-      drawing: getDrawing(suit, value)
+      isRed: [SuitType.diamond, SuitType.heart].includes(suit),
+      isBlack: [SuitType.club, SuitType.spade].includes(suit),
+      drawing: getDrawing(suit, value),
     })
   }
 }

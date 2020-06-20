@@ -7,7 +7,7 @@ import { ScoreStore } from './redux/score'
 import { getScore } from './redux/selectors'
 import { saveScore } from './lib/persist'
 
-export default (state?: object) => {
+export default () => {
   const middleware = []
 
   middleware.push(thunk as ThunkMiddleware<StoreState, StoreActions>)
@@ -16,7 +16,7 @@ export default (state?: object) => {
     middleware.push(createLogger())
   }
 
-  const store = createStore(reducer, state!, applyMiddleware(...middleware))
+  const store = createStore(reducer, void 0, applyMiddleware(...middleware))
   subscribe(store, getScore, (score: ScoreStore) => saveScore(score))
   return store
 }

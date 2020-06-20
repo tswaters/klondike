@@ -34,5 +34,5 @@ export default combineReducers<StoreState, StoreActions>({
   foundation,
   waste,
   stock,
-  score
+  score,
 })

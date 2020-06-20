@@ -13,7 +13,7 @@ offline.install({
   },
   onUpdated() {
     window.location.reload()
-  }
+  },
 })
 
 const store = configStore()

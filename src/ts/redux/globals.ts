@@ -3,12 +3,12 @@ import {
   deselect_card,
   move_cards,
   append_cards,
-  select_card
+  select_card,
 } from '../lib/util'
 
 export enum ScoringType {
   vegas,
-  regular
+  regular,
 }
 
 export enum ScoreType {
@@ -16,7 +16,7 @@ export enum ScoreType {
   wasteToFoundation,
   tableauToFoundation,
   revealCard,
-  foundationToTableau
+  foundationToTableau,
 }
 
 export const INITIALIZE = 'INITIALIZE'
@@ -59,30 +59,30 @@ export type StackLike = {
 
 export const selectCard = <S extends StackLike>(
   state: S,
-  action: SelectAction
+  action: SelectAction,
 ) =>
-  state.stacks.some(stack => stack === action.stack)
+  state.stacks.some((stack) => stack === action.stack)
     ? { ...state, stacks: select_card(state.stacks, action) }
     : state
 
 export const deselectCard = <S extends StackLike>(state: S) =>
-  state.stacks.some(stack => !!stack.selection)
+  state.stacks.some((stack) => !!stack.selection)
     ? { ...state, stacks: deselect_card(state.stacks) }
     : state
 
 export const moveCards = <S extends StackLike>(
   state: S,
-  action: MoveCardAction
+  action: MoveCardAction,
 ) =>
-  state.stacks.some(stack => [action.from, action.to].indexOf(stack) > -1)
+  state.stacks.some((stack) => [action.from, action.to].includes(stack))
     ? { ...state, stacks: move_cards(state.stacks, action) }
     : state
 
 export const appendCards = <S extends StackLike>(
   state: S,
-  action: AppendCardAction
+  action: AppendCardAction,
 ) =>
-  state.stacks.some(stack => action.stack === stack)
+  state.stacks.some((stack) => action.stack === stack)
     ? { ...state, stacks: append_cards(state.stacks, action) }
     : state
 

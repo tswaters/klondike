@@ -11,7 +11,7 @@ import {
   deselectCard,
   appendCards,
   StackLike,
-  MoveCardAction
+  MoveCardAction,
 } from './globals'
 import { move_cards } from '../lib/util'
 
@@ -21,7 +21,7 @@ export type WasteStore = StackLike & {
 
 const initialState: WasteStore = {
   stacks: [{ type: StackType.waste, cards: [] }],
-  showing: 0
+  showing: 0,
 }
 
 const reducers: {
@@ -31,22 +31,22 @@ const reducers: {
   [SELECT_CARD]: selectCard,
   [DESELECT_CARD]: deselectCard,
   [MOVE_CARDS]: (state, action: MoveCardAction) =>
-    state.stacks.some(stack => [action.from, action.to].indexOf(stack) > -1)
+    state.stacks.some((stack) => [action.from, action.to].includes(stack))
       ? {
           ...state,
           showing:
             action.to === state.stacks[0]
               ? Math.min(state.stacks[0].cards.length + action.cards.length, 3)
               : Math.max(1, state.showing - 1),
-          stacks: move_cards(state.stacks, action)
+          stacks: move_cards(state.stacks, action),
         }
       : state,
-  [APPEND_CARDS]: appendCards
+  [APPEND_CARDS]: appendCards,
 }
 
 const wasteReducer = (
   state: WasteStore = initialState,
-  action: GlobalActions
+  action: GlobalActions,
 ): WasteStore => {
   const reducer = reducers[action.type]
   if (reducer != null) {

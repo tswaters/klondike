@@ -36,7 +36,7 @@ export class StackComponent extends React.PureComponent<StackProps> {
     width: 74,
     height: 97,
     offset: 20,
-    radius: 10
+    radius: 10,
   }
 
   private ref = React.createRef<HTMLCanvasElement>()

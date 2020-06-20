@@ -9,14 +9,14 @@ import {
   Initialize,
   moveCards,
   StackLike,
-  appendCards
+  appendCards,
 } from './globals'
 
 const DECREMENT_DRAWS = 'DECREMENT_DRAWS'
 type DECREMENT_DRAWS = typeof DECREMENT_DRAWS
 type DecrementDrawsAction = { type: DECREMENT_DRAWS }
 export const decrementDraws = (): DecrementDrawsAction => ({
-  type: DECREMENT_DRAWS
+  type: DECREMENT_DRAWS,
 })
 
 export type StockStore = StackLike & {
@@ -30,32 +30,32 @@ const initialState: StockStore = {
   stacks: [
     {
       type: StackType.stock,
-      cards: []
-    }
-  ]
+      cards: [],
+    },
+  ],
 }
 
 const reducers: {
   [key: string]: (
     state: StockStore,
-    action: GlobalActions | StockActions
+    action: GlobalActions | StockActions,
   ) => StockStore
 } = {
   [INITIALIZE]: (state, action: Initialize) => ({
     ...initialState,
-    drawsLeft: action.scoringType === ScoringType.vegas ? 2 : Infinity
+    drawsLeft: action.scoringType === ScoringType.vegas ? 2 : Infinity,
   }),
-  [DECREMENT_DRAWS]: state => ({
+  [DECREMENT_DRAWS]: (state) => ({
     ...state,
-    drawsLeft: state.drawsLeft - 1
+    drawsLeft: state.drawsLeft - 1,
   }),
   [APPEND_CARDS]: appendCards,
-  [MOVE_CARDS]: moveCards
+  [MOVE_CARDS]: moveCards,
 }
 
 const stockReducer = (
   state: StockStore = initialState,
-  action: GlobalActions | StockActions
+  action: GlobalActions | StockActions,
 ): StockStore => {
   const reducer = reducers[action.type]
   if (reducer != null) {

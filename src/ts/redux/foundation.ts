@@ -7,7 +7,7 @@ import {
   selectCard,
   deselectCard,
   moveCards,
-  StackLike
+  StackLike,
 } from './globals'
 import { StackType } from '../lib/Stack'
 import { undoable } from './undoable'
@@ -19,25 +19,25 @@ const initialState: FoundationStore = {
     { type: StackType.foundation, cards: [] },
     { type: StackType.foundation, cards: [] },
     { type: StackType.foundation, cards: [] },
-    { type: StackType.foundation, cards: [] }
-  ]
+    { type: StackType.foundation, cards: [] },
+  ],
 }
 
 const reducers: {
   [key: string]: (
     state: FoundationStore,
-    action: GlobalActions
+    action: GlobalActions,
   ) => FoundationStore
 } = {
   [INITIALIZE]: () => ({ ...initialState }),
   [SELECT_CARD]: selectCard,
   [DESELECT_CARD]: deselectCard,
-  [MOVE_CARDS]: moveCards
+  [MOVE_CARDS]: moveCards,
 }
 
 const foundationReducer = (
   state: FoundationStore = initialState,
-  action: GlobalActions
+  action: GlobalActions,
 ): FoundationStore => {
   const reducer = reducers[action.type]
   if (reducer != null) {

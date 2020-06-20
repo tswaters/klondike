@@ -56,12 +56,9 @@ class Fireworks extends React.PureComponent<FireworksProps> {
   }
 }
 
-const selector = createSelector(
-  [getFoundation],
-  ({ stacks: foundation }) => ({
-    active: foundation.every(stack => stack.cards.length === 13)
-  })
-)
+const selector = createSelector([getFoundation], ({ stacks: foundation }) => ({
+  active: foundation.every((stack) => stack.cards.length === 13),
+}))
 
 const mapStateToProps = (state: StoreState): FireworksConnectedProps =>
   selector(state)
