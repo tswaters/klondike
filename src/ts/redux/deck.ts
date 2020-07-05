@@ -1,10 +1,9 @@
-import { Cards } from '../lib/Card'
+import { Cards, StackCard } from '../lib/Card'
 import { GlobalActions, INITIALIZE } from './globals'
 import { undoable } from './undoable'
 import { random } from '../lib/util'
 import { ThunkResult } from '.'
 import { getDeck } from './selectors'
-import { StackCard } from '../lib/Stack'
 
 export type DeckStore = {
   readonly deck: StackCard[]

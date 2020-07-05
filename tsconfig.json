@@ -9,7 +9,6 @@
     "strictNullChecks": true,
     "noImplicitUseStrict": false,
     "allowUnreachableCode": false,
-    "noUnusedLocals": true,
     "noEmitOnError": true,
     "noImplicitAny": true,
     "module": "commonjs",

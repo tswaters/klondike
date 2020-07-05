@@ -19,16 +19,19 @@ module.exports = (env, argv) => {
       loader: 'awesome-typescript-loader',
     },
     {
-      test: /\.scss$/,
+      test: /\.css$/,
       use: [
         {
           loader: MiniCssExtractPlugin.loader,
         },
         {
+          loader: '@teamsupercell/typings-for-css-modules-loader',
+          options: {},
+        },
+        {
           loader: 'css-loader',
           options: {
             sourceMap: true,
-            importLoaders: 1,
             localsConvention: 'camelCase',
             modules: {
               localIdentName:
@@ -36,16 +39,6 @@ module.exports = (env, argv) => {
                   ? '[hash:base64:5]'
                   : '[path][name]__[local]--[hash:base64:5]',
             },
-          },
-        },
-        {
-          loader: '@teamsupercell/typings-for-css-modules-loader',
-          options: {},
-        },
-        {
-          loader: 'sass-loader',
-          options: {
-            sourceMap: true,
           },
         },
       ],

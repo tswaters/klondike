@@ -8,8 +8,7 @@ import {
   getScore,
 } from './selectors'
 import { getRandomCards } from './deck'
-import { Stack, StackCard, StackType } from '../lib/Stack'
-import { Card, ValueType } from '../lib/Card'
+import { Card, ValueType, Stack, StackCard, StackType } from '../lib/Card'
 import {
   get_top_card,
   movable_to_foundation,
@@ -114,6 +113,19 @@ const reveal = (stack: Stack): RevealTopCardAction => ({
 
 export interface CardClickAction {
   (stack: Stack, stackCard?: StackCard): ThunkResult<void>
+}
+
+export const clickCard: CardClickAction = (stack, card) => (dispatch) => {
+  switch (stack.type) {
+    case StackType.foundation:
+      return dispatch(clickFoundation(stack, card))
+    case StackType.stock:
+      return dispatch(clickStock(stack, card))
+    case StackType.tableau:
+      return dispatch(clickTableau(stack, card))
+    case StackType.waste:
+      return dispatch(clickWaste(stack, card))
+  }
 }
 
 export const doubleClickCard: CardClickAction = (stack, stackCard) => (

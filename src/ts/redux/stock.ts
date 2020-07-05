@@ -1,5 +1,5 @@
 import { undoable } from './undoable'
-import { StackType } from '../lib/Stack'
+import { StackType } from '../lib/Card'
 import {
   GlobalActions,
   INITIALIZE,
@@ -20,15 +20,16 @@ export const decrementDraws = (): DecrementDrawsAction => ({
 })
 
 export type StockStore = StackLike & {
-  readonly drawsLeft: number
+  readonly draws: number
 }
 
 export type StockActions = DecrementDrawsAction
 
 const initialState: StockStore = {
-  drawsLeft: Infinity,
+  draws: Infinity,
   stacks: [
     {
+      index: 0,
       type: StackType.stock,
       cards: [],
     },
@@ -43,11 +44,11 @@ const reducers: {
 } = {
   [INITIALIZE]: (state, action: Initialize) => ({
     ...initialState,
-    drawsLeft: action.scoringType === ScoringType.vegas ? 2 : Infinity,
+    draws: action.scoringType === ScoringType.vegas ? 2 : Infinity,
   }),
   [DECREMENT_DRAWS]: (state) => ({
     ...state,
-    drawsLeft: state.drawsLeft - 1,
+    draws: state.draws - 1,
   }),
   [APPEND_CARDS]: appendCards,
   [MOVE_CARDS]: moveCards,

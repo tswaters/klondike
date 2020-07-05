@@ -1,4 +1,4 @@
-import { Stack, StackCard } from '../lib/Stack'
+import { Stack, StackCard } from '../lib/Card'
 import {
   deselect_card,
   move_cards,

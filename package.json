@@ -25,13 +25,12 @@
     "eslint": "^7.1.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-react": "^7.17.0",
+    "eslint-plugin-react-hooks": "^4.0.4",
     "html-webpack-plugin": "^4.3.0",
     "mini-css-extract-plugin": "^0.9.0",
     "offline-plugin": "^5.0.7",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "prettier": "^2.0.5",
-    "sass": "^1.24.0",
-    "sass-loader": "^8.0.0",
     "style-loader": "^1.1.1",
     "stylelint": "^13.5.0",
     "stylelint-config-sass-guidelines": "^7.0.0",
@@ -84,8 +83,16 @@
         "parser": "@typescript-eslint/parser",
         "plugins": [
           "@typescript-eslint",
-          "react"
+          "react",
+          "react-hooks"
         ],
+        "rules": {
+          "react/prop-types": "off",
+          "react-hooks/rules-of-hooks": "error",
+          "react-hooks/exhaustive-deps": "warn",
+          "@typescript-eslint/explicit-module-boundary-types": "off",
+          "@typescript-eslint/no-unsafe-assignment": "off"
+        },
         "parserOptions": {
           "sourceType": "module",
           "ecmaVersion": 2019,
@@ -113,12 +120,7 @@
           "@typescript-eslint/*": "off"
         }
       }
-    ],
-    "rules": {
-      "react/prop-types": "off",
-      "@typescript-eslint/explicit-module-boundary-types": "off",
-      "@typescript-eslint/no-unsafe-assignment": "off"
-    }
+    ]
   },
   "prettier": {
     "semi": false,

@@ -9,17 +9,17 @@ import {
   moveCards,
   StackLike,
 } from './globals'
-import { StackType } from '../lib/Stack'
+import { StackType } from '../lib/Card'
 import { undoable } from './undoable'
 
 export type FoundationStore = StackLike
 
 const initialState: FoundationStore = {
   stacks: [
-    { type: StackType.foundation, cards: [] },
-    { type: StackType.foundation, cards: [] },
-    { type: StackType.foundation, cards: [] },
-    { type: StackType.foundation, cards: [] },
+    { type: StackType.foundation, cards: [], index: 0 },
+    { type: StackType.foundation, cards: [], index: 1 },
+    { type: StackType.foundation, cards: [], index: 2 },
+    { type: StackType.foundation, cards: [], index: 3 },
   ],
 }
 

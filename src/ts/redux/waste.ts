@@ -1,4 +1,4 @@
-import { StackType } from '../lib/Stack'
+import { StackType } from '../lib/Card'
 import { undoable } from './undoable'
 import {
   GlobalActions,
@@ -20,7 +20,7 @@ export type WasteStore = StackLike & {
 }
 
 const initialState: WasteStore = {
-  stacks: [{ type: StackType.waste, cards: [] }],
+  stacks: [{ type: StackType.waste, cards: [], index: 0 }],
   showing: 0,
 }
 

@@ -1,6 +1,3 @@
-const WIDTH = 75
-const HEIGHT = 97
-
 export enum ValueType {
   ace = 'A',
   two = '2',
@@ -17,175 +14,61 @@ export enum ValueType {
   king = 'K',
 }
 
-enum SuitType {
+export enum SuitType {
   heart = '\u2665',
   diamond = '\u2666',
   spade = '\u2660',
   club = '\u2663',
 }
 
-type Position = {
-  left: number
-  top: number
-  rotated: boolean
-  textAlign: CanvasTextAlign
-}
-
-type Drawing = {
-  color: string
-  cornerFont: string
-  fontSize: string
-  suitXOffset: number
-  suitYOffset: number
-  valueXOffset: number
-  valueYOffset: number
-  positions: Position[]
-}
-
 export type Card = {
   suit: SuitType
   value: ValueType
-  drawing: Drawing
-  isRed: boolean
-  isBlack: boolean
 }
 
-export const Cards: Card[] = []
+export type StackCard = {
+  card: Card
+  hidden?: boolean
+  selected?: boolean
+}
 
-const getDrawing = (suit: SuitType, value: ValueType): Drawing => {
-  type ypos = 0 | 1 | 2 | 3 | 4 | 5 | 6
-  type xpos = 0 | 1 | 2
+export enum StackDirection {
+  horizontal = 'horizontal',
+  vertical = 'vertical',
+}
 
-  const color = [SuitType.diamond, SuitType.heart].includes(suit)
-    ? 'red'
-    : 'black'
+//
+//  1 2   3 3 3 3
+//  4 4 4 4 4 4 4
+//
+// 1 - stock
+// 2 - waste
+// 3 - foundation
+// 4 - tableau
+//
 
-  const fontSize = [
-    ValueType.ace,
-    ValueType.jack,
-    ValueType.queen,
-    ValueType.king,
-  ].includes(value)
-    ? '72px'
-    : '20px'
+export enum StackType {
+  tableau = 'tableau',
+  foundation = 'foundation',
+  stock = 'stock',
+  waste = 'waste',
+}
 
-  const pos: { x: xpos; y: ypos }[] = []
+export type Stack = {
+  cards: StackCard[]
+  selection?: Card
+  type: StackType
+  index: number
+}
 
-  if (
-    [
-      ValueType.ace,
-      ValueType.three,
-      ValueType.five,
-      ValueType.nine,
-      ValueType.jack,
-      ValueType.queen,
-      ValueType.king,
-    ].includes(value)
-  ) {
-    pos.push({ x: 1, y: 3 })
-  }
+const Cards: Card[] = []
 
-  if ([ValueType.two, ValueType.three].includes(value)) {
-    pos.push({ x: 1, y: 0 }, { x: 1, y: 6 })
-  }
-
-  if (
-    [
-      ValueType.four,
-      ValueType.five,
-      ValueType.six,
-      ValueType.seven,
-      ValueType.eight,
-      ValueType.nine,
-      ValueType.ten,
-    ].includes(value)
-  ) {
-    pos.push({ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 0, y: 6 }, { x: 2, y: 6 })
-  }
-
-  if ([ValueType.six, ValueType.seven, ValueType.eight].includes(value)) {
-    pos.push({ x: 0, y: 3 }, { x: 2, y: 3 })
-  }
-
-  if ([ValueType.seven, ValueType.ten, ValueType.eight].includes(value)) {
-    pos.push({ x: 1, y: 1 })
-  }
-
-  if ([ValueType.nine, ValueType.ten].includes(value)) {
-    pos.push({ x: 0, y: 2 }, { x: 2, y: 2 }, { x: 0, y: 4 }, { x: 2, y: 4 })
-  }
-
-  if ([ValueType.ten, ValueType.eight].includes(value)) {
-    pos.push({ x: 1, y: 5 })
-  }
-
-  const getTop = (y: ypos) => {
-    switch (y) {
-      case 0:
-      case 6:
-        return HEIGHT * 0.2
-      case 1:
-      case 5:
-        return HEIGHT * 0.3
-      case 2:
-      case 4:
-        return HEIGHT * 0.4
-      case 3:
-        return HEIGHT * 0.5
-    }
-  }
-
-  const getLeft = (x: xpos) => {
-    switch (x) {
-      case 0:
-        return WIDTH * 0.25
-      case 1:
-        return WIDTH * 0.5
-      case 2:
-        return WIDTH * 0.75
-    }
-  }
-
-  const getTextAlign = (x: xpos): CanvasTextAlign => {
-    switch (x) {
-      case 0:
-        return 'left'
-      case 1:
-        return 'center'
-      case 2:
-        return 'right'
-    }
-  }
-
-  const positions: Position[] = pos.map(({ x, y }) => {
-    return {
-      textAlign: getTextAlign(x),
-      rotated: y > 3,
-      left: getLeft(x),
-      top: getTop(y),
-    }
-  })
-
-  return {
-    cornerFont: 'bold 15px sans-serif',
-    valueXOffset: 9,
-    valueYOffset: 2,
-    suitXOffset: 9,
-    suitYOffset: 12,
-    color,
-    fontSize,
-    positions,
+for (const value of Object.values(ValueType)) {
+  for (const suit of Object.values(SuitType)) {
+    Cards.push({ suit, value })
   }
 }
 
-for (const [, value] of Object.entries(ValueType)) {
-  for (const [, suit] of Object.entries(SuitType)) {
-    Cards.push({
-      suit,
-      value,
-      isRed: [SuitType.diamond, SuitType.heart].includes(suit),
-      isBlack: [SuitType.club, SuitType.spade].includes(suit),
-      drawing: getDrawing(suit, value),
-    })
-  }
-}
+Object.freeze(Cards)
+
+export { Cards }

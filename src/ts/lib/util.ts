@@ -1,5 +1,4 @@
-import { Card, ValueType } from './Card'
-import { Stack, StackCard } from './Stack'
+import { Card, ValueType, SuitType, Stack, StackCard } from './Card'
 import {
   MoveCardAction,
   AppendCardAction,
@@ -18,85 +17,69 @@ export const get_top_card = (stack: Stack): StackCard | null =>
 type Selection = { card: Card; stack: Stack } | null
 
 export const get_selection = (stacks: Stack[]): Selection => {
-  for (let i = 0; i < stacks.length; i++) {
-    const stack = stacks[i]
-    if (stack.selection == null) {
-      continue
-    }
-    return { card: stack.selection, stack }
+  for (const stack of stacks) {
+    if (stack.selection) return { card: stack.selection, stack }
   }
   return null
 }
 
 export const select_card = (
   stacks: Stack[],
-  { card: stackCard }: SelectAction
-) => {
-  const card = stackCard.card
-  if (card == null) {
-    return stacks
-  }
-  return stacks.map((stack) => {
-    if (!contains(stack, card)) {
-      return stack
-    }
-
-    return {
-      ...stack,
-      cards: stack.cards.map((stackCard) => {
-        if (!stackCard.card) {
-          return stackCard
-        }
-        if (stackCard.card !== card) {
-          return stackCard
-        }
-        return { ...stackCard, selected: true }
-      }),
-      selection: card,
-    }
-  })
-}
+  { card: { card } }: SelectAction,
+) =>
+  card == null
+    ? stacks
+    : stacks.map((stack) =>
+        !contains(stack, card)
+          ? stack
+          : {
+              ...stack,
+              cards: stack.cards.map((stackCard) =>
+                !stackCard.card || stackCard.card !== card
+                  ? stackCard
+                  : { ...stackCard, selected: true },
+              ),
+              selection: card,
+            },
+      )
 
 export const deselect_card = (stacks: Stack[]) =>
-  stacks.map((stack) => {
-    if (!stack.selection) {
-      return stack
-    }
-    return {
-      ...stack,
-      selection: void 0,
-      cards: stack.cards.map((card) =>
-        !card.selected ? card : { ...card, selected: void 0 }
-      ),
-    }
-  })
+  stacks.map((stack) =>
+    !stack.selection
+      ? stack
+      : {
+          ...stack,
+          selection: null,
+          cards: stack.cards.map((stackCard) =>
+            !stackCard.selected ? stackCard : { ...stackCard, selected: null },
+          ),
+        },
+  )
 
 export const move_cards = (
   stacks: Stack[],
-  { from, to, cards, hidden }: MoveCardAction
+  { from, to, cards, hidden }: MoveCardAction,
 ) =>
-  stacks.map((stack) => {
-    if (stack === to) {
-      return {
-        ...stack,
-        cards: [
-          ...stack.cards,
-          ...cards.map((card) => ({ ...card, selected: false, hidden })),
-        ],
-      }
-    }
-    if (stack === from) {
-      return {
-        ...stack,
-        cards: stack.cards.filter((stackCard) => !cards.includes(stackCard)),
-      }
-    }
-    return stack
-  })
+  stacks.map((stack) =>
+    stack === to
+      ? {
+          ...stack,
+          cards: [
+            ...stack.cards,
+            ...cards.map((card) => ({ ...card, selected: false, hidden })),
+          ],
+        }
+      : stack === from
+      ? {
+          ...stack,
+          cards: stack.cards.filter((stackCard) => !cards.includes(stackCard)),
+        }
+      : stack,
+  )
 
 export const append_cards = (
   stacks: Stack[],
-  { stack, cards }: AppendCardAction
+  { stack, cards }: AppendCardAction,
 ) =>
   stacks.map((existingStack) =>
     existingStack !== stack
@@ -104,7 +87,7 @@ export const append_cards = (
       : {
           ...existingStack,
           cards: [...existingStack.cards, ...cards],
-        }
+        },
   )
 
 export const movable_to_foundation = (card1: Card, card2: StackCard | null) => {
@@ -123,23 +106,24 @@ export const movable_to_foundation = (card1: Card, card2: StackCard | null) => {
   )
 }
 
-export const movable_to_tableau = (card1: Card, card2?: StackCard | null) => {
-  if (card2 == null) {
-    return card1.value === ValueType.king
-  }
-
-  const { card } = card2
-  if (!card) {
-    return false
-  }
-
-  return (
-    (valueToInt(card1.value) + 1 === valueToInt(card.value) &&
-      card1.isRed &&
-      card.isBlack) ||
-    (card1.isBlack && card.isRed)
-  )
+export const movable_to_tableau = (source: Card, target?: StackCard) => {
+  return target == null
+    ? source.value === ValueType.king
+    : target.card == null
+    ? false
+    : isSequential(target.card, source) &&
+      ((isRed(source) && isBlack(target.card)) ||
+        (isBlack(source) && isRed(target.card)))
 }
+
+export const isSequential = (card: Card, card1: Card) =>
+  valueToInt(card1.value) + 1 === valueToInt(card.value)
+
+export const isRed = (card: Card) =>
+  [SuitType.diamond, SuitType.heart].includes(card.suit)
+
+export const isBlack = (card: Card) =>
+  [SuitType.club, SuitType.spade].includes(card.suit)
 
 const valueToInt = (value: ValueType): number => {
   if (value === ValueType.ace) {

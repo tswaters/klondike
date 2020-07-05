@@ -1,66 +1,51 @@
 import * as React from 'react'
-import { connect } from 'react-redux'
-import { createSelector } from 'reselect'
+import { useSelector } from 'react-redux'
 import * as FireworksCanvas from 'fireworks-canvas'
-
-import { fireworks } from '../../styles/cards.scss'
-import { StoreState } from '../redux'
 import { getFoundation } from '../redux/selectors'
 
-type FireworksConnectedProps = {
-  active: boolean
-}
+const Fireworks: React.FC = () => {
+  const ref = React.useRef<HTMLDivElement>(null)
+  const fireworksObj = React.useRef<FireworksCanvas>()
+  const { stacks: foundation } = useSelector(getFoundation)
+  const active = foundation.every((stack) => stack.cards.length === 13)
+  const display = active ? '' : 'none'
 
-type FireworksProps = FireworksConnectedProps
+  React.useEffect(() => {
+    if (ref.current == null) return
+    fireworksObj.current = new FireworksCanvas(ref.current)
 
-class Fireworks extends React.PureComponent<FireworksProps> {
-  ref: React.RefObject<HTMLDivElement>
-  fireworks: FireworksCanvas
-
-  constructor(props: FireworksProps) {
-    super(props)
-    this.ref = React.createRef()
-    this.handleDocumentKeyDown = this.handleDocumentKeyDown.bind(this)
-  }
-
-  handleDocumentKeyDown(ev: KeyboardEvent) {
-    if (ev.keyCode === 27) {
-      this.fireworks.stop()
+    const handleDocumentKeyDown = (ev: KeyboardEvent) => {
+      if (ev.keyCode === 27) fireworksObj.current?.stop()
     }
-  }
 
-  componentDidMount() {
-    if (!this.ref.current) {
-      return null
+    document.addEventListener('keydown', handleDocumentKeyDown)
+
+    return () => {
+      fireworksObj.current?.destroy()
     }
-    this.fireworks = new FireworksCanvas(this.ref.current)
-  }
+  }, [ref, active])
 
-  componentDidUpdate() {
-    if (this.props.active) {
-      document.addEventListener('keydown', this.handleDocumentKeyDown)
-      this.fireworks.start()
+  React.useEffect(() => {
+    if (active) {
+      fireworksObj.current?.stop()
     } else {
-      document.removeEventListener('keydown', this.handleDocumentKeyDown)
-      this.fireworks.kill()
+      fireworksObj.current?.start()
     }
-  }
+  }, [active])
 
-  componentWillUnmount() {
-    this.fireworks.destroy()
-  }
-
-  render() {
-    const display = this.props.active ? '' : 'none'
-    return <div style={{ display }} className={fireworks} ref={this.ref} />
-  }
+  return (
+    <div
+      style={{
+        display,
+        top: '0',
+        left: '0',
+        width: '100vw',
+        height: '100vh',
+        position: 'absolute',
+      }}
+      ref={ref}
+    />
+  )
 }
 
-const selector = createSelector([getFoundation], ({ stacks: foundation }) => ({
-  active: foundation.every((stack) => stack.cards.length === 13),
-}))
-
-const mapStateToProps = (state: StoreState): FireworksConnectedProps =>
-  selector(state)
-
-export default connect(mapStateToProps)(Fireworks)
+export default React.memo(Fireworks)

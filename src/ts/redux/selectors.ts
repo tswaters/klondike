@@ -32,10 +32,11 @@ export const getDeck = createSelector(
 )
 
 export const getAllStacks = createSelector(
-  [getFoundation, getWaste, getTableau],
-  ({ stacks: foundation }, { stacks: waste }, { stacks: tableau }) => [
-    ...foundation,
-    ...waste,
-    ...tableau,
-  ]
+  [getFoundation, getWaste, getTableau, getStock],
+  (
+    { stacks: foundation },
+    { stacks: waste },
+    { stacks: tableau },
+    { stacks: stock },
+  ) => [...foundation, ...waste, ...tableau, ...stock],
 )
