@@ -1,11 +1,6 @@
 import { Cards, StackCard } from '../lib/Card'
-import { ColorSchemeType, ColorScheme, colorSchemes } from './ColorScheme'
-import {
-  getErrorImageData,
-  getEmptyImageData,
-  getHiddenImageData,
-  getCardImageData,
-} from './Card'
+import { ColorScheme } from './ColorScheme'
+import { getErrorImageData, getEmptyImageData, getHiddenImageData, getCardImageData } from './Card'
 
 export type Box = {
   x: number
@@ -48,14 +43,8 @@ export const initialize = (context: DrawingContext) => {
   cardCache.set('error', getErrorImageData(context))
   Cards.forEach((card) => {
     cardCache
-      .set(
-        getKey({ card, selected: true }),
-        getCardImageData(context, { card, selected: true }),
-      )
-      .set(
-        getKey({ card, selected: false }),
-        getCardImageData(context, { card, selected: false }),
-      )
+      .set(getKey({ card, selected: true }), getCardImageData(context, { card, selected: true }))
+      .set(getKey({ card, selected: false }), getCardImageData(context, { card, selected: false }))
   })
 
   c2 = document.createElement('canvas')
@@ -64,12 +53,7 @@ export const initialize = (context: DrawingContext) => {
   context.ctx.clearRect(0, 0, context.cardWidth + 2, context.cardHeight + 2)
 }
 
-export const writeDataToCanvas = (
-  context: DrawingContext,
-  data: ImageData,
-  x: number,
-  y: number,
-) => {
+export const writeDataToCanvas = (context: DrawingContext, data: ImageData, x: number, y: number) => {
   const ctx2 = c2.getContext('2d')
   ctx2?.putImageData(data, 0, 0)
   context.ctx.drawImage(c2, x, y)

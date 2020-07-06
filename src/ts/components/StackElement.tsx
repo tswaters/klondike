@@ -28,11 +28,8 @@ const StackElement: React.FC<{
       if (gameContext == null || gameContext.context == null) return
       const { stack, cards, box, direction } = thing
       const prop = direction === StackDirection.horizontal ? 'x' : 'y'
-      const spaceProp =
-        direction === StackDirection.horizontal ? 'gutterWidth' : 'gutterHeight'
-      const guess = Math.floor(
-        (point[prop] - box[prop]) / gameContext.context[spaceProp] ?? 20,
-      )
+      const spaceProp = direction === StackDirection.horizontal ? 'gutterWidth' : 'gutterHeight'
+      const guess = Math.floor((point[prop] - box[prop]) / gameContext.context[spaceProp] ?? 20)
       const index = Math.min(cards.length - 1, guess)
       dispatch(doubleClickCard(stack, cards[index]))
     },
@@ -44,11 +41,8 @@ const StackElement: React.FC<{
       if (gameContext == null || gameContext.context == null) return
       const { stack, cards, box, direction } = thing
       const prop = direction === StackDirection.horizontal ? 'x' : 'y'
-      const spaceProp =
-        direction === StackDirection.horizontal ? 'gutterWidth' : 'gutterHeight'
-      const guess = Math.floor(
-        (point[prop] - box[prop]) / gameContext.context[spaceProp] ?? 20,
-      )
+      const spaceProp = direction === StackDirection.horizontal ? 'gutterWidth' : 'gutterHeight'
+      const guess = Math.floor((point[prop] - box[prop]) / gameContext.context[spaceProp] ?? 20)
       const index = Math.min(cards.length - 1, guess)
       dispatch(clickCard(stack, cards[index]))
     },

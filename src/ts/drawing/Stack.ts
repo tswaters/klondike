@@ -1,12 +1,5 @@
 import { Stack, StackCard, StackDirection, StackType } from '../lib/Card'
-import {
-  Box,
-  Point,
-  writeDataToCanvas,
-  cardCache,
-  getKey,
-  DrawingContext,
-} from './Common'
+import { Box, Point, writeDataToCanvas, cardCache, getKey, DrawingContext } from './Common'
 
 type StackDrawingOptions = {
   direction: StackDirection | null
@@ -77,8 +70,7 @@ export const drawStack: DrawStack = (context, { stack, draws, showing }) => {
   })
   if (max) cards = cards.slice(-max)
 
-  const space =
-    direction === StackDirection.horizontal ? 'gutterWidth' : 'gutterHeight'
+  const space = direction === StackDirection.horizontal ? 'gutterWidth' : 'gutterHeight'
   const box = {
     x: offset.x,
     y: offset.y,
@@ -105,24 +97,18 @@ export const drawStack: DrawStack = (context, { stack, draws, showing }) => {
   const elements = []
 
   if (error) elements.push({ data: cardCache.get('error'), x: box.x, y: box.y })
-  else if (empty)
-    elements.push({ data: cardCache.get('empty'), x: box.x, y: box.y })
+  else if (empty) elements.push({ data: cardCache.get('empty'), x: box.x, y: box.y })
   else
     cards.forEach((card, i) => {
-      const drawing = card.hidden
-        ? cardCache.get('hidden')
-        : cardCache.get(getKey(card))
+      const drawing = card.hidden ? cardCache.get('hidden') : cardCache.get(getKey(card))
       if (drawing) {
-        const x =
-          direction === StackDirection.horizontal ? i * context[space] : 0
-        const y =
-          direction === StackDirection.horizontal ? 0 : i * context[space]
+        const x = direction === StackDirection.horizontal ? i * context[space] : 0
+        const y = direction === StackDirection.horizontal ? 0 : i * context[space]
         elements.push({ data: drawing, x: box.x + x, y: box.y + y })
       }
     })
 
-  for (const { data, x, y } of elements)
-    data && writeDataToCanvas(context, data, x, y)
+  for (const { data, x, y } of elements) data && writeDataToCanvas(context, data, x, y)
 
   return { path, box, direction, space, stack, cards }
 }

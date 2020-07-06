@@ -37,10 +37,7 @@ const initialState: StockStore = {
 }
 
 const reducers: {
-  [key: string]: (
-    state: StockStore,
-    action: GlobalActions | StockActions,
-  ) => StockStore
+  [key: string]: (state: StockStore, action: GlobalActions | StockActions) => StockStore
 } = {
   [INITIALIZE]: (state, action: Initialize) => ({
     ...initialState,
@@ -54,10 +51,7 @@ const reducers: {
   [MOVE_CARDS]: moveCards,
 }
 
-const stockReducer = (
-  state: StockStore = initialState,
-  action: GlobalActions | StockActions,
-): StockStore => {
+const stockReducer = (state: StockStore = initialState, action: GlobalActions | StockActions): StockStore => {
   const reducer = reducers[action.type]
   if (reducer != null) {
     return reducer(state, action)

@@ -1,10 +1,6 @@
 import * as React from 'react'
 import { Point, Drawable, DrawingContext } from '../drawing/Common'
-import {
-  ColorSchemeType,
-  ColorScheme,
-  colorSchemes,
-} from '../drawing/ColorScheme'
+import { ColorSchemeType, ColorScheme, colorSchemes } from '../drawing/ColorScheme'
 import { initialize } from '../drawing/Common'
 import { game } from '../../styles/cards.css'
 
@@ -47,14 +43,8 @@ const useCanvasSize = (canvas: HTMLCanvasElement | null) => {
     return {
       canvasWidth: canvas?.width ?? 0,
       canvasHeight: canvas?.height ?? 0,
-      cardWidth: Math.max(
-        100,
-        Math.floor((window.innerWidth - gutterWidth * 8) / 7),
-      ),
-      cardHeight: Math.max(
-        200,
-        Math.floor((window.innerHeight - gutterHeight * (19 + 3)) / 2),
-      ),
+      cardWidth: Math.max(100, Math.floor((window.innerWidth - gutterWidth * 8) / 7)),
+      cardHeight: Math.max(200, Math.floor((window.innerHeight - gutterHeight * (19 + 3)) / 2)),
       gutterWidth,
       gutterHeight,
     }
@@ -79,10 +69,7 @@ const useCanvasSize = (canvas: HTMLCanvasElement | null) => {
   return size
 }
 
-const intersect = (
-  evt: React.MouseEvent<HTMLCanvasElement>,
-  pointsRef: Map<Path2D, Drawable>,
-) => {
+const intersect = (evt: React.MouseEvent<HTMLCanvasElement>, pointsRef: Map<Path2D, Drawable>) => {
   const { nativeEvent: e } = evt
   const canvas = e.target as HTMLCanvasElement
   const point = { x: e.offsetX, y: e.offsetY }
@@ -98,13 +85,9 @@ const intersect = (
 const GameCanvas: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pointsRef = React.useRef<Map<Path2D, Drawable>>(new Map())
   const clickHandlers = React.useRef<Map<Path2D, Handler<Drawable>>>(new Map())
-  const doubleClickHandlers = React.useRef<Map<Path2D, Handler<Drawable>>>(
-    new Map(),
-  )
+  const doubleClickHandlers = React.useRef<Map<Path2D, Handler<Drawable>>>(new Map())
 
-  const [colorScheme] = React.useState<ColorScheme>(
-    colorSchemes[ColorSchemeType.light],
-  )
+  const [colorScheme] = React.useState<ColorScheme>(colorSchemes[ColorSchemeType.light])
   const [canvas, setContext] = React.useState<HTMLCanvasElement | null>(null)
   const canvasSize = useCanvasSize(canvas)
 
@@ -147,34 +130,25 @@ const GameCanvas: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     doubleClickHandlers.current.delete(path)
   }, [])
 
-  const handleCanvasDoubleClick = React.useCallback(
-    (evt: React.MouseEvent<HTMLCanvasElement>) => {
-      const selection = intersect(evt, pointsRef.current)
-      if (selection) {
-        const { thing, point } = selection
-        const event = doubleClickHandlers.current.get(thing.path)
-        if (event) event(thing, point)
-      }
-    },
-    [],
-  )
+  const handleCanvasDoubleClick = React.useCallback((evt: React.MouseEvent<HTMLCanvasElement>) => {
+    const selection = intersect(evt, pointsRef.current)
+    if (selection) {
+      const { thing, point } = selection
+      const event = doubleClickHandlers.current.get(thing.path)
+      if (event) event(thing, point)
+    }
+  }, [])
 
-  const handleCanvasClick = React.useCallback(
-    (evt: React.MouseEvent<HTMLCanvasElement>) => {
-      const selection = intersect(evt, pointsRef.current)
-      if (selection) {
-        const { thing, point } = selection
-        const event = clickHandlers.current.get(thing.path)
-        if (event) event(thing, point)
-      }
-    },
-    [],
-  )
+  const handleCanvasClick = React.useCallback((evt: React.MouseEvent<HTMLCanvasElement>) => {
+    const selection = intersect(evt, pointsRef.current)
+    if (selection) {
+      const { thing, point } = selection
+      const event = clickHandlers.current.get(thing.path)
+      if (event) event(thing, point)
+    }
+  }, [])
 
-  const value = React.useMemo(
-    () => gameContext && { context: gameContext, add, remove },
-    [gameContext, add, remove],
-  )
+  const value = React.useMemo(() => gameContext && { context: gameContext, add, remove }, [gameContext, add, remove])
 
   return (
     <>

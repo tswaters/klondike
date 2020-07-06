@@ -2,12 +2,7 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader/root'
 import { useDispatch, useSelector } from 'react-redux'
 import FireworksComponent from './Fireworks'
-import {
-  newGame,
-  score,
-  version,
-  switchScoreType,
-} from '../../styles/cards.css'
+import { newGame, score, version, switchScoreType } from '../../styles/cards.css'
 import { initialize } from '../redux/actions'
 import { getScore } from '../redux/selectors'
 import { undo, redo } from '../redux/undoable'
@@ -15,12 +10,7 @@ import { ScoringType } from '../redux/globals'
 import GameCanvas from './GameCanvas'
 import StackElement from './StackElement'
 
-import {
-  getStock,
-  getFoundation,
-  getTableau,
-  getWaste,
-} from '../redux/selectors'
+import { getStock, getFoundation, getTableau, getWaste } from '../redux/selectors'
 
 const Container: React.FC = () => {
   const dispatch = useDispatch()
@@ -31,10 +21,7 @@ const Container: React.FC = () => {
   const { stacks: foundation } = useSelector(getFoundation)
 
   const otherGameType = React.useMemo(
-    () =>
-      scoringType === ScoringType.vegas
-        ? ScoringType.regular
-        : ScoringType.vegas,
+    () => (scoringType === ScoringType.vegas ? ScoringType.regular : ScoringType.vegas),
     [scoringType],
   )
 
@@ -70,11 +57,7 @@ const Container: React.FC = () => {
         <button id="new-game" className={newGame} onClick={handleNewGameClick}>
           {'New Game'}
         </button>
-        <button
-          id="change-type"
-          className={switchScoreType}
-          onClick={handleSwitchGameTypeClick}
-        >
+        <button id="change-type" className={switchScoreType} onClick={handleSwitchGameTypeClick}>
           {' Switch to '}
           {ScoringType[otherGameType]}
         </button>

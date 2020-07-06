@@ -45,9 +45,7 @@ const reducers: {
         ? {
             ...stack,
             cards: stack.cards.map((card, index) =>
-              index < stack.cards.length - 1
-                ? card
-                : { ...card, hidden: false },
+              index < stack.cards.length - 1 ? card : { ...card, hidden: false },
             ),
           }
         : stack,
@@ -55,10 +53,7 @@ const reducers: {
   }),
 }
 
-const tableauReducer = (
-  state: TableauStore = initialState,
-  action: GlobalActions,
-): TableauStore => {
+const tableauReducer = (state: TableauStore = initialState, action: GlobalActions): TableauStore => {
   const reducer = reducers[action.type]
   if (reducer != null) {
     return reducer(state, action)

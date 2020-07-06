@@ -15,25 +15,16 @@ interface GetCard {
   (context: DrawingContext, card?: StackCard): ImageData
 }
 
-export const isRed = ({ card: { suit } }: StackCard) =>
-  [SuitType.diamond, SuitType.heart].includes(suit)
+export const isRed = ({ card: { suit } }: StackCard) => [SuitType.diamond, SuitType.heart].includes(suit)
 
 interface CalculateFontSizes {
   (context: DrawingContext, card: StackCard, type: FontSizeType): string
 }
 
 export const isBig = ({ card: { value } }: StackCard) =>
-  [ValueType.ace, ValueType.jack, ValueType.queen, ValueType.king].includes(
-    value,
-  )
-    ? true
-    : false
+  [ValueType.ace, ValueType.jack, ValueType.queen, ValueType.king].includes(value) ? true : false
 
-export const getBoxPath = (
-  { x, y, width, height }: Box,
-  radius = 10,
-  smaller = 0,
-) => {
+export const getBoxPath = ({ x, y, width, height }: Box, radius = 10, smaller = 0) => {
   const path = new Path2D()
 
   const dx = x + smaller
@@ -71,22 +62,15 @@ export const getGlyphLocations = (
   const minCellWidth = Math.floor(cardWidth / 5)
   const minCellHeight = Math.floor(cardHeight / 10)
 
-  const searchFontSize = (
-    type: FontSizeType,
-    min: number,
-    max: number,
-  ): string => {
+  const searchFontSize = (type: FontSizeType, min: number, max: number): string => {
     const isBigEnough = (width: number, height: number) => {
-      if (type === FontSizeType.Corner)
-        return width > minCellWidth && height > minCellHeight / 2
+      if (type === FontSizeType.Corner) return width > minCellWidth && height > minCellHeight / 2
       else if (isBig(stackCard)) return width > cardWidth - minCellWidth * 2
       else return width > minCellWidth && height > minCellHeight
     }
     const index = Math.floor((max + min) / 2)
     ctx.font = `${allFontSizes[index]}px sans-serif`
-    const { width } = ctx.measureText(
-      type === FontSizeType.Corner ? '10' : '\u2665',
-    )
+    const { width } = ctx.measureText(type === FontSizeType.Corner ? '10' : '\u2665')
     const { width: height } = ctx.measureText('M') // approx
     if (min > max) return `${allFontSizes[index]}px sans-serif`
     if (isBigEnough(width, height)) return searchFontSize(type, min, index - 1)
@@ -94,16 +78,8 @@ export const getGlyphLocations = (
   }
 
   const fontSizes: { [key in FontSizeType]: string } = {
-    [FontSizeType.Corner]: searchFontSize(
-      FontSizeType.Corner,
-      0,
-      allFontSizes.length - 1,
-    ),
-    [FontSizeType.Regular]: searchFontSize(
-      FontSizeType.Regular,
-      0,
-      allFontSizes.length - 1,
-    ),
+    [FontSizeType.Corner]: searchFontSize(FontSizeType.Corner, 0, allFontSizes.length - 1),
+    [FontSizeType.Regular]: searchFontSize(FontSizeType.Regular, 0, allFontSizes.length - 1),
   }
 
   const { suit, value } = card
@@ -269,10 +245,7 @@ export const getHiddenImageData: GetCard = ({
   return ctx.getImageData(box.x, box.y, box.width, box.height)
 }
 
-export const getCardImageData: GetCard = (
-  context: DrawingContext,
-  card: StackCard,
-) => {
+export const getCardImageData: GetCard = (context: DrawingContext, card: StackCard) => {
   const { ctx, cardWidth: width, cardHeight: height, colorScheme } = context
   const box = { x: 0, y: 0, width, height }
 
@@ -294,11 +267,7 @@ export const getCardImageData: GetCard = (
       ctx.translate(width, height)
       ctx.rotate(Math.PI)
     }
-    ctx.fillText(
-      glyph.glyph,
-      glyph.x + box.x * (glyph.rotated ? -1 : 1),
-      glyph.y + box.y * (glyph.rotated ? -1 : 1),
-    )
+    ctx.fillText(glyph.glyph, glyph.x + box.x * (glyph.rotated ? -1 : 1), glyph.y + box.y * (glyph.rotated ? -1 : 1))
     if (glyph.rotated) ctx.restore()
   }
   return ctx.getImageData(box.x, box.y, box.width, box.height)

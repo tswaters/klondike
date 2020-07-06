@@ -9,12 +9,7 @@ import score, { ScoreStore, ScoreActions } from './score'
 import deck, { DeckStore, DeckActions } from './deck'
 import { History, UndoableActions } from './undoable'
 
-export type StoreActions =
-  | GlobalActions
-  | ScoreActions
-  | UndoableActions
-  | DeckActions
-  | StockActions
+export type StoreActions = GlobalActions | ScoreActions | UndoableActions | DeckActions | StockActions
 
 export type StoreState = {
   deck: History<DeckStore>

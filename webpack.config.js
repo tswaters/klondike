@@ -34,10 +34,7 @@ module.exports = (env, argv) => {
             sourceMap: true,
             localsConvention: 'camelCase',
             modules: {
-              localIdentName:
-                argv.mode === 'production'
-                  ? '[hash:base64:5]'
-                  : '[path][name]__[local]--[hash:base64:5]',
+              localIdentName: argv.mode === 'production' ? '[hash:base64:5]' : '[path][name]__[local]--[hash:base64:5]',
             },
           },
         },
@@ -88,10 +85,7 @@ module.exports = (env, argv) => {
       splitChunks: {
         chunks: 'all',
       },
-      minimizer: [
-        new TerserPlugin({ sourceMap: true }),
-        new OptimizeCSSAssetsPlugin({}),
-      ],
+      minimizer: [new TerserPlugin({ sourceMap: true }), new OptimizeCSSAssetsPlugin({})],
     },
     resolve: {
       extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.scss'],

@@ -19,10 +19,7 @@ export const removeCards = (cards: StackCard[]): RemoveCardAction => ({
 
 export type DeckActions = RemoveCardAction
 
-export const getRandomCards = (count: number): ThunkResult<StackCard[]> => (
-  dispatch,
-  getState,
-) => {
+export const getRandomCards = (count: number): ThunkResult<StackCard[]> => (dispatch, getState) => {
   const {
     deck: [...deck_cards],
   } = getDeck(getState())
@@ -41,10 +38,7 @@ export const getRandomCards = (count: number): ThunkResult<StackCard[]> => (
 }
 
 const reducers: {
-  [key: string]: (
-    state: DeckStore,
-    action: DeckActions | GlobalActions,
-  ) => DeckStore
+  [key: string]: (state: DeckStore, action: DeckActions | GlobalActions) => DeckStore
 } = {
   [INITIALIZE]: () => ({
     deck: Array.from(Cards, (card) => ({
@@ -56,10 +50,7 @@ const reducers: {
   }),
 }
 
-const deckReducer = (
-  state: DeckStore = { deck: [] },
-  action: DeckActions | GlobalActions,
-): DeckStore => {
+const deckReducer = (state: DeckStore = { deck: [] }, action: DeckActions | GlobalActions): DeckStore => {
   const reducer = reducers[action.type]
   if (reducer != null) {
     return reducer(state, action)

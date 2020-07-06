@@ -25,10 +25,7 @@ export type ScoreActions = IncrementAction
 const score = getSavedScore()
 const initialState: ScoreStore = { score, scoringType: ScoringType.regular }
 
-const scoreReducer = (
-  state: ScoreStore = initialState,
-  action: ScoreActions | GlobalActions,
-): ScoreStore => {
+const scoreReducer = (state: ScoreStore = initialState, action: ScoreActions | GlobalActions): ScoreStore => {
   if (action.type === INITIALIZE) {
     const oldScore = getSavedScore()
 
@@ -40,30 +37,18 @@ const scoreReducer = (
 
   if (action.type === INCREMENT_SCORE) {
     let score = 0
-    if (
-      state.scoringType === ScoringType.regular &&
-      action.scoreType === ScoreType.tableauToFoundation
-    ) {
+    if (state.scoringType === ScoringType.regular && action.scoreType === ScoreType.tableauToFoundation) {
       score = 10
     } else if (
       action.scoreType === ScoreType.wasteToFoundation ||
-      (state.scoringType === ScoringType.vegas &&
-        action.scoreType === ScoreType.tableauToFoundation) ||
-      (state.scoringType === ScoringType.regular &&
-        action.scoreType === ScoreType.revealCard) ||
-      (state.scoringType === ScoringType.regular &&
-        action.scoreType === ScoreType.wasteToTableau)
+      (state.scoringType === ScoringType.vegas && action.scoreType === ScoreType.tableauToFoundation) ||
+      (state.scoringType === ScoringType.regular && action.scoreType === ScoreType.revealCard) ||
+      (state.scoringType === ScoringType.regular && action.scoreType === ScoreType.wasteToTableau)
     ) {
       score = 5
-    } else if (
-      state.scoringType === ScoringType.regular &&
-      ScoreType.foundationToTableau
-    ) {
+    } else if (state.scoringType === ScoringType.regular && ScoreType.foundationToTableau) {
       score = 10
-    } else if (
-      state.scoringType === ScoringType.vegas &&
-      action.scoreType === ScoreType.foundationToTableau
-    ) {
+    } else if (state.scoringType === ScoringType.vegas && action.scoreType === ScoreType.foundationToTableau) {
       score = -5
     }
 

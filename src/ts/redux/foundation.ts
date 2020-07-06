@@ -24,10 +24,7 @@ const initialState: FoundationStore = {
 }
 
 const reducers: {
-  [key: string]: (
-    state: FoundationStore,
-    action: GlobalActions,
-  ) => FoundationStore
+  [key: string]: (state: FoundationStore, action: GlobalActions) => FoundationStore
 } = {
   [INITIALIZE]: () => ({ ...initialState }),
   [SELECT_CARD]: selectCard,
@@ -35,10 +32,7 @@ const reducers: {
   [MOVE_CARDS]: moveCards,
 }
 
-const foundationReducer = (
-  state: FoundationStore = initialState,
-  action: GlobalActions,
-): FoundationStore => {
+const foundationReducer = (state: FoundationStore = initialState, action: GlobalActions): FoundationStore => {
   const reducer = reducers[action.type]
   if (reducer != null) {
     return reducer(state, action)

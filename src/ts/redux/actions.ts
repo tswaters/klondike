@@ -1,20 +1,8 @@
 import { ThunkResult } from './index'
-import {
-  getStock,
-  getTableau,
-  getFoundation,
-  getWaste,
-  getAllStacks,
-  getScore,
-} from './selectors'
+import { getStock, getTableau, getFoundation, getWaste, getAllStacks, getScore } from './selectors'
 import { getRandomCards } from './deck'
 import { Card, ValueType, Stack, StackCard, StackType } from '../lib/Card'
-import {
-  get_top_card,
-  movable_to_foundation,
-  get_selection,
-  movable_to_tableau,
-} from '../lib/util'
+import { get_top_card, movable_to_foundation, get_selection, movable_to_tableau } from '../lib/util'
 import { checkpoint } from './undoable'
 import { incrementScore } from './score'
 import {
@@ -34,10 +22,7 @@ import {
 } from './globals'
 import { decrementDraws } from './stock'
 
-export const initialize = (newScoringType?: ScoringType): ThunkResult<void> => (
-  dispatch,
-  getState,
-) => {
+export const initialize = (newScoringType?: ScoringType): ThunkResult<void> => (dispatch, getState) => {
   let scoringType = newScoringType
   if (scoringType == null) ({ scoringType } = getScore(getState()))
 
@@ -76,10 +61,11 @@ export const selectCard = (stack: Stack, card: StackCard): SelectAction => ({
 
 export const deselectCard = (): DeselectAction => ({ type: DESELECT_CARD })
 
-export const appendCards = (
-  stack: Stack,
-  cards: StackCard[],
-): AppendCardAction => ({ type: APPEND_CARDS, cards, stack })
+export const appendCards = (stack: Stack, cards: StackCard[]): AppendCardAction => ({
+  type: APPEND_CARDS,
+  cards,
+  stack,
+})
 
 export const moveCards = (
   from: Stack,
@@ -93,9 +79,7 @@ export const moveCards = (
     if (from_card == null) {
       throw new Error('from card reqired when index not provided')
     }
-    index = from.cards.findIndex(
-      (card) => !!card.card && card.card === from_card,
-    )
+    index = from.cards.findIndex((card) => !!card.card && card.card === from_card)
   }
 
   const cards = from.cards.slice(index)
@@ -128,10 +112,7 @@ export const clickCard: CardClickAction = (stack, card) => (dispatch) => {
   }
 }
 
-export const doubleClickCard: CardClickAction = (stack, stackCard) => (
-  dispatch,
-  getState,
-) => {
+export const doubleClickCard: CardClickAction = (stack, stackCard) => (dispatch, getState) => {
   if (stack.type === StackType.foundation || stack.type === StackType.stock) {
     return
   }
@@ -183,10 +164,7 @@ export const doubleClickCard: CardClickAction = (stack, stackCard) => (
   }
 }
 
-export const clickFoundation: CardClickAction = (stack, stackCard) => (
-  dispatch,
-  getState,
-) => {
+export const clickFoundation: CardClickAction = (stack, stackCard) => (dispatch, getState) => {
   const stacks = getAllStacks(getState())
   const selection = get_selection(stacks)
 
@@ -221,10 +199,7 @@ export const clickFoundation: CardClickAction = (stack, stackCard) => (
   }
 }
 
-export const clickWaste: CardClickAction = (stack, stackCard) => (
-  dispatch,
-  getState,
-) => {
+export const clickWaste: CardClickAction = (stack, stackCard) => (dispatch, getState) => {
   if (!stackCard) {
     return
   }
@@ -243,10 +218,7 @@ export const clickWaste: CardClickAction = (stack, stackCard) => (
   }
 }
 
-export const clickTableau: CardClickAction = (stack, stackCard) => (
-  dispatch,
-  getState,
-) => {
+export const clickTableau: CardClickAction = (stack, stackCard) => (dispatch, getState) => {
   const stacks = getAllStacks(getState())
   const selection = get_selection(stacks)
   const top_card = get_top_card(stack)
