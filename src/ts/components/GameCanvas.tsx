@@ -24,6 +24,8 @@ interface Add<T> {
 }
 
 type SizeDetails = {
+  canvasWidth: number
+  canvasHeight: number
   cardWidth: number
   cardHeight: number
   gutterWidth: number
@@ -38,11 +40,13 @@ export type GameContext<T extends Drawable> = {
 
 export const GameCtx = React.createContext<GameContext<Drawable> | null>(null)
 
-const useCanvasSize = (ctx: CanvasRenderingContext2D | null) => {
+const useCanvasSize = (canvas: HTMLCanvasElement | null) => {
   const getSize = () => {
     const gutterWidth = 20
     const gutterHeight = 30
     return {
+      canvasWidth: canvas?.width ?? 0,
+      canvasHeight: canvas?.height ?? 0,
       cardWidth: Math.max(
         100,
         Math.floor((window.innerWidth - gutterWidth * 8) / 7),
@@ -57,6 +61,8 @@ const useCanvasSize = (ctx: CanvasRenderingContext2D | null) => {
   }
   const [size, setSize] = React.useState<SizeDetails>(getSize())
   React.useEffect(() => {
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
     if (ctx == null) return
     let tid: number
     const handleSize = () => {
@@ -66,7 +72,9 @@ const useCanvasSize = (ctx: CanvasRenderingContext2D | null) => {
       }, 300)
     }
     window.addEventListener('resize', handleSize)
-    return () => window.removeEventListener('resize', handleSize)
+    return () => {
+      window.removeEventListener('resize', handleSize)
+    }
   })
   return size
 }
@@ -97,37 +105,32 @@ const GameCanvas: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [colorScheme] = React.useState<ColorScheme>(
     colorSchemes[ColorSchemeType.light],
   )
-  const [ctx, setContext] = React.useState<CanvasRenderingContext2D | null>(
-    null,
-  )
-  const canvasSize = useCanvasSize(ctx)
+  const [canvas, setContext] = React.useState<HTMLCanvasElement | null>(null)
+  const canvasSize = useCanvasSize(canvas)
 
-  const gameContext = React.useMemo(
-    () =>
-      ctx && {
-        ctx,
-        cardWidth: canvasSize.cardWidth,
-        cardHeight: canvasSize.cardHeight,
-        gutterWidth: canvasSize.gutterWidth,
-        gutterHeight: canvasSize.gutterHeight,
-        colorScheme,
-      },
-    [ctx, canvasSize, colorScheme],
-  )
+  const gameContext = React.useMemo(() => {
+    if (!canvas) return null
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+    return {
+      ctx,
+      canvasWidth: canvasSize.canvasWidth,
+      canvasHeight: canvasSize.canvasHeight,
+      cardWidth: canvasSize.cardWidth,
+      cardHeight: canvasSize.cardHeight,
+      gutterWidth: canvasSize.gutterWidth,
+      gutterHeight: canvasSize.gutterHeight,
+      colorScheme,
+    }
+  }, [canvas, canvasSize, colorScheme])
 
   React.useLayoutEffect(() => {
     if (gameContext) initialize(gameContext)
-    return () => {
-      // gameContext?.ctx.clearRect(0, 0, gameContext.)
-    }
   }, [gameContext])
 
   const handleCanvasRef = React.useCallback((canvas: HTMLCanvasElement) => {
     if (canvas) {
-      const ctx = canvas.getContext('2d')
-      if (ctx) {
-        setContext(ctx)
-      }
+      setContext(canvas)
     }
   }, [])
 

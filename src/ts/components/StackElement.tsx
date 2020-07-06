@@ -19,6 +19,9 @@ const StackElement: React.FC<{
 }> = ({ stack, draws, showing }) => {
   const dispatch = useDispatch()
   const gameContext = React.useContext(GameCtx)
+  const performCleanup = React.useRef(true)
+  const lastWidth = React.useRef(gameContext?.context.canvasWidth ?? 0)
+  const lastHeight = React.useRef(gameContext?.context.canvasHeight ?? 0)
 
   const doubleClick = React.useCallback(
     (thing: DrawableStack, point: Point) => {
@@ -53,6 +56,15 @@ const StackElement: React.FC<{
   )
 
   React.useEffect(() => {
+    if (
+      lastHeight.current !== gameContext?.context.canvasHeight ||
+      lastWidth.current !== gameContext?.context.canvasWidth
+    ) {
+      performCleanup.current = false
+    }
+  }, [gameContext])
+
+  React.useEffect(() => {
     if (gameContext == null) return
     const { add, remove, context } = gameContext
     const { ctx } = context
@@ -63,8 +75,12 @@ const StackElement: React.FC<{
     add(path, thing, { click, doubleClick })
 
     return () => {
-      ctx.clearRect(box.x, box.y, box.width, box.height)
       remove(path)
+      if (performCleanup.current) {
+        ctx.clearRect(box.x, box.y, box.width, box.height)
+      } else {
+        performCleanup.current = true
+      }
     }
   }, [gameContext, click, doubleClick, stack, draws, showing])
 

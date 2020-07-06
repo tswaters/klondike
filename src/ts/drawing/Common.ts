@@ -26,6 +26,8 @@ export type Drawable = {
 
 export type DrawingContext = {
   ctx: CanvasRenderingContext2D
+  canvasWidth: number
+  canvasHeight: number
   colorScheme: ColorScheme
   cardWidth: number
   cardHeight: number
@@ -59,7 +61,6 @@ export const initialize = (context: DrawingContext) => {
   c2 = document.createElement('canvas')
   c2.width = context.cardWidth
   c2.height = context.cardHeight
-  console.log('INITIALIZING TO', context.cardWidth, context.cardHeight)
   context.ctx.clearRect(0, 0, context.cardWidth + 2, context.cardHeight + 2)
 }
 
