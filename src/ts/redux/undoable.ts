@@ -1,5 +1,4 @@
-import { Reducer, Action, AnyAction } from 'redux'
-import { INITIALIZE } from './globals'
+import { Reducer, AnyAction } from 'redux'
 
 export type History<State> = {
   past: State[]
@@ -7,24 +6,25 @@ export type History<State> = {
   future: State[]
 }
 
-const UNDO = 'UNDO'
-type UNDO = typeof UNDO
-type UndoAction = { type: UNDO }
+const DESTROY = '@@undoable/destroy'
+export type DestroyAction = { type: typeof DESTROY }
+export const destroy = (): DestroyAction => ({ type: DESTROY })
+
+const UNDO = '@@undoable/undo'
+type UndoAction = { type: typeof UNDO }
 export const undo = (): UndoAction => ({ type: UNDO })
 
-const REDO = 'REDO'
-type REDO = typeof REDO
-type RedoAction = { type: REDO }
+const REDO = '@@undoable/redo'
+type RedoAction = { type: typeof REDO }
 export const redo = (): RedoAction => ({ type: REDO })
 
-const CHECKPOINT = 'CHECKPOINT'
-type CHECKPOINT = typeof CHECKPOINT
-type CheckpointAction = { type: CHECKPOINT }
+const CHECKPOINT = '@@undoable/checkpoint'
+type CheckpointAction = { type: typeof CHECKPOINT }
 export const checkpoint = (): CheckpointAction => ({ type: CHECKPOINT })
 
-export type UndoableActions = UndoAction | RedoAction | CheckpointAction
+export type UndoableActions = DestroyAction | UndoAction | RedoAction | CheckpointAction
 
-export const undoable = <S, A extends AnyAction = Action>(reducer: Reducer<S, A>) => {
+export const undoable = <S, A extends AnyAction = UndoableActions>(reducer: Reducer<S, A>) => {
   const initialState: History<S> = {
     past: [],
     present: reducer(undefined, {} as A),
@@ -64,7 +64,7 @@ export const undoable = <S, A extends AnyAction = Action>(reducer: Reducer<S, A>
 
     const newPresent = reducer(present, action)
 
-    if (action.type === INITIALIZE) {
+    if (action.type === DESTROY) {
       return {
         past: [],
         present: newPresent,

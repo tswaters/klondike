@@ -6,7 +6,7 @@ import { getFoundation } from '../redux/selectors'
 const Fireworks: React.FC = () => {
   const ref = React.useRef<HTMLDivElement>(null)
   const fireworksObj = React.useRef<FireworksCanvas>()
-  const { stacks: foundation } = useSelector(getFoundation)
+  const foundation = useSelector(getFoundation)
   const active = foundation.every((stack) => stack.cards.length === 13)
   const display = active ? '' : 'none'
 

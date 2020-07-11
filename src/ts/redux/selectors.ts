@@ -1,42 +1,69 @@
 import { createSelector } from 'reselect'
 import { StoreState } from './index'
+import { Card, ValueType, Stack, StackType } from '../lib/Card'
+import { isSequential } from '../lib/util'
 
-export const getFoundation = createSelector(
-  (state: StoreState) => state.foundation.present,
-  (foundation) => foundation,
+export type Selection = { card: Card; stack: Stack } | null
+
+export const getAllStacks = createSelector(
+  (state: StoreState) => state.stacks.present.stacks,
+  (stacks) => stacks,
 )
 
-export const getScore = createSelector(
-  (state: StoreState) => state.score.present,
-  (score) => score,
+export const getFoundation = createSelector(getAllStacks, (stacks) =>
+  stacks.filter((stack) => stack.type === StackType.foundation),
+)
+
+export const getTableau = createSelector(getAllStacks, (stacks) =>
+  stacks.filter((stack) => stack.type === StackType.tableau),
 )
 
 export const getStock = createSelector(
-  (state: StoreState) => state.stock.present,
-  (stock) => stock,
-)
-
-export const getTableau = createSelector(
-  (state: StoreState) => state.tableau.present,
-  (tableau) => tableau,
+  getAllStacks,
+  (stacks) => stacks.filter((stack) => stack.type === StackType.stock)[0],
 )
 
 export const getWaste = createSelector(
-  (state: StoreState) => state.waste.present,
-  (waste) => waste,
+  getAllStacks,
+  (stacks) => stacks.filter((stack) => stack.type === StackType.waste)[0],
 )
 
-export const getDeck = createSelector(
-  (state: StoreState) => state.deck.present,
-  (deck) => deck,
+export const getFoundationStack = createSelector(
+  getFoundation,
+  (_: unknown, card: Card) => card,
+  (foundation, card) =>
+    foundation.find(({ cards }) => {
+      const last = cards[cards.length - 1]
+      return last == null ? card.value === ValueType.ace : last.card.suit === card.suit && isSequential(card, last.card)
+    }),
 )
 
-export const getAllStacks = createSelector(
-  [getFoundation, getWaste, getTableau, getStock],
-  ({ stacks: foundation }, { stacks: waste }, { stacks: tableau }, { stacks: stock }) => [
-    ...foundation,
-    ...waste,
-    ...tableau,
-    ...stock,
-  ],
+export const getScoreStore = createSelector(
+  (state: StoreState) => state.gameState.present,
+  (score) => score,
+)
+
+export const getScore = createSelector(getScoreStore, (score) => score.score)
+
+export const getScoringType = createSelector(getScoreStore, (score) => score.scoringType)
+
+export const getDraws = createSelector(
+  (state: StoreState) => state.gameState.present,
+  ({ draws }) => draws,
+)
+
+export const getShowing = createSelector(
+  (state: StoreState) => state.gameState.present,
+  ({ showing }) => showing,
+)
+
+export const getSelection = createSelector(getAllStacks, (stacks) => {
+  const stack = stacks.find((stack) => stack.selection != null)
+  if (stack) return { card: stack.selection, stack: stack } as Selection
+  return null
+})
+
+export const disallowClickStock = createSelector(
+  [getStock, getDraws],
+  (stock, draws) => stock.cards.length === 0 && draws === 0,
 )

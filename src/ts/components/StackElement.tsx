@@ -3,7 +3,7 @@ import { GameCtx } from './GameCanvas'
 import { drawStack } from '../drawing/Stack'
 import { Stack, StackDirection, StackCard } from '../lib/Card'
 import { useDispatch } from 'react-redux'
-import { clickCard, doubleClickCard } from '../redux/actions'
+import { clickCard, doubleClickCard } from '../redux/thunks'
 import { Drawable, Point } from '../drawing/Common'
 
 type DrawableStack = Drawable & {

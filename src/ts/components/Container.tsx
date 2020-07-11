@@ -3,27 +3,28 @@ import { hot } from 'react-hot-loader/root'
 import { useDispatch, useSelector } from 'react-redux'
 import FireworksComponent from './Fireworks'
 import { newGame, score, version, switchScoreType } from '../../styles/cards.css'
-import { initialize } from '../redux/actions'
-import { getScore } from '../redux/selectors'
+import { initialize } from '../redux/thunks'
+import { getScore, getScoringType } from '../redux/selectors'
 import { undo, redo } from '../redux/undoable'
-import { ScoringType } from '../redux/globals'
+import { ScoringType } from '../redux/game-state'
 import GameCanvas from './GameCanvas'
 import StackElement from './StackElement'
 
-import { getStock, getFoundation, getTableau, getWaste } from '../redux/selectors'
+import { getDraws, getShowing, getAllStacks } from '../redux/selectors'
 
 const Container: React.FC = () => {
   const dispatch = useDispatch()
-  const { score: currentScore, scoringType } = useSelector(getScore)
-  const { stacks: stock, draws } = useSelector(getStock)
-  const { stacks: waste, showing } = useSelector(getWaste)
-  const { stacks: tableau } = useSelector(getTableau)
-  const { stacks: foundation } = useSelector(getFoundation)
+  const stacks = useSelector(getAllStacks)
+  const currentScore = useSelector(getScore)
+  const scoringType = useSelector(getScoringType)
+  const draws = useSelector(getDraws)
+  const showing = useSelector(getShowing)
 
-  const otherGameType = React.useMemo(
-    () => (scoringType === ScoringType.vegas ? ScoringType.regular : ScoringType.vegas),
-    [scoringType],
-  )
+  const { otherGameType, switchLabel } = React.useMemo(() => {
+    const otherGameType = scoringType === ScoringType.vegas ? ScoringType.regular : ScoringType.vegas
+    const switchLabel = `Switch to ${ScoringType[otherGameType]}`
+    return { otherGameType, switchLabel }
+  }, [scoringType])
 
   const handleNewGameClick = React.useCallback(() => {
     dispatch(initialize())
@@ -67,17 +68,8 @@ const Container: React.FC = () => {
         </label>
       </div>
       <GameCanvas>
-        {stock.map((stack) => (
-          <StackElement key={stack.index} stack={stack} draws={draws} />
-        ))}
-        {waste.map((stack) => (
-          <StackElement key={stack.index} stack={stack} showing={showing} />
-        ))}
-        {tableau.map((stack) => (
-          <StackElement key={stack.index} stack={stack} />
-        ))}
-        {foundation.map((stack) => (
-          <StackElement key={stack.index} stack={stack} />
+        {stacks.map((stack) => (
+          <StackElement key={`${stack.type}-${stack.index}`} stack={stack} showing={showing} draws={draws} />
         ))}
       </GameCanvas>
       <div className={version}>{process.env.version}</div>

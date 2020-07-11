@@ -3,8 +3,7 @@ import * as React from 'react'
 import { Provider } from 'react-redux'
 
 import configStore from '../store'
-import { initialize } from '../redux/actions'
-import { ThunkDispatch } from '../redux'
+import { ThunkDispatch, initialize } from '../redux/thunks'
 import Container from './Container'
 
 const App: React.FC = () => {

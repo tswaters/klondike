@@ -43,11 +43,12 @@ module.exports = (env, argv) => {
   ]
 
   const plugins = [
-    // new CircularDependencyPlugin({
-    //   failOnError: true,
-    //   allowAsyncCycles: false,
-    //   cwd: process.cwd(),
-    // }),
+    new CircularDependencyPlugin({
+      exclude: /node_modules/,
+      failOnError: false,
+      allowAsyncCycles: false,
+      cwd: process.cwd(),
+    }),
     new MiniCssExtractPlugin({
       filename: `[name]${chunkhash}.css`,
       chunkFilename: `[id]${chunkhash}.css`,
