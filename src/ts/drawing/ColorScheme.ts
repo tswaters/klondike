@@ -4,8 +4,10 @@ export enum ColorSchemeType {
 }
 
 export type ColorScheme = {
+  background: string
   faceDown: string
-  border: string
+  buttonBorder: string
+  cardBorder: string
   faceUp: string
   selected: string
   red: string
@@ -16,25 +18,27 @@ export type ColorScheme = {
 
 export const colorSchemes: { [key in ColorSchemeType]: ColorScheme } = {
   [ColorSchemeType.dark]: {
-    faceUp: '#111',
+    background: '#000',
+    emptyColor: '#060606',
+    faceUp: '#222',
     faceDown: '#333',
-    border: '#aaa',
+    buttonBorder: '#ddd',
+    cardBorder: '#000',
+    black: '#999',
+    red: '#900',
     selected: '#660',
-    red: '#600',
-    black: '#777',
-    errorColor: 'red',
-    emptyColor: '#333',
+    errorColor: '#900',
   },
   [ColorSchemeType.light]: {
-    faceUp: '#eee',
-    faceDown: '#ddd',
-    border: '#333',
-    selected: 'yellow',
-    red: 'crimson',
+    background: '#fff',
+    emptyColor: '#eee',
+    faceUp: '#ddd',
+    faceDown: '#ccc',
+    buttonBorder: '#000',
+    cardBorder: '#333',
     black: '#333',
+    red: 'crimson',
+    selected: 'yellow',
     errorColor: 'red',
-    emptyColor: '#fff',
   },
 }
-
-// export { colorSchemes }

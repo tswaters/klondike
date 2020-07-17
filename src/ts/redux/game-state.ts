@@ -88,6 +88,7 @@ const reducer = (state: GameStateStore = initialState, action: StoreActions): Ga
       ...state,
       scoringType: action.scoringType,
       score: action.scoringType === ScoringType.vegas ? getSavedScore() - 52 : 0,
+      draws: action.scoringType === ScoringType.vegas ? 2 : Infinity,
     }
   }
 

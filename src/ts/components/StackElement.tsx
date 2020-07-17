@@ -1,82 +1,49 @@
 import * as React from 'react'
 import { GameCtx } from './GameCanvas'
-import { drawStack } from '../drawing/Stack'
-import { Stack, StackDirection, StackCard } from '../lib/Card'
+import { drawStack, DrawableStack, StackDrawingContext, getStackDrawingContext } from '../drawing/Stack'
+import { Stack, StackDirection, StackType } from '../lib/Card'
 import { useDispatch } from 'react-redux'
 import { clickCard, doubleClickCard } from '../redux/thunks'
-import { Drawable, Point } from '../drawing/Common'
-
-type DrawableStack = Drawable & {
-  stack: Stack
-  direction: StackDirection | null
-  cards: StackCard[]
-}
+import { Point } from '../drawing/Common'
+import { useDrawing } from '../hooks/useDrawing'
+import { useMemo } from 'react'
 
 const StackElement: React.FC<{
   stack: Stack
-  draws?: number
-  showing?: number
+  draws: number
+  showing: number
 }> = ({ stack, draws, showing }) => {
   const dispatch = useDispatch()
   const gameContext = React.useContext(GameCtx)
-  const performCleanup = React.useRef(true)
-  const lastWidth = React.useRef(gameContext?.context.canvasWidth ?? 0)
-  const lastHeight = React.useRef(gameContext?.context.canvasHeight ?? 0)
 
-  const doubleClick = React.useCallback(
-    (thing: DrawableStack, point: Point) => {
-      if (gameContext == null || gameContext.context == null) return
-      const { stack, cards, box, direction } = thing
-      const prop = direction === StackDirection.horizontal ? 'x' : 'y'
-      const spaceProp = direction === StackDirection.horizontal ? 'gutterWidth' : 'gutterHeight'
-      const guess = Math.floor((point[prop] - box[prop]) / gameContext.context[spaceProp] ?? 20)
-      const index = Math.min(cards.length - 1, guess)
-      dispatch(doubleClickCard(stack, cards[index]))
-    },
-    [dispatch, gameContext],
+  const drawingOpts = useMemo<StackDrawingContext | null>(
+    () => gameContext && getStackDrawingContext(gameContext.context, stack, { draws, showing }),
+    [gameContext, stack, draws, showing],
   )
 
-  const click = React.useCallback(
+  const onDoubleClick = React.useCallback(
     (thing: DrawableStack, point: Point) => {
-      if (gameContext == null || gameContext.context == null) return
-      const { stack, cards, box, direction } = thing
-      const prop = direction === StackDirection.horizontal ? 'x' : 'y'
-      const spaceProp = direction === StackDirection.horizontal ? 'gutterWidth' : 'gutterHeight'
-      const guess = Math.floor((point[prop] - box[prop]) / gameContext.context[spaceProp] ?? 20)
-      const index = Math.min(cards.length - 1, guess)
-      dispatch(clickCard(stack, cards[index]))
+      if (gameContext == null || drawingOpts == null) return
+      const prop = stack.direction === StackDirection.horizontal ? 'x' : 'y'
+      const cards = stack.cards.slice(-drawingOpts.max)
+      const index = Math.min(cards.length - 1, Math.floor((point[prop] - drawingOpts.box[prop]) / drawingOpts.space))
+      if (stack.type !== StackType.waste || index === cards.length - 1) dispatch(doubleClickCard(stack, cards[index]))
     },
-    [dispatch, gameContext],
+    [dispatch, gameContext, drawingOpts, stack],
   )
 
-  React.useEffect(() => {
-    if (
-      lastHeight.current !== gameContext?.context.canvasHeight ||
-      lastWidth.current !== gameContext?.context.canvasWidth
-    ) {
-      performCleanup.current = false
-    }
-  }, [gameContext])
+  const onClick = React.useCallback(
+    (thing: DrawableStack, point: Point) => {
+      if (gameContext == null || drawingOpts == null) return
+      const prop = stack.direction === StackDirection.horizontal ? 'x' : 'y'
+      const cards = stack.cards.slice(-drawingOpts.max)
+      const index = Math.min(cards.length - 1, Math.floor((point[prop] - drawingOpts.box[prop]) / drawingOpts.space))
+      if (stack.type !== StackType.waste || index === cards.length - 1) dispatch(clickCard(stack, cards[index]))
+    },
+    [dispatch, gameContext, drawingOpts, stack],
+  )
 
-  React.useEffect(() => {
-    if (gameContext == null) return
-    const { add, remove, context } = gameContext
-    const { ctx } = context
-
-    const thing = drawStack(context, { stack, draws, showing })
-    const { path, box } = thing
-
-    add(path, thing, { click, doubleClick })
-
-    return () => {
-      remove(path)
-      if (performCleanup.current) {
-        ctx.clearRect(box.x, box.y, box.width, box.height)
-      } else {
-        performCleanup.current = true
-      }
-    }
-  }, [gameContext, click, doubleClick, stack, draws, showing])
+  useDrawing((context) => drawStack(context, drawingOpts), { onClick, onDoubleClick })
 
   return null
 }

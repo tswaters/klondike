@@ -21,6 +21,9 @@ export const isRed = (card: Card) => [SuitType.diamond, SuitType.heart].includes
 
 export const isBlack = (card: Card) => [SuitType.club, SuitType.spade].includes(card.suit)
 
+export const isBig = (card: Card) =>
+  [ValueType.ace, ValueType.jack, ValueType.queen, ValueType.king].includes(card.value) ? true : false
+
 export const isValidMove = (card: Card, destination?: StackCard) => {
   return destination == null
     ? card.value === ValueType.king

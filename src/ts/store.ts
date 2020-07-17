@@ -12,7 +12,14 @@ export default () => {
   middleware.push(thunk as ThunkMiddleware<StoreState, StoreActions>)
 
   if (process.env.NODE_ENV !== 'production') {
-    middleware.push(createLogger())
+    middleware.push(
+      createLogger({
+        stateTransformer: (state: StoreState) => ({
+          gameState: state.gameState.present,
+          stacks: state.stacks.present,
+        }),
+      }),
+    )
   }
 
   const store = createStore(reducer, void 0, applyMiddleware(...middleware))

@@ -1,99 +1,60 @@
-import { Stack, StackCard, StackDirection, StackType } from '../lib/Card'
-import { Box, Point, writeDataToCanvas, cardCache, getKey, DrawingContext } from './Common'
+import { Stack, StackDirection, StackType } from '../lib/Card'
+import { writeDataToCanvas, cardCache, getKey, DrawingContext, Drawable, DrawRoutine, Box } from './Common'
+import { getStackCardOffsetWidth, getStackCardOffsetHeight, getStackBox } from './Layout'
 
-type StackDrawingOptions = {
-  direction: StackDirection | null
-  max?: number
-  offset: Point
-}
+export type DrawableStack = Drawable
 
-type DrawStackReturn = {
-  path: Path2D
+export type StackDrawingContext = StackDrawingOptions & {
+  stack: Stack
+  space: number
+  max: number
   box: Box
-  stack: Stack
-  direction: StackDirection | null
-  cards: StackCard[]
 }
 
-type StackDrawingContext = {
-  stack: Stack
-  draws?: number
-  showing?: number
+export type StackDrawingOptions = {
+  draws: number
+  showing: number
 }
 
-interface GetStackOptions {
-  (arg0: DrawingContext, arg1: StackDrawingContext): StackDrawingOptions
-}
+export const getStackDrawingContext = (
+  context: DrawingContext,
+  stack: Stack,
+  opts: StackDrawingOptions,
+): StackDrawingContext => {
+  const gutterWidth = getStackCardOffsetWidth(context)
+  const gutterHeight = getStackCardOffsetHeight(context)
 
-export const getStackOptions: GetStackOptions = (
-  { cardWidth, cardHeight, gutterWidth, gutterHeight },
-  { stack, showing },
-) => {
-  const y = gutterHeight
-  const x = gutterWidth
-  const cw = cardWidth + gutterWidth
-  const ch = cardHeight + gutterHeight
-  let offset: Point
-  let direction: StackDirection | null = null
-  let max
-  switch (stack.type) {
-    case StackType.stock:
-      offset = { x, y }
-      max = 1
-      break
-    case StackType.waste:
-      offset = { x: x + cw, y }
-      direction = StackDirection.horizontal
-      max = showing
-      break
-    case StackType.foundation:
-      offset = { x: x + 3 * cw + cw * stack.index, y }
-      max = 1
-      break
-    case StackType.tableau:
-      offset = { x: x + cw * stack.index, y: y + ch * 1 }
-      direction = StackDirection.vertical
-      break
-  }
-  return { offset, direction, max }
-}
+  const max =
+    stack.type === StackType.stock || stack.type === StackType.foundation
+      ? 1
+      : stack.type === StackType.waste
+      ? opts.showing || 0
+      : stack.cards.length
+  const box = getStackBox(context, stack, max)
 
-export interface DrawStack {
-  (context: DrawingContext, arg1: StackDrawingContext): DrawStackReturn
-}
+  const space = stack.direction === StackDirection.horizontal ? gutterWidth : gutterHeight
 
-export const drawStack: DrawStack = (context, { stack, draws, showing }) => {
-  let { cards } = stack
-  const { direction, max, offset } = getStackOptions(context, {
+  return {
     stack,
-    showing,
-  })
-  if (max) cards = cards.slice(-max)
-
-  const space = direction === StackDirection.horizontal ? 'gutterWidth' : 'gutterHeight'
-  const box = {
-    x: offset.x,
-    y: offset.y,
-    width:
-      direction === StackDirection.horizontal
-        ? cards.length === 0
-          ? context.cardHeight
-          : context[space] * (cards.length - 1) + context.cardWidth
-        : context.cardWidth,
-    height:
-      direction === StackDirection.vertical
-        ? cards.length === 0
-          ? context.cardHeight
-          : context[space] * (cards.length - 1) + context.cardHeight
-        : context.cardHeight,
+    draws: opts.draws,
+    showing: opts.showing,
+    space,
+    box,
+    max,
   }
+}
+
+export const drawStack: DrawRoutine<StackDrawingContext> = (context, drawingOpts) => {
+  if (drawingOpts == null) return null
+  const { stack, draws, max, space, box } = drawingOpts
+  const cards = stack.cards.slice(-max)
 
   const path = new Path2D()
   path.rect(box.x, box.y, box.width, box.height)
   path.closePath()
 
   const empty = cards.length === 0
-  const error = empty && draws === 0
+  const error = stack.type === StackType.stock && empty && draws === 0
   const elements = []
 
   if (error) elements.push({ data: cardCache.get('error'), x: box.x, y: box.y })
@@ -102,13 +63,12 @@ export const drawStack: DrawStack = (context, { stack, draws, showing }) => {
     cards.forEach((card, i) => {
       const drawing = card.hidden ? cardCache.get('hidden') : cardCache.get(getKey(card))
       if (drawing) {
-        const x = direction === StackDirection.horizontal ? i * context[space] : 0
-        const y = direction === StackDirection.horizontal ? 0 : i * context[space]
+        const x = stack.direction === StackDirection.horizontal ? i * space : 0
+        const y = stack.direction === StackDirection.horizontal ? 0 : i * space
         elements.push({ data: drawing, x: box.x + x, y: box.y + y })
       }
     })
 
   for (const { data, x, y } of elements) data && writeDataToCanvas(context, data, x, y)
-
-  return { path, box, direction, space, stack, cards }
+  return { path, box }
 }

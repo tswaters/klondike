@@ -58,6 +58,7 @@ export type Stack = {
   cards: StackCard[]
   selection: Card | null
   type: StackType
+  direction: StackDirection | null
   index: number
 }
 

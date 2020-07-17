@@ -1,6 +1,7 @@
 import { Cards, StackCard } from '../lib/Card'
 import { ColorScheme } from './ColorScheme'
 import { getErrorImageData, getEmptyImageData, getHiddenImageData, getCardImageData } from './Card'
+import { getCardBox } from './Layout'
 
 export type Box = {
   x: number
@@ -19,16 +20,29 @@ export type Drawable = {
   box: Box
 }
 
-export type DrawingContext = {
-  ctx: CanvasRenderingContext2D
-  canvasWidth: number
-  canvasHeight: number
-  colorScheme: ColorScheme
-  cardWidth: number
-  cardHeight: number
-  gutterWidth: number
-  gutterHeight: number
+export interface Drawer {
+  (context: DrawingContext): Drawable
 }
+
+export interface DrawRoutine<T, R = Drawable> {
+  (context: DrawingContext, arg1: T | null): R | null
+}
+
+export interface Handler {
+  (arg0: Drawable, arg1: Point): void
+}
+
+export type Clickable = {
+  onClick?: Handler
+  onDoubleClick?: Handler
+}
+
+export type SizeDetails = {
+  width: number
+  height: number
+}
+
+export type DrawingContext = { ctx: CanvasRenderingContext2D; colorScheme: ColorScheme } & SizeDetails
 
 export const getKey = ({ card: { suit, value }, selected }: StackCard) =>
   `${suit}_${value}_${(selected || false).toString()}`
@@ -38,6 +52,7 @@ export const cardCache: Map<string, ImageData> = new Map()
 let c2: HTMLCanvasElement
 
 export const initialize = (context: DrawingContext) => {
+  const { width, height } = getCardBox(context)
   cardCache.set('hidden', getHiddenImageData(context))
   cardCache.set('empty', getEmptyImageData(context))
   cardCache.set('error', getErrorImageData(context))
@@ -48,9 +63,9 @@ export const initialize = (context: DrawingContext) => {
   })
 
   c2 = document.createElement('canvas')
-  c2.width = context.cardWidth
-  c2.height = context.cardHeight
-  context.ctx.clearRect(0, 0, context.cardWidth + 2, context.cardHeight + 2)
+  c2.width = width
+  c2.height = height
+  context.ctx.clearRect(0, 0, width + 2, height + 2)
 }
 
 export const writeDataToCanvas = (context: DrawingContext, data: ImageData, x: number, y: number) => {

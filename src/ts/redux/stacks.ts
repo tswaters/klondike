@@ -1,4 +1,4 @@
-import { Stack, StackCard, StackType, Card } from '../lib/Card'
+import { Stack, StackCard, StackType, Card, StackDirection } from '../lib/Card'
 import { contains, sumConsecutive } from '../lib/util'
 import { undoable } from './undoable'
 import { INITIALIZE, InitializeAction } from './init'
@@ -155,12 +155,14 @@ const initialState: StackStore = {
   stacks: [
     {
       type: StackType.stock,
+      direction: null,
       cards: [],
       index: 0,
       selection: null,
     },
     {
       type: StackType.waste,
+      direction: StackDirection.horizontal,
       cards: [],
       index: 0,
       selection: null,
@@ -168,12 +170,14 @@ const initialState: StackStore = {
     ...Array.from<number, Stack>({ length: 7 }, (_, index) => ({
       index,
       type: StackType.tableau,
+      direction: StackDirection.vertical,
       cards: [],
       selection: null,
     })),
     ...Array.from<number, Stack>({ length: 4 }, (_, index) => ({
       index,
       type: StackType.foundation,
+      direction: null,
       cards: [],
       selection: null,
     })),

@@ -1,73 +1,16 @@
 import * as React from 'react'
-import { Point, Drawable, DrawingContext } from '../drawing/Common'
+import { Drawable, DrawingContext, Clickable, Handler } from '../drawing/Common'
 import { ColorSchemeType, ColorScheme, colorSchemes } from '../drawing/ColorScheme'
 import { initialize } from '../drawing/Common'
-import { game } from '../../styles/cards.css'
+import { useCanvasSize } from '../hooks/useCanvasSize'
 
-interface Handler<T> {
-  (arg0: T, arg1: Point): void
-}
-
-interface Add<T> {
-  (
-    path: Path2D,
-    thing: T,
-    events: {
-      click?: Handler<T>
-      doubleClick?: Handler<T>
-    },
-  ): void
-}
-
-type SizeDetails = {
-  canvasWidth: number
-  canvasHeight: number
-  cardWidth: number
-  cardHeight: number
-  gutterWidth: number
-  gutterHeight: number
-}
-
-export type GameContext<T extends Drawable> = {
+export type GameContext = {
   context: DrawingContext
-  add: Add<T>
+  add: (thing: Drawable, events: Clickable) => void
   remove: (path: Path2D) => void
 }
 
-export const GameCtx = React.createContext<GameContext<Drawable> | null>(null)
-
-const useCanvasSize = (canvas: HTMLCanvasElement | null) => {
-  const getSize = () => {
-    const gutterWidth = 20
-    const gutterHeight = 30
-    return {
-      canvasWidth: canvas?.width ?? 0,
-      canvasHeight: canvas?.height ?? 0,
-      cardWidth: Math.max(100, Math.floor((window.innerWidth - gutterWidth * 8) / 7)),
-      cardHeight: Math.max(200, Math.floor((window.innerHeight - gutterHeight * (19 + 3)) / 2)),
-      gutterWidth,
-      gutterHeight,
-    }
-  }
-  const [size, setSize] = React.useState<SizeDetails>(getSize())
-  React.useEffect(() => {
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (ctx == null) return
-    let tid: number
-    const handleSize = () => {
-      if (tid) clearTimeout(tid)
-      tid = window.setTimeout(() => {
-        setSize(getSize())
-      }, 300)
-    }
-    window.addEventListener('resize', handleSize)
-    return () => {
-      window.removeEventListener('resize', handleSize)
-    }
-  })
-  return size
-}
+export const GameCtx = React.createContext<GameContext | null>(null)
 
 const intersect = (evt: React.MouseEvent<HTMLCanvasElement>, pointsRef: Map<Path2D, Drawable>) => {
   const { nativeEvent: e } = evt
@@ -84,51 +27,36 @@ const intersect = (evt: React.MouseEvent<HTMLCanvasElement>, pointsRef: Map<Path
 
 const GameCanvas: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pointsRef = React.useRef<Map<Path2D, Drawable>>(new Map())
-  const clickHandlers = React.useRef<Map<Path2D, Handler<Drawable>>>(new Map())
-  const doubleClickHandlers = React.useRef<Map<Path2D, Handler<Drawable>>>(new Map())
+  const clickHandlers = React.useRef<Map<Path2D, Handler>>(new Map())
+  const doubleClickHandlers = React.useRef<Map<Path2D, Handler>>(new Map())
 
-  const [colorScheme] = React.useState<ColorScheme>(colorSchemes[ColorSchemeType.light])
-  const [canvas, setContext] = React.useState<HTMLCanvasElement | null>(null)
-  const canvasSize = useCanvasSize(canvas)
+  const [colorScheme] = React.useState<ColorScheme>(colorSchemes[ColorSchemeType.dark])
+  const { ctx, width, height, handleCanvasRef } = useCanvasSize()
 
-  const gameContext = React.useMemo(() => {
-    if (!canvas) return null
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return null
-    return {
-      ctx,
-      canvasWidth: canvasSize.canvasWidth,
-      canvasHeight: canvasSize.canvasHeight,
-      cardWidth: canvasSize.cardWidth,
-      cardHeight: canvasSize.cardHeight,
-      gutterWidth: canvasSize.gutterWidth,
-      gutterHeight: canvasSize.gutterHeight,
-      colorScheme,
-    }
-  }, [canvas, canvasSize, colorScheme])
+  const context = React.useMemo<DrawingContext | null>(() => {
+    if (!width || !height || !ctx) return null
+    return { ctx, width, height, colorScheme }
+  }, [ctx, width, height, colorScheme])
 
-  React.useLayoutEffect(() => {
-    if (gameContext) initialize(gameContext)
-  }, [gameContext])
+  React.useLayoutEffect(() => (context && initialize(context)) || void 0, [context])
 
-  const handleCanvasRef = React.useCallback((canvas: HTMLCanvasElement) => {
-    if (canvas) {
-      setContext(canvas)
-    }
-  }, [])
-
-  const add = React.useCallback<Add<Drawable>>((path, thing, events) => {
-    pointsRef.current.set(path, thing)
-    const { click, doubleClick } = events
-    if (click) clickHandlers.current.set(path, click)
-    if (doubleClick) doubleClickHandlers.current.set(path, doubleClick)
-  }, [])
-
-  const remove = React.useCallback((path: Path2D) => {
-    pointsRef.current.delete(path)
-    clickHandlers.current.delete(path)
-    doubleClickHandlers.current.delete(path)
-  }, [])
+  const value = React.useMemo<GameContext | null>(
+    () =>
+      context && {
+        context,
+        add(thing, events) {
+          pointsRef.current.set(thing.path, thing)
+          if (events.onClick) clickHandlers.current.set(thing.path, events.onClick)
+          if (events.onDoubleClick) doubleClickHandlers.current.set(thing.path, events.onDoubleClick)
+        },
+        remove(path: Path2D) {
+          pointsRef.current.delete(path)
+          clickHandlers.current.delete(path)
+          doubleClickHandlers.current.delete(path)
+        },
+      },
+    [context],
+  )
 
   const handleCanvasDoubleClick = React.useCallback((evt: React.MouseEvent<HTMLCanvasElement>) => {
     const selection = intersect(evt, pointsRef.current)
@@ -148,12 +76,18 @@ const GameCanvas: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   }, [])
 
-  const value = React.useMemo(() => gameContext && { context: gameContext, add, remove }, [gameContext, add, remove])
-
   return (
     <>
       <canvas
-        className={game}
+        id="canvas"
+        style={{
+          backgroundColor: colorScheme.background,
+          top: '0',
+          left: '0',
+          width: '100vw',
+          height: '100vh',
+          position: 'absolute',
+        }}
         ref={handleCanvasRef}
         width={window.innerWidth}
         height={window.innerHeight}

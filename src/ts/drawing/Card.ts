@@ -1,5 +1,9 @@
 import { ValueType, SuitType, StackCard } from '../lib/Card'
 import { Box, DrawingContext } from './Common'
+import { isBig, isRed } from '../lib/util'
+import { search, measureHeight } from './FontSize'
+
+import { getCardBox, getVerticalMarginSize, getHorizontalMarginSize } from './Layout'
 
 type Glyph = {
   glyph: ValueType | SuitType
@@ -14,15 +18,6 @@ type Glyph = {
 interface GetCard {
   (context: DrawingContext, card?: StackCard): ImageData
 }
-
-export const isRed = ({ card: { suit } }: StackCard) => [SuitType.diamond, SuitType.heart].includes(suit)
-
-interface CalculateFontSizes {
-  (context: DrawingContext, card: StackCard, type: FontSizeType): string
-}
-
-export const isBig = ({ card: { value } }: StackCard) =>
-  [ValueType.ace, ValueType.jack, ValueType.queen, ValueType.king].includes(value) ? true : false
 
 export const getBoxPath = ({ x, y, width, height }: Box, radius = 10, smaller = 0) => {
   const path = new Path2D()
@@ -50,57 +45,64 @@ enum FontSizeType {
   Corner,
 }
 
-const allFontSizes = Array.from<number, number>({ length: 200 }, (v, k) => k)
-
-export const getGlyphLocations = (
-  { ctx, cardWidth, cardHeight, gutterHeight }: DrawingContext,
-  stackCard: StackCard,
-): Glyph[] => {
+export const getGlyphLocations = (context: DrawingContext, stackCard: StackCard): Glyph[] => {
   const { card, hidden } = stackCard
   if (hidden) return []
 
-  const minCellWidth = Math.floor(cardWidth / 5)
-  const minCellHeight = Math.floor(cardHeight / 10)
+  const { ctx } = context
+  const { width: cardWidth, height: cardHeight } = getCardBox(context)
+  const gutterHeight = getVerticalMarginSize(context)
+  const gutterWidth = getHorizontalMarginSize(context)
 
-  const searchFontSize = (type: FontSizeType, min: number, max: number): string => {
-    const isBigEnough = (width: number, height: number) => {
-      if (type === FontSizeType.Corner) return width > minCellWidth && height > minCellHeight / 2
-      else if (isBig(stackCard)) return width > cardWidth - minCellWidth * 2
-      else return width > minCellWidth && height > minCellHeight
-    }
-    const index = Math.floor((max + min) / 2)
-    ctx.font = `${allFontSizes[index]}px sans-serif`
-    const { width } = ctx.measureText(type === FontSizeType.Corner ? '10' : '\u2665')
-    const { width: height } = ctx.measureText('M') // approx
-    if (min > max) return `${allFontSizes[index]}px sans-serif`
-    if (isBigEnough(width, height)) return searchFontSize(type, min, index - 1)
-    return searchFontSize(type, index + 1, max)
-  }
+  const cornerWidth = Math.floor(cardWidth * 0.2)
+  const figureOutFontSize = (type: FontSizeType) =>
+    search(
+      ctx,
+      (width: number, height: number) =>
+        type === FontSizeType.Corner
+          ? width > cornerWidth
+          : isBig(stackCard.card)
+          ? width > cardWidth - Math.floor(cardWidth / 5) * 2
+          : width > Math.floor(cardWidth / 5) && height > Math.floor(cardHeight / 20),
+      type === FontSizeType.Corner ? '10' : '\u2665',
+    )
 
   const fontSizes: { [key in FontSizeType]: string } = {
-    [FontSizeType.Corner]: searchFontSize(FontSizeType.Corner, 0, allFontSizes.length - 1),
-    [FontSizeType.Regular]: searchFontSize(FontSizeType.Regular, 0, allFontSizes.length - 1),
+    [FontSizeType.Corner]: figureOutFontSize(FontSizeType.Corner),
+    [FontSizeType.Regular]: figureOutFontSize(FontSizeType.Regular),
   }
+
+  // 20% of width is reserved for corner pieces
+  // y of suit is margin + height of value + margin
+  const cornerHeight = measureHeight(ctx, fontSizes[FontSizeType.Corner])
+
+  const cornerValueX = gutterWidth / 2
+  const cornerValueY = gutterHeight / 2
+  const cornerSuitX = gutterWidth / 2
+  const cornerSuitY = gutterWidth / 2 + cornerHeight
+
+  // ctx.strokeRect(cornerValueX, cornerValueY, cornerWidth, cornerHeight)
+  // ctx.strokeRect(cornerSuitX, cornerSuitY, cornerWidth, cornerHeight)
 
   const { suit, value } = card
 
   // top-left, bottom-right glyphs
   const positions = [
-    { x: minCellWidth / 2, y: gutterHeight * 0.25, glyph: value },
-    { x: minCellWidth / 2, y: gutterHeight, glyph: suit },
+    { x: cornerValueX, y: cornerValueY, glyph: value },
+    { x: cornerSuitX, y: cornerSuitY, glyph: suit },
   ].reduce((memo, glyph) => {
     memo.push(
       {
         ...glyph,
         rotated: false,
-        textAlign: 'center',
+        textAlign: 'left',
         textBaseline: 'top',
         font: fontSizes[FontSizeType.Corner],
       },
       {
         ...glyph,
         rotated: true,
-        textAlign: 'center',
+        textAlign: 'left',
         textBaseline: 'top',
         font: fontSizes[FontSizeType.Corner],
       },
@@ -215,29 +217,25 @@ export const getGlyphLocations = (
   return positions
 }
 
-export const getEmptyImageData: GetCard = ({
-  ctx,
-  cardWidth: width,
-  cardHeight: height,
-  colorScheme,
-}: DrawingContext) => {
+export const getEmptyImageData: GetCard = (context: DrawingContext) => {
+  const { ctx, colorScheme } = context
+  const { width, height } = getCardBox(context)
   const box = { x: 0, y: 0, width, height }
   ctx.clearRect(0, 0, width, height)
   ctx.fillStyle = colorScheme.emptyColor
+  ctx.fillRect(box.x, box.y, box.width, box.height)
   ctx.lineWidth = 0.5
+  ctx.strokeStyle = colorScheme.cardBorder
   ctx.strokeRect(box.x, box.y, box.width, box.height)
   return ctx.getImageData(box.x, box.y, box.width, box.height)
 }
 
-export const getHiddenImageData: GetCard = ({
-  ctx,
-  cardWidth: width,
-  cardHeight: height,
-  colorScheme,
-}: DrawingContext) => {
+export const getHiddenImageData: GetCard = (context: DrawingContext) => {
+  const { ctx, colorScheme } = context
+  const { width, height } = getCardBox(context)
   const box = { x: 0, y: 0, width, height }
   ctx.clearRect(box.x, box.y, box.width, box.height)
-  ctx.strokeStyle = colorScheme.border
+  ctx.strokeStyle = colorScheme.cardBorder
   ctx.lineWidth = 2
   ctx.stroke(getBoxPath(box, 10))
   ctx.fillStyle = colorScheme.faceDown
@@ -246,11 +244,12 @@ export const getHiddenImageData: GetCard = ({
 }
 
 export const getCardImageData: GetCard = (context: DrawingContext, card: StackCard) => {
-  const { ctx, cardWidth: width, cardHeight: height, colorScheme } = context
+  const { ctx, colorScheme } = context
+  const { width, height } = getCardBox(context)
   const box = { x: 0, y: 0, width, height }
 
   ctx.clearRect(box.x, box.y, box.width, box.height)
-  ctx.strokeStyle = colorScheme.border
+  ctx.strokeStyle = colorScheme.cardBorder
   ctx.lineWidth = 2
   ctx.stroke(getBoxPath(box, 10))
 
@@ -258,7 +257,7 @@ export const getCardImageData: GetCard = (context: DrawingContext, card: StackCa
   ctx.fill(getBoxPath(box, 10, 0.5))
 
   for (const glyph of getGlyphLocations(context, card)) {
-    ctx.fillStyle = isRed(card) ? colorScheme.red : colorScheme.black
+    ctx.fillStyle = isRed(card.card) ? colorScheme.red : colorScheme.black
     ctx.textAlign = glyph.textAlign
     ctx.textBaseline = glyph.textBaseline
     ctx.font = glyph.font
@@ -273,12 +272,9 @@ export const getCardImageData: GetCard = (context: DrawingContext, card: StackCa
   return ctx.getImageData(box.x, box.y, box.width, box.height)
 }
 
-export const getErrorImageData: GetCard = ({
-  ctx,
-  cardWidth: width,
-  cardHeight: height,
-  colorScheme,
-}: DrawingContext) => {
+export const getErrorImageData: GetCard = (context: DrawingContext) => {
+  const { ctx, colorScheme } = context
+  const { width, height } = getCardBox(context)
   const box = { x: 0, y: 0, width, height }
   ctx.clearRect(box.x, box.y, box.width, box.height)
   ctx.fillStyle = colorScheme.emptyColor
