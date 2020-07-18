@@ -1,8 +1,11 @@
 import { Stack, StackDirection, StackType } from '../lib/Card'
-import { writeDataToCanvas, cardCache, getKey, DrawingContext, Drawable, DrawRoutine, Box } from './Common'
+import { writeDataToCanvas, cardCache, getKey, DrawingContext, DrawRoutine, Box } from './Common'
 import { getStackCardOffsetWidth, getStackCardOffsetHeight, getStackBox } from './Layout'
 
-export type DrawableStack = Drawable
+export type StackDrawingOptions = {
+  draws: number
+  showing: number
+}
 
 export type StackDrawingContext = StackDrawingOptions & {
   stack: Stack
@@ -11,28 +14,22 @@ export type StackDrawingContext = StackDrawingOptions & {
   box: Box
 }
 
-export type StackDrawingOptions = {
-  draws: number
-  showing: number
-}
-
 export const getStackDrawingContext = (
   context: DrawingContext,
   stack: Stack,
   opts: StackDrawingOptions,
 ): StackDrawingContext => {
-  const gutterWidth = getStackCardOffsetWidth(context)
-  const gutterHeight = getStackCardOffsetHeight(context)
-
   const max =
     stack.type === StackType.stock || stack.type === StackType.foundation
       ? 1
       : stack.type === StackType.waste
       ? opts.showing || 0
       : stack.cards.length
+
   const box = getStackBox(context, stack, max)
 
-  const space = stack.direction === StackDirection.horizontal ? gutterWidth : gutterHeight
+  const space =
+    stack.direction === StackDirection.horizontal ? getStackCardOffsetWidth(context) : getStackCardOffsetHeight(context)
 
   return {
     stack,

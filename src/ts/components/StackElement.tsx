@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { GameCtx } from './GameCanvas'
-import { drawStack, DrawableStack, StackDrawingContext, getStackDrawingContext } from '../drawing/Stack'
+import { drawStack, StackDrawingContext, getStackDrawingContext } from '../drawing/Stack'
 import { Stack, StackDirection, StackType } from '../lib/Card'
 import { useDispatch } from 'react-redux'
 import { clickCard, doubleClickCard } from '../redux/thunks'
-import { Point } from '../drawing/Common'
+import { Point, Drawable } from '../drawing/Common'
 import { useDrawing } from '../hooks/useDrawing'
 import { useMemo } from 'react'
 
@@ -22,7 +22,7 @@ const StackElement: React.FC<{
   )
 
   const onDoubleClick = React.useCallback(
-    (thing: DrawableStack, point: Point) => {
+    (thing: Drawable, point: Point) => {
       if (gameContext == null || drawingOpts == null) return
       const prop = stack.direction === StackDirection.horizontal ? 'x' : 'y'
       const cards = stack.cards.slice(-drawingOpts.max)
@@ -33,7 +33,7 @@ const StackElement: React.FC<{
   )
 
   const onClick = React.useCallback(
-    (thing: DrawableStack, point: Point) => {
+    (thing: Drawable, point: Point) => {
       if (gameContext == null || drawingOpts == null) return
       const prop = stack.direction === StackDirection.horizontal ? 'x' : 'y'
       const cards = stack.cards.slice(-drawingOpts.max)

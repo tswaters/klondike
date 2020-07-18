@@ -3,7 +3,7 @@ import { Box, DrawingContext } from './Common'
 import { isBig, isRed } from '../lib/util'
 import { search, measureHeight } from './FontSize'
 
-import { getCardBox, getVerticalMarginSize, getHorizontalMarginSize } from './Layout'
+import { getCardDimensions, getVerticalMarginSize, getHorizontalMarginSize } from './Layout'
 
 type Glyph = {
   glyph: ValueType | SuitType
@@ -50,7 +50,7 @@ export const getGlyphLocations = (context: DrawingContext, stackCard: StackCard)
   if (hidden) return []
 
   const { ctx } = context
-  const { width: cardWidth, height: cardHeight } = getCardBox(context)
+  const { width: cardWidth, height: cardHeight } = getCardDimensions(context)
   const gutterHeight = getVerticalMarginSize(context)
   const gutterWidth = getHorizontalMarginSize(context)
 
@@ -219,7 +219,7 @@ export const getGlyphLocations = (context: DrawingContext, stackCard: StackCard)
 
 export const getEmptyImageData: GetCard = (context: DrawingContext) => {
   const { ctx, colorScheme } = context
-  const { width, height } = getCardBox(context)
+  const { width, height } = getCardDimensions(context)
   const box = { x: 0, y: 0, width, height }
   ctx.clearRect(0, 0, width, height)
   ctx.fillStyle = colorScheme.emptyColor
@@ -232,7 +232,7 @@ export const getEmptyImageData: GetCard = (context: DrawingContext) => {
 
 export const getHiddenImageData: GetCard = (context: DrawingContext) => {
   const { ctx, colorScheme } = context
-  const { width, height } = getCardBox(context)
+  const { width, height } = getCardDimensions(context)
   const box = { x: 0, y: 0, width, height }
   ctx.clearRect(box.x, box.y, box.width, box.height)
   ctx.strokeStyle = colorScheme.cardBorder
@@ -245,7 +245,7 @@ export const getHiddenImageData: GetCard = (context: DrawingContext) => {
 
 export const getCardImageData: GetCard = (context: DrawingContext, card: StackCard) => {
   const { ctx, colorScheme } = context
-  const { width, height } = getCardBox(context)
+  const { width, height } = getCardDimensions(context)
   const box = { x: 0, y: 0, width, height }
 
   ctx.clearRect(box.x, box.y, box.width, box.height)
@@ -274,7 +274,7 @@ export const getCardImageData: GetCard = (context: DrawingContext, card: StackCa
 
 export const getErrorImageData: GetCard = (context: DrawingContext) => {
   const { ctx, colorScheme } = context
-  const { width, height } = getCardBox(context)
+  const { width, height } = getCardDimensions(context)
   const box = { x: 0, y: 0, width, height }
   ctx.clearRect(box.x, box.y, box.width, box.height)
   ctx.fillStyle = colorScheme.emptyColor

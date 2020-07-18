@@ -1,4 +1,4 @@
-import { Drawable, DrawRoutine, DrawingContext, Box } from './Common'
+import { DrawRoutine, DrawingContext, Box } from './Common'
 
 import { search, measureWidth } from './FontSize'
 
@@ -29,7 +29,7 @@ export const getLabelDrawingContext = (context: DrawingContext, opts: LabelDrawi
   }
 }
 
-export const drawLabel: DrawRoutine<LabelDrawingContext, Drawable> = (context, drawingOpts) => {
+export const drawLabel: DrawRoutine<LabelDrawingContext> = (context, drawingOpts) => {
   if (drawingOpts == null) return null
   const { ctx } = context
   const { font, box, label, padding, border } = drawingOpts

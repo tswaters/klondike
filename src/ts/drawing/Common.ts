@@ -1,48 +1,48 @@
 import { Cards, StackCard } from '../lib/Card'
 import { ColorScheme } from './ColorScheme'
 import { getErrorImageData, getEmptyImageData, getHiddenImageData, getCardImageData } from './Card'
-import { getCardBox } from './Layout'
+import { getCardDimensions } from './Layout'
 
-export type Box = {
-  x: number
-  y: number
-  width: number
-  height: number
-}
+// this is passed to all drawing routines. it includes :
+// the color they should draw,
+// the ctx to draw it on, and
+// the width/height of the canvas.
 
-export type Point = {
-  x: number
-  y: number
-}
+export type DrawingContext = { ctx: CanvasRenderingContext2D; colorScheme: ColorScheme } & Dimensions
 
-export type Drawable = {
-  path: Path2D
-  box: Box
-}
+export type Dimensions = { width: number; height: number }
 
-export interface Drawer {
-  (context: DrawingContext): Drawable
-}
+export type Point = { x: number; y: number }
 
-export interface DrawRoutine<T, R = Drawable> {
-  (context: DrawingContext, arg1: T | null): R | null
+export type Box = Dimensions & Point
+
+// something that is drawable includes an x/y coords and a height/width
+// once removed, clearRect is with these values to clean it from the canvas
+// also, the click/double click handlers will inspect if point is in their path.
+
+export type Drawable = { path: Path2D; box: Box }
+
+// a draw routine takes drawing context above, and include whatever options they want
+// they perform mutations to the cavas (draw the thing) and return a drawable for tracking (above)
+
+export interface DrawRoutine<DrawingOpts> {
+  (context: DrawingContext, arg1: DrawingOpts | null): Drawable | null
 }
 
 export interface Handler {
   (arg0: Drawable, arg1: Point): void
 }
 
-export type Clickable = {
-  onClick?: Handler
-  onDoubleClick?: Handler
-}
+export type Clickable = { onClick?: Handler; onDoubleClick?: Handler }
 
-export type SizeDetails = {
-  width: number
-  height: number
-}
+// a cache of cards is kept and re-initialized when color scheme / window dimensions change
+// this is a map of a key identifying the stack card, and the raw pixel data to draw it.
+// the idea is this is all cached one time at the beginning and re-used
 
-export type DrawingContext = { ctx: CanvasRenderingContext2D; colorScheme: ColorScheme } & SizeDetails
+// this uses a string with keys because it's actually a "StackCard" we're interested in
+// this includes the selected flag - the highlighted / non-highlighted state need to both be kept
+// while `Cards` is immutable singleton of all available cads, StackCards is not and
+// using a non-string key, we'll wind up with missing references not hitting the cache.
 
 export const getKey = ({ card: { suit, value }, selected }: StackCard) =>
   `${suit}_${value}_${(selected || false).toString()}`
@@ -52,7 +52,7 @@ export const cardCache: Map<string, ImageData> = new Map()
 let c2: HTMLCanvasElement
 
 export const initialize = (context: DrawingContext) => {
-  const { width, height } = getCardBox(context)
+  const { width, height } = getCardDimensions(context)
   cardCache.set('hidden', getHiddenImageData(context))
   cardCache.set('empty', getEmptyImageData(context))
   cardCache.set('error', getErrorImageData(context))
@@ -67,6 +67,8 @@ export const initialize = (context: DrawingContext) => {
   c2.height = height
   context.ctx.clearRect(0, 0, width + 2, height + 2)
 }
+
+// to get transarency working, (maybe other composition?) need an intermediary canvas to proxy the drawing.
 
 export const writeDataToCanvas = (context: DrawingContext, data: ImageData, x: number, y: number) => {
   const ctx2 = c2.getContext('2d')

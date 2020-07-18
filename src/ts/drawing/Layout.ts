@@ -1,4 +1,4 @@
-import { DrawingContext, Box } from './Common'
+import { DrawingContext, Box, Dimensions } from './Common'
 import { Stack, StackDirection, StackType } from '../lib/Card'
 
 export const getStackCardOffsetWidth = (ctx: DrawingContext) => Math.floor(ctx.height * 0.03)
@@ -17,7 +17,7 @@ export const getTopbarBox = (): Box => ({ x: 0, y: 0, width: 0, height: 30 })
 // also, need room to stack 13 stack + 6 hidden => 19 cards.
 // without exceeding the size of the window.
 
-export const getCardBox = (ctx: DrawingContext): Box => {
+export const getCardDimensions = (ctx: DrawingContext): Dimensions => {
   const horizontalMargin = getHorizontalMarginSize(ctx)
   const verticalMargin = getVerticalMarginSize(ctx)
   const topBarBox = getTopbarBox()
@@ -34,8 +34,6 @@ export const getCardBox = (ctx: DrawingContext): Box => {
   const height = maxWidth * DESIRED_RATIO < maxHeight ? maxWidth * DESIRED_RATIO : maxHeight
 
   return {
-    x: 0,
-    y: 0,
     width: Math.floor(width),
     height: Math.floor(height),
   }
@@ -45,58 +43,58 @@ export const getStackBox = (ctx: DrawingContext, stack: Stack, max: number): Box
   const verticalMargin = getVerticalMarginSize(ctx)
   const horizontalMargin = getHorizontalMarginSize(ctx)
   const topBar = getTopbarBox()
-  const cardBox = getCardBox(ctx)
+  const { width, height } = getCardDimensions(ctx)
   const cardLength = Math.min(stack.cards.length, max)
 
   // we know horizontal space used
   // it might be less than available width
   // base x width is half that available space (for centering)
 
-  const usedWidth = horizontalMargin * 6 + cardBox.width * 7
+  const usedWidth = horizontalMargin * 6 + width * 7
   const baseX = usedWidth < ctx.width ? (ctx.width - usedWidth) / 2 : 0
 
-  const width =
+  const stackWidth =
     stack.direction === StackDirection.horizontal
       ? cardLength === 0
-        ? cardBox.height
-        : getStackCardOffsetWidth(ctx) * (cardLength - 1) + cardBox.width
-      : cardBox.width
+        ? height
+        : getStackCardOffsetWidth(ctx) * (cardLength - 1) + width
+      : width
 
-  const height =
+  const stackHeight =
     stack.direction === StackDirection.vertical
       ? cardLength === 0
-        ? cardBox.height
-        : getStackCardOffsetHeight(ctx) * (cardLength - 1) + cardBox.height
-      : cardBox.height
+        ? height
+        : getStackCardOffsetHeight(ctx) * (cardLength - 1) + height
+      : height
 
   switch (stack.type) {
     case StackType.stock:
       return {
         y: topBar.height + verticalMargin,
         x: baseX,
-        width,
-        height,
+        width: stackWidth,
+        height: stackHeight,
       }
     case StackType.waste:
       return {
         y: topBar.height + verticalMargin,
-        x: baseX + horizontalMargin + cardBox.width,
-        width,
-        height,
+        x: baseX + horizontalMargin + width,
+        width: stackWidth,
+        height: stackHeight,
       }
     case StackType.foundation:
       return {
         y: topBar.height + verticalMargin,
-        x: baseX + 3 * horizontalMargin + 3 * cardBox.width + stack.index * (horizontalMargin + cardBox.width),
-        width,
-        height,
+        x: baseX + 3 * horizontalMargin + 3 * width + stack.index * (horizontalMargin + width),
+        width: stackWidth,
+        height: stackHeight,
       }
     case StackType.tableau:
       return {
-        y: topBar.height + verticalMargin * 3 + cardBox.height,
-        x: baseX + stack.index * (horizontalMargin + cardBox.width),
-        width,
-        height,
+        y: topBar.height + verticalMargin * 3 + height,
+        x: baseX + stack.index * (horizontalMargin + width),
+        width: stackWidth,
+        height: stackHeight,
       }
   }
 }

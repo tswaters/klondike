@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { SizeDetails } from '../drawing/Common'
+import { Dimensions } from '../drawing/Common'
 
 type CanvasSizeReturn = {
   ctx?: CanvasRenderingContext2D
@@ -14,7 +14,7 @@ export const useCanvasSize = (): CanvasSizeReturn => {
 
   const getSize = () => ({ width: window.innerWidth, height: window.innerHeight })
 
-  const [size, setSize] = React.useState<SizeDetails>()
+  const [size, setSize] = React.useState<Dimensions>()
 
   React.useEffect(() => {
     if (!canvas) return
