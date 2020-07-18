@@ -27,7 +27,8 @@ const StackElement: React.FC<{
       const prop = stack.direction === StackDirection.horizontal ? 'x' : 'y'
       const cards = stack.cards.slice(-drawingOpts.max)
       const index = Math.min(cards.length - 1, Math.floor((point[prop] - drawingOpts.box[prop]) / drawingOpts.space))
-      if (stack.type !== StackType.waste || index === cards.length - 1) dispatch(doubleClickCard(stack, cards[index]))
+      if (stack.type !== StackType.waste || index === cards.length - 1)
+        dispatch(doubleClickCard({ stack, stackCard: cards[index] }))
     },
     [dispatch, gameContext, drawingOpts, stack],
   )
@@ -38,7 +39,8 @@ const StackElement: React.FC<{
       const prop = stack.direction === StackDirection.horizontal ? 'x' : 'y'
       const cards = stack.cards.slice(-drawingOpts.max)
       const index = Math.min(cards.length - 1, Math.floor((point[prop] - drawingOpts.box[prop]) / drawingOpts.space))
-      if (stack.type !== StackType.waste || index === cards.length - 1) dispatch(clickCard(stack, cards[index]))
+      if (stack.type !== StackType.waste || index === cards.length - 1)
+        dispatch(clickCard({ stack, stackCard: cards[index] }))
     },
     [dispatch, gameContext, drawingOpts, stack],
   )

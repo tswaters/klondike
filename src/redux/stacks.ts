@@ -1,4 +1,4 @@
-import { Stack, StackCard, StackType, Card, StackDirection } from '../lib/Card'
+import { Stack, StackCard, StackType, StackDirection } from '../lib/Card'
 import { stackContainsCard, sumConsecutive, sameStack, sameCard } from '../lib/util'
 import { undoable } from './undoable'
 import { INITIALIZE, InitializeAction } from './init'
@@ -37,11 +37,11 @@ export const recycleWaste = (waste: Stack, stock: Stack): MoveCardAction => ({
 })
 
 // other general moves
-export const moveCards = (from: Stack, to: Stack, from_card: Card | null = null): MoveCardAction => ({
+export const moveCards = (from: Stack, to: Stack, from_card: StackCard | null): MoveCardAction => ({
   type: MOVE_CARDS,
   from,
   to,
-  cards: from.cards.slice(from.cards.findIndex((card) => card.card === from_card)),
+  cards: from.cards.slice(from.cards.findIndex((card) => card.card === from_card?.card || null)),
   hidden: false,
 })
 
@@ -53,21 +53,20 @@ const reducers: {
   [INITIALIZE]: (state, action: InitializeAction) => ({
     ...state,
     stacks: state.stacks.map((stack) => {
-      if (stack.type === StackType.foundation || stack.type === StackType.waste) {
-        return { ...stack, cards: [] }
+      switch (stack.type) {
+        case StackType.foundation:
+        case StackType.waste:
+          return { ...stack, cards: [] }
+        case StackType.stock:
+          return { ...stack, cards: action.cards.slice(0, 24).map((card) => ({ card, hidden: true })) }
+        case StackType.tableau:
+          return {
+            ...stack,
+            cards: action.cards
+              .slice(24 + sumConsecutive(stack.index), 24 + sumConsecutive(stack.index) + stack.index + 1)
+              .map((card, index, a) => ({ card, hidden: a.length !== index + 1 })),
+          }
       }
-      if (stack.type === StackType.stock) {
-        return { ...stack, cards: action.cards.slice(0, 24).map((card) => ({ card, hidden: true })) }
-      }
-      if (stack.type === StackType.tableau) {
-        return {
-          ...stack,
-          cards: action.cards
-            .slice(24 + sumConsecutive(stack.index), 24 + sumConsecutive(stack.index) + stack.index + 1)
-            .map((card, index, a) => ({ card, hidden: a.length !== index + 1 })),
-        }
-      }
-      return stack
     }),
   }),
   [SELECT]: (state, action: SelectAction) => ({
@@ -76,7 +75,7 @@ const reducers: {
       sameStack(stack, action.stack) && stackContainsCard(stack.cards, action.card)
         ? {
             ...stack,
-            selection: action.card.card,
+            selection: action.card,
             cards: stack.cards.map((stackCard) =>
               !sameCard(stackCard, action.card) ? stackCard : { ...stackCard, selected: true },
             ),

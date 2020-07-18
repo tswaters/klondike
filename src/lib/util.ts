@@ -35,7 +35,12 @@ export const isBlack = (card: Card) => [SuitType.club, SuitType.spade].includes(
 export const isBig = (card: Card) =>
   [ValueType.ace, ValueType.jack, ValueType.queen, ValueType.king].includes(card.value)
 
-export const isValidMove = (card: Card, destination?: StackCard) => {
+export const isValidFoundationMove = (card: Card, desintation: StackCard | null) =>
+  desintation == null
+    ? card.value === ValueType.ace
+    : desintation.card.suit === card.suit && isSequential(card, desintation.card)
+
+export const isValidTableauMove = (card: Card, destination?: StackCard) => {
   return destination == null
     ? card.value === ValueType.king
     : isSequential(destination.card, card) &&

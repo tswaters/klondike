@@ -56,7 +56,7 @@ export enum StackType {
 
 export type Stack = {
   cards: StackCard[]
-  selection: Card | null
+  selection: StackCard | null
   type: StackType
   direction: StackDirection | null
   index: number

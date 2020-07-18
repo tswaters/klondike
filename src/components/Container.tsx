@@ -6,12 +6,13 @@ import { undo, redo } from '../redux/undoable'
 import GameCanvas from './GameCanvas'
 import StackElement from './StackElement'
 
-import { getDraws, getShowing, getAllStacks } from '../redux/selectors'
+import { getDraws, getShowing, getStacks } from '../redux/selectors'
 import TopBar from './TopBar'
+import { performMoves } from '../redux/thunks'
 
 const Container: React.FC = () => {
   const dispatch = useDispatch()
-  const stacks = useSelector(getAllStacks)
+  const stacks = useSelector(getStacks)
   const draws = useSelector(getDraws)
   const showing = useSelector(getShowing)
 
@@ -26,6 +27,17 @@ const Container: React.FC = () => {
     }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
+  }, [dispatch])
+
+  React.useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (e.button === 1) {
+        e.preventDefault()
+        dispatch(performMoves())
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
   }, [dispatch])
 
   return (

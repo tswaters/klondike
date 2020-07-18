@@ -1,11 +1,21 @@
 import { ThunkAction, ThunkDispatch as ReduxThunkDispatch } from 'redux-thunk'
 
 import { StoreState, StoreActions } from '.'
-import { isValidMove, random } from '../lib/util'
-import { Stack, StackCard, StackType, Card, Cards } from '../lib/Card'
+import { isValidTableauMove, random } from '../lib/util'
+import { StackType, Card, Cards } from '../lib/Card'
 
 import { moveCards, deselectCard, selectCard, reveal, throwStock, recycleWaste } from './stacks'
-import { getSelection, getFoundationStack, disallowClickStock, getWaste, getStock, getScoringType } from './selectors'
+import {
+  getSelection,
+  getFoundationStack,
+  disallowClickStock,
+  getWaste,
+  getStock,
+  getScoringType,
+  getMovableToFoundation,
+  CardSelection,
+  getHiddenCard,
+} from './selectors'
 import { checkpoint } from './undoable'
 import { incrementScore, ScoreType, ScoringType, decrementDraws } from './game-state'
 import { initialize as initializeGame } from './init'
@@ -14,7 +24,7 @@ export type ThunkResult<R, E = null> = ThunkAction<R, StoreState, E, StoreAction
 export type ThunkDispatch<E = null> = ReduxThunkDispatch<StoreState, E, StoreActions>
 
 interface CardClickAction<T = void> {
-  (stack: Stack, stackCard?: StackCard): ThunkResult<T>
+  (selection: CardSelection): ThunkResult<T>
 }
 
 export const initialize = (newScoringType?: ScoringType): ThunkResult<void> => (dispatch, getState) => {
@@ -30,21 +40,44 @@ export const initialize = (newScoringType?: ScoringType): ThunkResult<void> => (
   dispatch(initializeGame(scoringType, cards))
 }
 
-export const clickCard: CardClickAction = (clickedStack, clickedCard) => (dispatch, getState) => {
+export const performMoves = (): ThunkResult<void> => (dispatch, getState) => {
+  let movable: CardSelection | null
+  while ((movable = getMovableToFoundation(getState()) || getHiddenCard(getState()))) {
+    if (movable.stackCard?.hidden ?? false) {
+      dispatch(checkAndPerformCardReveal(movable))
+    } else {
+      dispatch(checkAndPerformFoundationMove(movable))
+    }
+  }
+}
+
+const checkAndPerformCardReveal: CardClickAction = (selection) => (dispatch) => {
+  if (selection == null) return
+  dispatch(checkpoint())
+  dispatch(incrementScore(ScoreType.revealCard))
+  dispatch(reveal(selection.stack))
+}
+
+const checkAndPerformFoundationMove: CardClickAction = (selection) => (dispatch, getState) => {
+  const foundation = (selection.stackCard && getFoundationStack(getState(), selection.stackCard.card)) || null
+  if (foundation && selection.stackCard) {
+    dispatch(deselectCard())
+    dispatch(checkpoint())
+    if (selection.stack.type === StackType.waste) dispatch(incrementScore(ScoreType.wasteToFoundation))
+    if (selection.stack.type === StackType.tableau) dispatch(incrementScore(ScoreType.tableauToFoundation))
+    dispatch(moveCards(selection.stack, foundation, selection.stackCard))
+  }
+}
+
+export const clickCard: CardClickAction = (cardSelection) => (dispatch, getState) => {
+  const { stackCard: clickedCard, stack: clickedStack } = cardSelection
   if (clickedCard != null && clickedCard.selected) return dispatch(deselectCard())
 
   const selection = getSelection(getState())
   if (selection == null && clickedCard && !clickedCard.hidden) return dispatch(selectCard(clickedStack, clickedCard))
 
-  if (clickedStack.type === StackType.foundation) {
-    const foundation = (selection && getFoundationStack(getState(), selection.card)) || null
-    if (foundation && selection) {
-      dispatch(deselectCard())
-      dispatch(checkpoint())
-      if (selection.stack.type === StackType.waste) dispatch(incrementScore(ScoreType.wasteToFoundation))
-      if (selection.stack.type === StackType.tableau) dispatch(incrementScore(ScoreType.tableauToFoundation))
-      dispatch(moveCards(selection.stack, foundation, selection.card))
-    }
+  if (clickedStack.type === StackType.foundation && selection) {
+    dispatch(checkAndPerformFoundationMove(selection))
     return
   }
 
@@ -54,12 +87,12 @@ export const clickCard: CardClickAction = (clickedStack, clickedCard) => (dispat
       dispatch(incrementScore(ScoreType.revealCard))
       dispatch(reveal(clickedStack))
     }
-    if (selection != null && isValidMove(selection.card, clickedCard)) {
+    if (selection && selection.stackCard && isValidTableauMove(selection.stackCard.card, clickedCard)) {
       dispatch(deselectCard())
       dispatch(checkpoint())
       if (selection.stack.type === StackType.waste) dispatch(incrementScore(ScoreType.wasteToTableau))
       if (selection.stack.type === StackType.foundation) dispatch(incrementScore(ScoreType.foundationToTableau))
-      dispatch(moveCards(selection.stack, clickedStack, selection.card))
+      dispatch(moveCards(selection.stack, clickedStack, selection.stackCard))
     }
   }
 
@@ -78,7 +111,8 @@ export const clickCard: CardClickAction = (clickedStack, clickedCard) => (dispat
   }
 }
 
-export const doubleClickCard: CardClickAction = (stack, stackCard) => (dispatch, getState) => {
+export const doubleClickCard: CardClickAction = (cardSelection) => (dispatch) => {
+  const { stack, stackCard } = cardSelection
   if (
     stack.type === StackType.foundation ||
     stack.type === StackType.stock ||
@@ -88,12 +122,5 @@ export const doubleClickCard: CardClickAction = (stack, stackCard) => (dispatch,
     return
   }
 
-  const foundation = getFoundationStack(getState(), stackCard.card)
-  if (!foundation) return
-
-  dispatch(checkpoint())
-  if (stack.type === StackType.waste) dispatch(incrementScore(ScoreType.wasteToFoundation))
-  if (stack.type === StackType.tableau) dispatch(incrementScore(ScoreType.tableauToFoundation))
-  dispatch(moveCards(stack, foundation, stackCard.card))
-  dispatch(deselectCard())
+  dispatch(checkAndPerformFoundationMove({ stack, stackCard }))
 }
