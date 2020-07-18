@@ -10,12 +10,16 @@ export const getAllStacks = createSelector(
   (stacks) => stacks,
 )
 
-export const getFoundation = createSelector(getAllStacks, (stacks) =>
+const getFoundation = createSelector(getAllStacks, (stacks) =>
   stacks.filter((stack) => stack.type === StackType.foundation),
 )
 
 export const getTableau = createSelector(getAllStacks, (stacks) =>
   stacks.filter((stack) => stack.type === StackType.tableau),
+)
+
+export const getGameWon = createSelector(getFoundation, (foundation) =>
+  foundation.every((stack) => stack.cards.length === 13),
 )
 
 export const getStock = createSelector(
