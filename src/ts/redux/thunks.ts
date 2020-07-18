@@ -34,16 +34,16 @@ export const clickCard: CardClickAction = (clickedStack, clickedCard) => (dispat
   if (clickedCard != null && clickedCard.selected) return dispatch(deselectCard())
 
   const selection = getSelection(getState())
-  if (selection == null && clickedCard && clickedCard.card && !clickedCard.hidden)
-    return dispatch(selectCard(clickedStack, clickedCard))
+  if (selection == null && clickedCard && !clickedCard.hidden) return dispatch(selectCard(clickedStack, clickedCard))
 
   if (clickedStack.type === StackType.foundation) {
     const foundation = (selection && getFoundationStack(getState(), selection.card)) || null
     if (foundation && selection) {
+      dispatch(deselectCard())
+      dispatch(checkpoint())
       if (selection.stack.type === StackType.waste) dispatch(incrementScore(ScoreType.wasteToFoundation))
       if (selection.stack.type === StackType.tableau) dispatch(incrementScore(ScoreType.tableauToFoundation))
       dispatch(moveCards(selection.stack, foundation, selection.card))
-      dispatch(deselectCard())
     }
     return
   }
@@ -55,20 +55,20 @@ export const clickCard: CardClickAction = (clickedStack, clickedCard) => (dispat
       dispatch(reveal(clickedStack))
     }
     if (selection != null && isValidMove(selection.card, clickedCard)) {
+      dispatch(deselectCard())
       dispatch(checkpoint())
       if (selection.stack.type === StackType.waste) dispatch(incrementScore(ScoreType.wasteToTableau))
       if (selection.stack.type === StackType.foundation) dispatch(incrementScore(ScoreType.foundationToTableau))
       dispatch(moveCards(selection.stack, clickedStack, selection.card))
-      dispatch(deselectCard())
     }
   }
 
   if (clickedStack.type === StackType.stock) {
     if (disallowClickStock(getState())) return
+    if (selection) dispatch(deselectCard())
     const waste = getWaste(getState())
     const stock = getStock(getState())
     dispatch(checkpoint())
-    if (selection) dispatch(deselectCard())
     if (stock.cards.length > 0) {
       dispatch(throwStock(stock, waste))
     } else {

@@ -13,7 +13,18 @@ export const getTopCard = (cards: StackCard[]): StackCard | null => cards[cards.
 
 export const random = (min: number, max: number): number => Math.floor(Math.random() * max) + min
 
-export const contains = (stack: Stack, card: Card) => stack.cards.some((item: StackCard) => item.card === card)
+// for simplicity, these routines would just use strict object comparison
+// however, if doing that, any changes to the store in a thunk would invalidate variable reference
+// this is useful for comparing a selected, or checking if stacks are the same before modifying them
+// so, we compare both value/suit when doing card comparisons, and type/index for stack comparisons
+
+export const sameStack = (stack1: Stack, stack2: Stack) => stack1.type === stack2.type && stack1.index === stack2.index
+
+export const sameCard = (stackCard1: StackCard, stackCard2: StackCard) =>
+  stackCard1.card.value === stackCard2.card.value && stackCard1.card.suit === stackCard2.card.suit
+
+export const stackContainsCard = (stackCards: StackCard[], stackCard: StackCard) =>
+  stackCards.some((item: StackCard) => sameCard(item, stackCard))
 
 export const isSequential = (card: Card, card1: Card) => valueToInt(card1.value) + 1 === valueToInt(card.value)
 
@@ -22,7 +33,7 @@ export const isRed = (card: Card) => [SuitType.diamond, SuitType.heart].includes
 export const isBlack = (card: Card) => [SuitType.club, SuitType.spade].includes(card.suit)
 
 export const isBig = (card: Card) =>
-  [ValueType.ace, ValueType.jack, ValueType.queen, ValueType.king].includes(card.value) ? true : false
+  [ValueType.ace, ValueType.jack, ValueType.queen, ValueType.king].includes(card.value)
 
 export const isValidMove = (card: Card, destination?: StackCard) => {
   return destination == null
