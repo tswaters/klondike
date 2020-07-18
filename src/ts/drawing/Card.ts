@@ -45,8 +45,7 @@ enum FontSizeType {
   Corner,
 }
 
-export const getGlyphLocations = (context: DrawingContext, stackCard: StackCard): Glyph[] => {
-  const { card, hidden } = stackCard
+export const getGlyphLocations = (context: DrawingContext, { card, hidden }: StackCard): Glyph[] => {
   if (hidden) return []
 
   const { ctx } = context
@@ -61,7 +60,7 @@ export const getGlyphLocations = (context: DrawingContext, stackCard: StackCard)
       (width: number, height: number) =>
         type === FontSizeType.Corner
           ? width > cornerWidth
-          : isBig(stackCard.card)
+          : isBig(card)
           ? width > cardWidth - Math.floor(cardWidth / 5) * 2
           : width > Math.floor(cardWidth / 5) && height > Math.floor(cardHeight / 20),
       type === FontSizeType.Corner ? '10' : '\u2665',
@@ -80,9 +79,6 @@ export const getGlyphLocations = (context: DrawingContext, stackCard: StackCard)
   const cornerValueY = gutterHeight / 2
   const cornerSuitX = gutterWidth / 2
   const cornerSuitY = gutterWidth / 2 + cornerHeight
-
-  // ctx.strokeRect(cornerValueX, cornerValueY, cornerWidth, cornerHeight)
-  // ctx.strokeRect(cornerSuitX, cornerSuitY, cornerWidth, cornerHeight)
 
   const { suit, value } = card
 
