@@ -14,7 +14,7 @@ module.exports = (env, argv) => {
     name: 'klondike',
     devtool: argv.mode === 'production' ? 'source-map' : 'eval-source-map',
     entry: {
-      klondike: './src/ts/index.tsx',
+      klondike: './src/index.tsx',
     },
     target: 'web',
     output: {
