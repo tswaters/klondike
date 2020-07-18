@@ -4,7 +4,7 @@ import { createLogger } from 'redux-logger'
 import reducer, { StoreState, StoreActions } from './redux'
 import subscribe from 'redux-subscribe-reselect'
 import { saveScore, GameStateStore } from './redux/game-state'
-import { getScoreStore } from './redux/selectors'
+import { getGameState } from './redux/selectors'
 
 export default () => {
   const middleware = []
@@ -23,6 +23,6 @@ export default () => {
   }
 
   const store = createStore(reducer, void 0, applyMiddleware(...middleware))
-  subscribe(store, getScoreStore, (score: GameStateStore) => saveScore(score))
+  subscribe(store, getGameState, (score: GameStateStore) => saveScore(score))
   return store
 }
