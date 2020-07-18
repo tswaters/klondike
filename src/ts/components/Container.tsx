@@ -15,22 +15,18 @@ const Container: React.FC = () => {
   const draws = useSelector(getDraws)
   const showing = useSelector(getShowing)
 
-  const handleKeyDown = React.useCallback(
-    (e: KeyboardEvent) => {
+  React.useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
       if (e.keyCode !== 90) return
       if (e.ctrlKey && e.shiftKey) {
         dispatch(redo())
       } else if (e.ctrlKey) {
         dispatch(undo())
       }
-    },
-    [dispatch],
-  )
-
-  React.useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [handleKeyDown])
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [dispatch])
 
   return (
     <div>
