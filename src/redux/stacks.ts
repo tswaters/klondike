@@ -41,7 +41,7 @@ export const moveCards = (from: Stack, to: Stack, from_card: StackCard | null): 
   type: MOVE_CARDS,
   from,
   to,
-  cards: from.cards.slice(from.cards.findIndex((card) => card.card === from_card?.card || null)),
+  cards: from.cards.slice(from.cards.findIndex((card) => from_card && sameCard(card, from_card))),
   hidden: false,
 })
 
@@ -98,7 +98,7 @@ const reducers: {
     ),
   }),
   [MOVE_CARDS]: (state, action: MoveCardAction) =>
-    state.stacks.some((stack) => [action.from, action.to].includes(stack))
+    state.stacks.some((stack) => sameStack(action.to, stack) || (action.from && sameStack(action.from, stack)))
       ? {
           ...state,
           stacks: state.stacks.map((stack) =>
