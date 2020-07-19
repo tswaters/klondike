@@ -3,6 +3,7 @@ import { StackType } from '../lib/Card'
 import { StoreActions } from '.'
 import { undoable } from './undoable'
 import { INITIALIZE, InitializeAction } from './init'
+import { retrieve, PersistanceType } from '../lib/Persist'
 
 export enum ScoringType {
   vegas,
@@ -22,28 +23,6 @@ export type GameStateStore = {
   showing: number
   draws: number
   scoringType: ScoringType
-}
-
-const getSavedScore = (): number => {
-  try {
-    const score = localStorage.getItem('score')
-    if (score == null) return 0
-    const parsed = parseInt(score, 10)
-    if (Number.isNaN(parsed)) return 0
-    return parsed
-  } catch (err) {
-    return 0
-  }
-}
-
-export const saveScore = (state: GameStateStore): void => {
-  try {
-    if (state.scoringType === ScoringType.vegas) {
-      localStorage.setItem('score', state.score.toString())
-    }
-  } catch (err) {
-    // ehh, that sucks
-  }
 }
 
 const getScoreChange = (scoringType: ScoringType, scoreType: ScoreType) => {
@@ -79,7 +58,7 @@ const initialState: GameStateStore = {
   showing: 0,
   score: 0,
   draws: Infinity,
-  scoringType: ScoringType.regular,
+  scoringType: retrieve(PersistanceType.gameMode, ScoringType.regular),
 }
 
 const reducer = (state: GameStateStore = initialState, action: StoreActions): GameStateStore => {
@@ -87,7 +66,7 @@ const reducer = (state: GameStateStore = initialState, action: StoreActions): Ga
     return {
       ...state,
       scoringType: action.scoringType,
-      score: action.scoringType === ScoringType.vegas ? getSavedScore() - 52 : 0,
+      score: action.scoringType === ScoringType.vegas ? retrieve(PersistanceType.score, 0) - 52 : 0,
       draws: action.scoringType === ScoringType.vegas ? 2 : Infinity,
     }
   }

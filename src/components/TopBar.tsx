@@ -6,13 +6,22 @@ import { initialize } from '../redux/thunks'
 import { useDrawing } from '../hooks/useDrawing'
 import { drawLabel, getLabelDrawingContext } from '../drawing/Label'
 import { GameCtx } from './GameCanvas'
-import { getHorizontalMarginSize, getVerticalMarginSize } from '../drawing/Layout'
+import { ColorSchemeType } from '../drawing/ColorScheme'
 
 const TopBar: React.FC = () => {
   const dispatch = useDispatch()
   const gameContext = React.useContext(GameCtx)
   const scoringType = useSelector(getScoringType)
   const currentScore = useSelector(getScore)
+
+  const height = 15
+  const padding = 5
+
+  const handleThemeChange = React.useCallback(() => {
+    gameContext?.changeTheme(
+      gameContext.context.colorSchemeType === ColorSchemeType.dark ? ColorSchemeType.light : ColorSchemeType.dark,
+    )
+  }, [gameContext])
 
   const otherGameType = React.useMemo(
     () => (scoringType === ScoringType.vegas ? ScoringType.regular : ScoringType.vegas),
@@ -22,58 +31,59 @@ const TopBar: React.FC = () => {
   const deets = React.useMemo(() => {
     if (gameContext == null) return null
 
-    const newGame = getLabelDrawingContext(gameContext.context, {
-      x: 5,
+    const lightSwitch = getLabelDrawingContext(gameContext.context, {
+      label: gameContext.context.colorSchemeType === ColorSchemeType.dark ? '🌕' : '🌑',
       y: 5,
-      height: 15,
-      padding: 5,
+      height,
+      padding,
+      border: false,
+    })
+
+    const newGame = getLabelDrawingContext(gameContext.context, {
+      y: 5,
+      height,
+      padding,
       label: 'New Game',
       border: true,
     })
 
     const switchGame = getLabelDrawingContext(gameContext.context, {
-      x: newGame.box.x + newGame.box.width + getHorizontalMarginSize(gameContext.context),
       y: 5,
-      height: 15,
-      padding: 5,
+      height,
+      padding,
       label: `Switch to ${ScoringType[otherGameType]}`,
       border: true,
     })
 
     const score = getLabelDrawingContext(gameContext.context, {
-      x: 0,
       y: 5,
-      height: 15,
-      padding: 5,
+      height,
+      padding,
       label: `Score: ${currentScore}`,
       border: false,
     })
 
     const version = getLabelDrawingContext(gameContext.context, {
-      x: 0,
-      y: 5,
-      height: 15,
-      padding: 5,
+      height,
+      padding,
       label: process.env.version || '',
       border: false,
     })
 
-    // position the x of the switch game type button to the right of the new game button
-    switchGame.box.x = newGame.box.x + newGame.box.width + getHorizontalMarginSize(gameContext.context)
+    newGame.box.x = lightSwitch.box.x + lightSwitch.box.width
+    switchGame.box.x = newGame.box.x + newGame.box.width
+    score.box.x = gameContext.context.width - score.box.width
+    version.box.x = gameContext.context.width - version.box.width
+    version.box.y = gameContext.context.height - version.box.height
 
-    // position the x of the score to the very right of the board
-    score.box.x = gameContext.context.width - score.box.width - getHorizontalMarginSize(gameContext.context)
-
-    // version goes in the bottom right
-    version.box.x = gameContext.context.width - version.box.width - getHorizontalMarginSize(gameContext.context)
-    version.box.y = gameContext.context.height - version.box.height - getVerticalMarginSize(gameContext.context)
-
-    return { newGame, switchGame, score, version }
+    return { lightSwitch, newGame, switchGame, score, version }
   }, [gameContext, currentScore, otherGameType])
 
   const handleNewGame = React.useCallback(() => dispatch(initialize()), [dispatch])
 
   const handleSwitchGame = React.useCallback(() => dispatch(initialize(otherGameType)), [dispatch, otherGameType])
+
+  useDrawing((context) => deets && drawLabel(context, deets.lightSwitch), { onClick: handleThemeChange })
 
   useDrawing((context) => deets && drawLabel(context, deets.newGame), { onClick: handleNewGame })
 

@@ -6,7 +6,7 @@ type LabelDrawingOpts = {
   label: string
   padding: number
   x?: number
-  y: number
+  y?: number
   height: number
   border?: boolean
 }
@@ -24,7 +24,7 @@ export const getLabelDrawingContext = (context: DrawingContext, opts: LabelDrawi
   const width = measureWidth(ctx, font, label)
   return {
     ...opts,
-    box: { x: x ?? 0, y, width: width + opts.padding * 2, height: height + opts.padding * 2 },
+    box: { x: x ?? 0, y: y ?? 0, width: width + opts.padding * 2, height: height + opts.padding * 2 },
     font,
   }
 }

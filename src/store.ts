@@ -3,8 +3,9 @@ import thunk, { ThunkMiddleware } from 'redux-thunk'
 import { createLogger } from 'redux-logger'
 import reducer, { StoreState, StoreActions } from './redux'
 import subscribe from 'redux-subscribe-reselect'
-import { saveScore, GameStateStore } from './redux/game-state'
-import { getGameState } from './redux/selectors'
+import { getScoringType, getGameState } from './redux/selectors'
+import { persist, PersistanceType } from './lib/Persist'
+import { ScoringType } from './redux/game-state'
 
 export default () => {
   const middleware = []
@@ -23,6 +24,9 @@ export default () => {
   }
 
   const store = createStore(reducer, void 0, applyMiddleware(...middleware))
-  subscribe(store, getGameState, (score: GameStateStore) => saveScore(score))
+  subscribe(store, getGameState, ({ scoringType, score }) => {
+    if (scoringType === ScoringType.vegas) persist(PersistanceType.score, score)
+  })
+  subscribe(store, getScoringType, (scoringType) => persist(PersistanceType.gameMode, scoringType))
   return store
 }

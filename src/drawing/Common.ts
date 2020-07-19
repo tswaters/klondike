@@ -1,5 +1,5 @@
 import { Cards, StackCard } from '../lib/Card'
-import { ColorScheme } from './ColorScheme'
+import { ColorScheme, ColorSchemeType } from './ColorScheme'
 import { getErrorImageData, getEmptyImageData, getHiddenImageData, getCardImageData } from './Card'
 import { getCardDimensions } from './Layout'
 
@@ -8,7 +8,11 @@ import { getCardDimensions } from './Layout'
 // the ctx to draw it on, and
 // the width/height of the canvas.
 
-export type DrawingContext = { ctx: CanvasRenderingContext2D; colorScheme: ColorScheme } & Dimensions
+export type DrawingContext = {
+  ctx: CanvasRenderingContext2D
+  colorScheme: ColorScheme
+  colorSchemeType: ColorSchemeType
+} & Dimensions
 
 export type Dimensions = { width: number; height: number }
 
