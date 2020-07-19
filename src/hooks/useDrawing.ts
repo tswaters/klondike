@@ -16,13 +16,15 @@ export const useDrawing = (draw: Drawer, events: Clickable = {}) => {
   // a screen resize will already clear the entire canvas
   // if this isn't tracked, we end up drawing a new game and clear out the old sizes, leaving blank holes.
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     if (!gameContext) return
     performCleanup.current = !(
       (lastHeight.current !== gameContext.context.height || lastWidth.current !== gameContext.context.width) &&
       lastHeight.current > 0 &&
       lastWidth.current > 0
     )
+    lastHeight.current = gameContext.context.height
+    lastWidth.current = gameContext.context.width
   }, [gameContext])
 
   React.useEffect(() => {
