@@ -9,6 +9,7 @@ import StackElement from './StackElement'
 import { getDraws, getShowing, getStacks } from '../redux/selectors'
 import TopBar from './TopBar'
 import { performMoves } from '../redux/thunks'
+import { StackType } from '../lib/Card'
 
 const Container: React.FC = () => {
   const dispatch = useDispatch()
@@ -46,7 +47,12 @@ const Container: React.FC = () => {
       <GameCanvas>
         <TopBar />
         {stacks.map((stack) => (
-          <StackElement key={`${stack.type}-${stack.index}`} stack={stack} showing={showing} draws={draws} />
+          <StackElement
+            key={`${stack.type}-${stack.index}`}
+            stack={stack}
+            showing={stack.type === StackType.waste ? showing : Infinity}
+            draws={stack.type === StackType.stock ? draws : Infinity}
+          />
         ))}
       </GameCanvas>
     </div>
