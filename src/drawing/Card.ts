@@ -86,7 +86,7 @@ export const getGlyphLocations = (context: DrawingContext, { card, hidden }: Sta
   const positions = [
     { x: cornerValueX, y: cornerValueY, glyph: value },
     { x: cornerSuitX, y: cornerSuitY, glyph: suit },
-  ].reduce((memo, glyph) => {
+  ].reduce<Glyph[]>((memo, glyph) => {
     memo.push(
       {
         ...glyph,
@@ -104,7 +104,7 @@ export const getGlyphLocations = (context: DrawingContext, { card, hidden }: Sta
       },
     )
     return memo
-  }, [] as Glyph[])
+  }, [])
 
   type ypos = 0 | 1 | 2 | 3 | 4 | 5 | 6
 
@@ -230,12 +230,38 @@ export const getHiddenImageData: GetCard = (context: DrawingContext) => {
   const { ctx, colorScheme } = context
   const { width, height } = getCardDimensions(context)
   const box = { x: 0, y: 0, width, height }
+
+  const tile = document.createElement('canvas')
+  const thickness = 25
+  tile.width = tile.height = thickness
+  const tileCtx = tile.getContext('2d') as CanvasRenderingContext2D
+  const gradient = tileCtx.createLinearGradient(0, 0, tile.width, tile.height)
+
+  gradient.addColorStop(0, colorScheme.hiddenColor1)
+  gradient.addColorStop(0.25, colorScheme.hiddenColor1)
+
+  gradient.addColorStop(0.25, colorScheme.hiddenColor2)
+  gradient.addColorStop(0.5, colorScheme.hiddenColor2)
+
+  gradient.addColorStop(0.5, colorScheme.hiddenColor1)
+  gradient.addColorStop(0.75, colorScheme.hiddenColor1)
+
+  gradient.addColorStop(0.75, colorScheme.hiddenColor2)
+  gradient.addColorStop(1, colorScheme.hiddenColor2)
+
+  tileCtx.fillStyle = gradient
+  tileCtx.fillRect(0, 0, thickness, thickness)
+
   ctx.clearRect(box.x, box.y, box.width, box.height)
   ctx.strokeStyle = colorScheme.cardBorder
-  ctx.lineWidth = 2
-  ctx.stroke(getBoxPath(box, 10))
-  ctx.fillStyle = colorScheme.faceDown
-  ctx.fill(getBoxPath(box, 10, 0.5))
+  ctx.lineWidth = 3
+  ctx.stroke(getBoxPath(box))
+  ctx.save()
+  ctx.clip(getBoxPath(box, 10))
+  ctx.fillStyle = ctx.createPattern(tile, 'repeat') as CanvasPattern
+  ctx.fillRect(box.x + 1, box.y + 1, box.width - 2, box.height - 2)
+  ctx.restore()
+
   return ctx.getImageData(box.x, box.y, box.width, box.height)
 }
 
