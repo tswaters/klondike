@@ -10,9 +10,9 @@ import { useMemo } from 'react'
 
 const StackElement: React.FC<{
   stack: Stack
-  draws: number
-  showing: number
-}> = ({ stack, draws, showing }) => {
+  draws?: number
+  showing?: number
+}> = ({ stack, draws = Infinity, showing = Infinity }) => {
   const dispatch = useDispatch()
   const gameContext = React.useContext(GameCtx)
 

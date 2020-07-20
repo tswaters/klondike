@@ -48,8 +48,8 @@ const Container: React.FC = () => {
           <StackElement
             key={`${stack.type}-${stack.index}`}
             stack={stack}
-            showing={stack.type === StackType.waste ? showing : Infinity}
-            draws={stack.type === StackType.stock ? draws : Infinity}
+            {...(stack.type === StackType.waste && { showing })}
+            {...(stack.type === StackType.stock && { draws })}
           />
         ))}
       </GameCanvas>
