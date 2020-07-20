@@ -18,7 +18,12 @@ const Container: React.FC = () => {
   const showing = useSelector(getShowing)
 
   React.useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
+    const handleMouseDown = (e: MouseEvent) => {
+      if (e.button !== 1) return
+      e.preventDefault()
+      dispatch(performMoves())
+    }
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.keyCode !== 90) return
       if (e.ctrlKey && e.shiftKey) {
         dispatch(redo())
@@ -26,19 +31,12 @@ const Container: React.FC = () => {
         dispatch(undo())
       }
     }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [dispatch])
-
-  React.useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (e.button === 1) {
-        e.preventDefault()
-        dispatch(performMoves())
-      }
+    document.addEventListener('mousedown', handleMouseDown)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown)
+      document.removeEventListener('keydown', handleKeyDown)
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
   }, [dispatch])
 
   return (
