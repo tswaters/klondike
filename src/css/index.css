@@ -1,0 +1,99 @@
+/**/
+:root {
+  --background: #000;
+  --color: #fff;
+  --emptyColor: #060606;
+  --emptyColor: #060606;
+  --faceUp: #ddd;
+  --hiddenColor1: #404dac;
+  --hiddenColor2: #263278;
+  --buttonBorder: #ddd;
+  --cardBorder: #000;
+  --black: #505050;
+  --red: #f03a17;
+  --selected: #fff000;
+  --errorColor: #900;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--color);
+  background-color: var(--background);
+}
+
+.top-bar {
+  display: flex;
+  flex-flow: wrap;
+  position: relative;
+  z-index: 2;
+}
+
+.top-bar > div {
+  flex: 0 0 50%;
+}
+
+.top-bar > div:last-child {
+  text-align: right;
+}
+
+.fireworks {
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+}
+
+.game {
+  position: absolute;
+  color: var(--color);
+  background-color: var(--background);
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.gameNumberLabel,
+.score-label {
+  font-size: 2vh;
+  min-width: 25px;
+  min-height: 25px;
+  margin: 0.5vw 0.5vw 0 0;
+  color: var(--color);
+  background-color: var(--background);
+}
+
+.options-mask {
+  top: 0;
+  left: 0;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-color: 'black';
+  opacity: 0.5;
+  z-index: 5;
+}
+
+.options-button {
+  font-size: 2vh;
+  min-width: 25px;
+  min-height: 25px;
+  margin: 0.5vw 0.5vw 0 0;
+  color: var(--color);
+  background-color: var(--background);
+}
+
+.options-modal {
+  position: absolute;
+  left: calc(50vw - min(200px, 25vw));
+  top: 25vh;
+  width: 50vw;
+  max-width: 400px;
+  padding: 1vh 1vw;
+  z-index: 6;
+  color: var(--color);
+  background-color: var(--background);
+}

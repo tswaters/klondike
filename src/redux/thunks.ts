@@ -1,7 +1,7 @@
 import { ThunkAction, ThunkDispatch as ReduxThunkDispatch } from 'redux-thunk'
 
 import { StoreState, StoreActions } from '.'
-import { isValidTableauMove, random } from '../lib/util'
+import { isValidTableauMove, rnd } from '../lib/util'
 import { StackType, Card, Cards } from '../lib/Card'
 
 import { moveCards, deselectCard, selectCard, reveal, throwStock, recycleWaste } from './stacks'
@@ -15,6 +15,7 @@ import {
   getMovableToFoundation,
   CardSelection,
   getHiddenCard,
+  getGameNumber,
 } from './selectors'
 import { checkpoint } from './undoable'
 import { incrementScore, ScoreType, ScoringType, decrementDraws } from './game-state'
@@ -27,17 +28,29 @@ interface CardClickAction<T = void> {
   (selection: CardSelection): ThunkResult<T>
 }
 
-export const initialize = (newScoringType?: ScoringType): ThunkResult<void> => (dispatch, getState) => {
+export const newGameNumber = (newGameNumber?: number): ThunkResult<void> => (dispatch, getState) => {
+  if (newGameNumber == null) newGameNumber = Math.floor(Math.random() * 1000)
+  const scoringType = getScoringType(getState())
+  dispatch(initialize(scoringType, newGameNumber))
+}
+
+export const initialize = (newScoringType?: ScoringType, newGameNumber?: number): ThunkResult<void> => (
+  dispatch,
+  getState,
+) => {
+  const gameNumber = newGameNumber == null ? getGameNumber(getState()) : newGameNumber
   const scoringType = newScoringType == null ? getScoringType(getState()) : newScoringType
   const availableCards = Array.from(Cards)
   const cards: Card[] = []
 
+  const rando = rnd(gameNumber)
+
   for (let i = 0; i < 52; i++) {
-    const index = random(0, availableCards.length)
+    const index = rando(0, availableCards.length)
     cards.push(...availableCards.splice(index, 1))
   }
 
-  dispatch(initializeGame(scoringType, cards))
+  dispatch(initializeGame(scoringType, cards, gameNumber))
 }
 
 export const performMoves = (): ThunkResult<void> => (dispatch, getState) => {

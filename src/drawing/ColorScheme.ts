@@ -1,3 +1,21 @@
+// add variables to `style` declaration
+declare module 'csstype' {
+  interface Properties {
+    '--background'?: string
+    '--emptyColor'?: string
+    '--faceUp'?: string
+    '--hiddenColor1'?: string
+    '--hiddenColor2'?: string
+    '--buttonBorder'?: string
+    '--cardBorder'?: string
+    '--black'?: string
+    '--red'?: string
+    '--selected'?: string
+    '--errorColor'?: string
+    '--labelColor'?: string
+  }
+}
+
 export enum ColorSchemeType {
   dark,
   light,
@@ -15,11 +33,13 @@ export type ColorScheme = {
   black: string
   emptyColor: string
   errorColor: string
+  color: string
 }
 
 export const colorSchemes: { [key in ColorSchemeType]: ColorScheme } = {
   [ColorSchemeType.dark]: {
     background: '#000',
+    color: '#fff',
     emptyColor: '#060606',
     faceUp: '#ddd',
     hiddenColor1: '#404dac',
@@ -33,6 +53,7 @@ export const colorSchemes: { [key in ColorSchemeType]: ColorScheme } = {
   },
   [ColorSchemeType.light]: {
     background: '#ffffff',
+    color: '#000',
     emptyColor: '#f5f5f5',
     faceUp: '#ddd',
     hiddenColor1: '#606dbc',

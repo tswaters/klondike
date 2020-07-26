@@ -2,6 +2,7 @@ import * as React from 'react'
 import { useSelector } from 'react-redux'
 import * as FireworksCanvas from 'fireworks-canvas'
 import { getGameWon } from '../redux/selectors'
+import { fireworks } from '../css/index.css'
 
 const Fireworks: React.FC = () => {
   const ref = React.useRef<HTMLDivElement>(null)
@@ -32,19 +33,7 @@ const Fireworks: React.FC = () => {
     }
   }, [active])
 
-  return (
-    <div
-      style={{
-        display,
-        top: '0',
-        left: '0',
-        width: '100vw',
-        height: '100vh',
-        position: 'absolute',
-      }}
-      ref={ref}
-    />
-  )
+  return <div className={fireworks} style={{ display }} ref={ref} />
 }
 
 export default React.memo(Fireworks)

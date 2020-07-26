@@ -4,6 +4,7 @@ import { StoreActions } from '.'
 import { undoable } from './undoable'
 import { INITIALIZE, InitializeAction } from './init'
 import { retrieve, PersistanceType } from '../lib/Persist'
+import { ColorSchemeType } from '../drawing/ColorScheme'
 
 export enum ScoringType {
   vegas,
@@ -19,10 +20,12 @@ export enum ScoreType {
 }
 
 export type GameStateStore = {
+  number: number
   score: number
   showing: number
   draws: number
   scoringType: ScoringType
+  theme: ColorSchemeType
 }
 
 const getScoreChange = (scoringType: ScoringType, scoreType: ScoreType) => {
@@ -52,22 +55,52 @@ const DECREMENT_DRAWS = 'DECREMENT_DRAWS'
 type DecrementDrawsAction = { type: typeof DECREMENT_DRAWS }
 export const decrementDraws = (): DecrementDrawsAction => ({ type: DECREMENT_DRAWS })
 
-export type GameStateActions = DecrementDrawsAction | IncrementScoreAction | InitializeAction
+const CHANGE_THEME = '@@game-state/change-theme'
+type ChangeThemeAction = { type: typeof CHANGE_THEME; newTheme: ColorSchemeType }
+export const changeTheme = (newTheme: ColorSchemeType): ChangeThemeAction => ({ type: CHANGE_THEME, newTheme })
+
+const SET_GAME_NUMBER = '@@game-state/set-game-number'
+type SetGameNumberAction = { type: typeof SET_GAME_NUMBER; number: number }
+export const setGameNumber = (number: number): SetGameNumberAction => ({ type: SET_GAME_NUMBER, number })
+
+export type GameStateActions =
+  | DecrementDrawsAction
+  | IncrementScoreAction
+  | InitializeAction
+  | ChangeThemeAction
+  | SetGameNumberAction
 
 const initialState: GameStateStore = {
   showing: 0,
   score: 0,
   draws: Infinity,
   scoringType: retrieve(PersistanceType.gameMode, ScoringType.regular),
+  theme: retrieve(PersistanceType.theme, ColorSchemeType.dark),
+  number: retrieve(PersistanceType.gameNumber, Math.floor(Math.random() * 1000)),
 }
 
 const reducer = (state: GameStateStore = initialState, action: StoreActions): GameStateStore => {
   if (action.type === INITIALIZE) {
     return {
       ...state,
+      number: action.number,
       scoringType: action.scoringType,
       score: action.scoringType === ScoringType.vegas ? retrieve(PersistanceType.score, 0) - 52 : 0,
       draws: action.scoringType === ScoringType.vegas ? 2 : Infinity,
+    }
+  }
+
+  if (action.type === SET_GAME_NUMBER) {
+    return {
+      ...state,
+      number: action.number,
+    }
+  }
+
+  if (action.type === CHANGE_THEME) {
+    return {
+      ...state,
+      theme: action.newTheme,
     }
   }
 

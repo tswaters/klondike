@@ -4,7 +4,7 @@ import { Card, ValueType, SuitType, Stack, StackCard } from './Card'
 export const rnd = (s: number) => {
   const rnd = () => ((2 ** 31 - 1) & (s = Math.imul(48271, s))) / 2 ** 31
   rnd() // first call is always junk
-  return (min: number, max: number) => Math.floor(rnd() * (max - min + 1)) + min
+  return (min: number, max: number) => Math.floor(rnd() * max) + min
 }
 
 export const sumConsecutive = (i: number) => (i * (i + 1)) / 2

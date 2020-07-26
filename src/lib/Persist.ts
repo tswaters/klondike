@@ -2,6 +2,7 @@ export enum PersistanceType {
   gameMode = 'game-mode',
   theme = 'theme',
   score = 'score',
+  gameNumber = 'game-number',
 }
 
 export const persist: <T>(name: PersistanceType, thing: T) => void = (name, thing) => {

@@ -1,5 +1,6 @@
 'use strict'
 
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CircularDependencyPlugin = require('circular-dependency-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -28,7 +29,7 @@ module.exports = (env, argv) => {
       minimizer: [new TerserPlugin({ sourceMap: true })],
     },
     resolve: {
-      extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js'],
+      extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js', 'css'],
     },
     module: {
       rules: [
@@ -36,9 +37,32 @@ module.exports = (env, argv) => {
           test: /\.tsx?$/,
           loader: 'awesome-typescript-loader',
         },
+
+        {
+          test: /\.css$/,
+          use: [
+            '@teamsupercell/typings-for-css-modules-loader',
+            {
+              loader: MiniCssExtractPlugin.loader,
+              options: {
+                esModule: false,
+              },
+            },
+            {
+              loader: 'css-loader',
+              options: {
+                sourceMap: true,
+                esModule: true,
+                localsConvention: 'camelCaseOnly',
+                modules: true,
+              },
+            },
+          ],
+        },
       ],
     },
     plugins: [
+      new MiniCssExtractPlugin(),
       new CircularDependencyPlugin({
         exclude: /node_modules/,
         failOnError: false,

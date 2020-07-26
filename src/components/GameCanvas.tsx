@@ -1,13 +1,13 @@
 import * as React from 'react'
 import { Drawable, DrawingContext, Clickable, Handler } from '../drawing/Common'
-import { ColorSchemeType, colorSchemes } from '../drawing/ColorScheme'
+import { colorSchemes } from '../drawing/ColorScheme'
 import { initialize } from '../drawing/Common'
 import { useCanvasSize } from '../hooks/useCanvasSize'
-import { retrieve, PersistanceType, persist } from '../lib/Persist'
+import { useSelector } from 'react-redux'
+import { getTheme } from '../redux/selectors'
 
 export type GameContext = {
   context: DrawingContext
-  changeTheme: (newTheme: ColorSchemeType) => void
   add: (thing: Drawable, events: Clickable) => void
   remove: (path: Path2D) => void
 }
@@ -27,14 +27,13 @@ const intersect = (evt: React.MouseEvent<HTMLCanvasElement>, pointsRef: Map<Path
     }
 }
 
-const GameCanvas: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const GameCanvas: React.FC<React.HTMLAttributes<HTMLCanvasElement>> = ({ children, ...rest }) => {
   const pointsRef = React.useRef<Map<Path2D, Drawable>>(new Map())
   const clickHandlers = React.useRef<Map<Path2D, Handler>>(new Map())
   const doubleClickHandlers = React.useRef<Map<Path2D, Handler>>(new Map())
 
   const { ctx, width, height, handleCanvasRef } = useCanvasSize()
-
-  const [colorSchemeType, setColorScheme] = React.useState(retrieve(PersistanceType.theme, ColorSchemeType.dark))
+  const colorSchemeType = useSelector(getTheme)
   const colorScheme = colorSchemes[colorSchemeType]
 
   const context = React.useMemo<DrawingContext | null>(() => {
@@ -48,10 +47,6 @@ const GameCanvas: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     () =>
       context && {
         context,
-        changeTheme(newTheme) {
-          setColorScheme(newTheme)
-          persist(PersistanceType.theme, newTheme)
-        },
         add(thing, events) {
           pointsRef.current.set(thing.path, thing)
           if (events.onClick) clickHandlers.current.set(thing.path, events.onClick)
@@ -88,19 +83,12 @@ const GameCanvas: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <>
       <canvas
         id="canvas"
-        style={{
-          backgroundColor: colorScheme.background,
-          top: '0',
-          left: '0',
-          width: '100vw',
-          height: '100vh',
-          position: 'absolute',
-        }}
         ref={handleCanvasRef}
         width={window.innerWidth}
         height={window.innerHeight}
         onClick={handleCanvasClick}
         onDoubleClick={handleCanvasDoubleClick}
+        {...rest}
       />
       <GameCtx.Provider value={value}>{children}</GameCtx.Provider>
     </>
