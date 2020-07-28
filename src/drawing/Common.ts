@@ -26,13 +26,6 @@ export type Box = Dimensions & Point
 
 export type Drawable = { path: Path2D; box: Box }
 
-// a draw routine takes drawing context above, and include whatever options they want
-// they perform mutations to the cavas (draw the thing) and return a drawable for tracking (above)
-
-export interface DrawRoutine<DrawingOpts> {
-  (context: DrawingContext, arg1: DrawingOpts | null): Drawable | null
-}
-
 export interface Handler {
   (arg0: Drawable, arg1: Point): void
 }

@@ -1,5 +1,5 @@
 import { Stack, StackDirection, StackType } from '../lib/Card'
-import { writeDataToCanvas, cardCache, getKey, DrawingContext, DrawRoutine, Box } from './Common'
+import { writeDataToCanvas, cardCache, getKey, DrawingContext, Box } from './Common'
 import { getStackCardOffsetWidth, getStackCardOffsetHeight, getStackBox } from './Layout'
 
 export type StackDrawingOptions = {
@@ -41,7 +41,7 @@ export const getStackDrawingContext = (
   }
 }
 
-export const drawStack: DrawRoutine<StackDrawingContext> = (context, drawingOpts) => {
+export const drawStack = (context: DrawingContext, drawingOpts: StackDrawingContext | null) => {
   if (drawingOpts == null) return null
   const { stack, draws, max, space, box } = drawingOpts
   const cards = stack.cards.slice(-max)
