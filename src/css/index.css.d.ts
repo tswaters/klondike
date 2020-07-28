@@ -1,12 +1,11 @@
 declare namespace IndexCssNamespace {
   export interface IIndexCss {
+    button: string
     fireworks: string
     game: string
-    gameNumberLabel: string
-    optionsButton: string
+    label: string
     optionsMask: string
     optionsModal: string
-    scoreLabel: string
     topBar: string
   }
 }

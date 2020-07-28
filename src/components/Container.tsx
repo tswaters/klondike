@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { StackType } from '../lib/Card'
 import { colorSchemes } from '../drawing/ColorScheme'
-import { gameNumberLabel, topBar, game, scoreLabel, optionsMask, optionsModal, optionsButton } from '../css/index.css'
+import { label, topBar, game, optionsMask, optionsModal, button } from '../css/index.css'
 
 import FireworksComponent from './Fireworks'
 import GameCanvas from './GameCanvas'
@@ -83,14 +83,14 @@ const Container: React.FC = () => {
       )}
       <div className={topBar}>
         <div>
-          <button tabIndex={1} onClick={handleNewGame} className={optionsButton}>
+          <button tabIndex={1} onClick={handleNewGame} className={button}>
             🔄︎
           </button>
-          <span className={gameNumberLabel}>{gameNumber}</span>
+          <span className={label}>{number}</span>
         </div>
         <div>
-          <span className={scoreLabel}>{score}</span>
-          <button tabIndex={1} onClick={handleShowOptions} className={optionsButton}>
+          <span className={label}>{score}</span>
+          <button tabIndex={1} onClick={handleShowOptions} className={button}>
             ☰︎
           </button>
         </div>
