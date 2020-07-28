@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { getScoringType, getTheme, getGameNumber } from '../redux/selectors'
-import { ScoringType, changeTheme, setGameNumber } from '../redux/game-state'
-import { initialize } from '../redux/thunks'
+import { getType, getTheme, getNumber } from '../redux/selectors'
+import { ScoringType, changeTheme } from '../redux/game-state'
+import { newNumber, newType } from '../redux/thunks'
 import { ColorSchemeType } from '../drawing/ColorScheme'
 
 type OptionContextType = {
@@ -71,7 +71,7 @@ const Option: React.FC<OptionType> = React.memo(({ name, options = [], label, se
 
 Option.displayName = 'Option'
 
-const gameTypeOptions: [string, ScoringType][] = [
+const typeOptions: [string, ScoringType][] = [
   ['Regular', ScoringType.regular],
   ['Vegas', ScoringType.vegas],
 ]
@@ -106,8 +106,8 @@ const Options: React.FC<OptionContainerProps> = React.memo(({ onClose, ...props 
   return (
     <form onSubmit={handleSubmit} {...props}>
       <OptionCtx.Provider value={value}>
-        <Option name="game-number" label="Game Number" selector={getGameNumber} action={setGameNumber} />
-        <Option name="type" label="Game Type" selector={getScoringType} action={initialize} options={gameTypeOptions} />
+        <Option name="game-number" label="Game Number" selector={getNumber} action={newNumber} />
+        <Option name="type" label="Game Type" selector={getType} action={newType} options={typeOptions} />
         <Option name="theme" label="Theme" selector={getTheme} action={changeTheme} options={colorSchemeOptions} />
       </OptionCtx.Provider>
       <button type="submit">Save</button>

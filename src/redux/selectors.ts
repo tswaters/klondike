@@ -67,13 +67,13 @@ export const getTheme = createSelector(getGameState, (gameState) => gameState.th
 
 export const getScore = createSelector(getGameState, (gameState) => gameState.score)
 
-export const getScoringType = createSelector(getGameState, (gameState) => gameState.scoringType)
+export const getType = createSelector(getGameState, (gameState) => gameState.scoringType)
 
 export const getDraws = createSelector(getGameState, ({ draws }) => draws)
 
 export const getShowing = createSelector(getGameState, ({ showing }) => showing)
 
-export const getGameNumber = createSelector(getGameState, ({ number }) => number)
+export const getNumber = createSelector(getGameState, ({ number }) => number)
 
 export const getSelection = createSelector(getStacks, (stacks) => {
   const stack = stacks.find((stack) => stack.selection != null)

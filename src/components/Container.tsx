@@ -11,9 +11,9 @@ import GameCanvas from './GameCanvas'
 import StackElement from './StackElement'
 import Options from './Options'
 
-import { performMoves, newGameNumber } from '../redux/thunks'
+import { performMoves, newNumber } from '../redux/thunks'
 import { undo, redo } from '../redux/undoable'
-import { getDraws, getShowing, getStacks, getTheme, getScore, getGameNumber } from '../redux/selectors'
+import { getDraws, getShowing, getStacks, getTheme, getScore, getNumber } from '../redux/selectors'
 
 const Container: React.FC = () => {
   const dispatch = useDispatch()
@@ -22,7 +22,7 @@ const Container: React.FC = () => {
   const showing = useSelector(getShowing)
   const theme = useSelector(getTheme)
   const score = useSelector(getScore)
-  const gameNumber = useSelector(getGameNumber)
+  const number = useSelector(getNumber)
 
   const cssVars = React.useMemo(() => {
     const colors = colorSchemes[theme]
@@ -46,7 +46,7 @@ const Container: React.FC = () => {
 
   const handleCloseOptions = React.useCallback(() => setShowOptions(false), [])
   const handleShowOptions = React.useCallback(() => setShowOptions(true), [])
-  const handleNewGame = React.useCallback(() => dispatch(newGameNumber()), [dispatch])
+  const handleNewGame = React.useCallback(() => dispatch(newNumber()), [dispatch])
 
   React.useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {

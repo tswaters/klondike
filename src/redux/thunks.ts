@@ -11,15 +11,17 @@ import {
   disallowClickStock,
   getWaste,
   getStock,
-  getScoringType,
+  getType,
   getMovableToFoundation,
   CardSelection,
   getHiddenCard,
-  getGameNumber,
+  getNumber,
+  getTheme,
 } from './selectors'
 import { checkpoint } from './undoable'
 import { incrementScore, ScoreType, ScoringType, decrementDraws } from './game-state'
 import { initialize as initializeGame } from './init'
+import { ColorSchemeType } from '../drawing/ColorScheme'
 
 export type ThunkResult<R, E = null> = ThunkAction<R, StoreState, E, StoreActions>
 export type ThunkDispatch<E = null> = ReduxThunkDispatch<StoreState, E, StoreActions>
@@ -28,29 +30,32 @@ interface CardClickAction<T = void> {
   (selection: CardSelection): ThunkResult<T>
 }
 
-export const newGameNumber = (newGameNumber?: number): ThunkResult<void> => (dispatch, getState) => {
-  if (newGameNumber == null) newGameNumber = Math.floor(Math.random() * 1000)
-  const scoringType = getScoringType(getState())
-  dispatch(initialize(scoringType, newGameNumber))
+export const newType = (newType?: ScoringType): ThunkResult<void> => (dispatch) =>
+  dispatch(initialize({ newNumber: Math.floor(Math.random() * 1000), newType }))
+
+export const newNumber = (newNumber?: number): ThunkResult<void> => (dispatch) =>
+  dispatch(initialize({ newNumber: newNumber == null ? Math.floor(Math.random() * 1000) : newNumber }))
+
+interface Initialize {
+  (arg0: { newType?: ScoringType; newNumber?: number; newTheme?: ColorSchemeType }): ThunkResult<void>
 }
 
-export const initialize = (newScoringType?: ScoringType, newGameNumber?: number): ThunkResult<void> => (
-  dispatch,
-  getState,
-) => {
-  const gameNumber = newGameNumber == null ? getGameNumber(getState()) : newGameNumber
-  const scoringType = newScoringType == null ? getScoringType(getState()) : newScoringType
+export const initialize: Initialize = ({ newType, newNumber, newTheme }) => (dispatch, getState) => {
+  const number = newNumber == null ? getNumber(getState()) : newNumber
+  const scoringType = newType == null ? getType(getState()) : newType
+  const theme = newTheme == null ? getTheme(getState()) : newTheme
+
   const availableCards = Array.from(Cards)
   const cards: Card[] = []
 
-  const rando = rnd(gameNumber)
+  const rando = rnd(number)
 
   for (let i = 0; i < 52; i++) {
     const index = rando(0, availableCards.length)
     cards.push(...availableCards.splice(index, 1))
   }
 
-  dispatch(initializeGame(scoringType, cards, gameNumber))
+  dispatch(initializeGame({ scoringType, cards, number, theme }))
 }
 
 export const performMoves = (): ThunkResult<void> => (dispatch, getState) => {

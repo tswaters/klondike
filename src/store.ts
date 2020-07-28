@@ -3,7 +3,7 @@ import thunk, { ThunkMiddleware } from 'redux-thunk'
 import { createLogger } from 'redux-logger'
 import reducer, { StoreState, StoreActions } from './redux'
 import subscribe from 'redux-subscribe-reselect'
-import { getScoringType, getGameState, getTheme, getGameNumber } from './redux/selectors'
+import { getType, getGameState, getTheme, getNumber } from './redux/selectors'
 import { persist, PersistanceType } from './lib/Persist'
 import { ScoringType } from './redux/game-state'
 
@@ -27,9 +27,9 @@ export default () => {
   subscribe(store, getGameState, ({ scoringType, score }) => {
     if (scoringType === ScoringType.vegas) persist(PersistanceType.score, score)
   })
-  subscribe(store, getScoringType, (scoringType) => persist(PersistanceType.gameMode, scoringType))
+  subscribe(store, getType, (scoringType) => persist(PersistanceType.type, scoringType))
   subscribe(store, getTheme, (newTheme) => persist(PersistanceType.theme, newTheme))
-  subscribe(store, getGameNumber, (gameNumber) => persist(PersistanceType.gameNumber, gameNumber))
+  subscribe(store, getNumber, (number) => persist(PersistanceType.number, number))
 
   return store
 }
