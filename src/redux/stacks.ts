@@ -33,7 +33,7 @@ export const recycleWaste = (waste: Stack, stock: Stack): MoveCardAction => ({
   type: MOVE_CARDS,
   from: waste,
   to: stock,
-  cards: waste.cards.slice(0),
+  cards: waste.cards.slice(0).reverse(),
   hidden: true,
 })
 
