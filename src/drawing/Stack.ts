@@ -3,7 +3,7 @@ import { writeDataToCanvas, cardCache, getKey, DrawingContext, Box } from './Com
 import { getStackCardOffsetWidth, getStackCardOffsetHeight, getStackBox } from './Layout'
 
 export type StackDrawingOptions = {
-  draws: number
+  overDrawn: boolean
   showing: number
 }
 
@@ -33,7 +33,7 @@ export const getStackDrawingContext = (
 
   return {
     stack,
-    draws: opts.draws,
+    overDrawn: opts.overDrawn,
     showing: opts.showing,
     space,
     box,
@@ -43,7 +43,7 @@ export const getStackDrawingContext = (
 
 export const drawStack = (context: DrawingContext, drawingOpts: StackDrawingContext | null) => {
   if (drawingOpts == null) return null
-  const { stack, draws, max, space, box } = drawingOpts
+  const { stack, overDrawn, max, space, box } = drawingOpts
   const cards = stack.cards.slice(-max)
 
   const path = new Path2D()
@@ -51,7 +51,7 @@ export const drawStack = (context: DrawingContext, drawingOpts: StackDrawingCont
   path.closePath()
 
   const empty = cards.length === 0
-  const error = stack.type === StackType.stock && empty && draws === 0
+  const error = stack.type === StackType.stock && empty && overDrawn
   const elements = []
 
   if (error) elements.push({ data: cardCache.get('error'), x: box.x, y: box.y })

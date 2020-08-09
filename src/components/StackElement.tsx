@@ -10,15 +10,15 @@ import { useMemo } from 'react'
 
 const StackElement: React.FC<{
   stack: Stack
-  draws?: number
+  overDrawn?: boolean
   showing?: number
-}> = ({ stack, draws = Infinity, showing = Infinity }) => {
+}> = ({ stack, overDrawn = false, showing = Infinity }) => {
   const dispatch = useDispatch()
   const gameContext = React.useContext(GameCtx)
 
   const drawingOpts = useMemo<StackDrawingContext | null>(
-    () => gameContext && getStackDrawingContext(gameContext.context, stack, { draws, showing }),
-    [gameContext, stack, draws, showing],
+    () => gameContext && getStackDrawingContext(gameContext.context, stack, { overDrawn, showing }),
+    [gameContext, stack, overDrawn, showing],
   )
 
   const onDoubleClick = React.useCallback(

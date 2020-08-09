@@ -13,12 +13,12 @@ import Options from './Options'
 
 import { performMoves, newNumber } from '../redux/thunks'
 import { undo, redo } from '../redux/undoable'
-import { getDraws, getShowing, getStacks, getTheme, getScore, getNumber } from '../redux/selectors'
+import { getOverDrawn, getShowing, getStacks, getTheme, getScore, getNumber } from '../redux/selectors'
 
 const Container: React.FC = () => {
   const dispatch = useDispatch()
   const stacks = useSelector(getStacks)
-  const draws = useSelector(getDraws)
+  const overDrawn = useSelector(getOverDrawn)
   const showing = useSelector(getShowing)
   const theme = useSelector(getTheme)
   const score = useSelector(getScore)
@@ -102,7 +102,7 @@ const Container: React.FC = () => {
             key={`${stack.type}-${stack.index}`}
             stack={stack}
             {...(stack.type === StackType.waste && { showing })}
-            {...(stack.type === StackType.stock && { draws })}
+            {...(stack.type === StackType.stock && { overDrawn })}
           />
         ))}
       </GameCanvas>

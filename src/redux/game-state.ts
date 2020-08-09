@@ -52,18 +52,18 @@ const INCREMENT_SCORE = '@@game-state/increment-score'
 type IncrementScoreAction = { type: typeof INCREMENT_SCORE; scoreType: ScoreType }
 export const incrementScore = (scoreType: ScoreType): IncrementScoreAction => ({ type: INCREMENT_SCORE, scoreType })
 
-const DECREMENT_DRAWS = 'DECREMENT_DRAWS'
-type DecrementDrawsAction = { type: typeof DECREMENT_DRAWS }
-export const decrementDraws = (): DecrementDrawsAction => ({ type: DECREMENT_DRAWS })
+const INCREMENT_DRAWS = 'INCREMENT_DRAWS'
+type IncrementDrawsAction = { type: typeof INCREMENT_DRAWS }
+export const incrementDraws = (): IncrementDrawsAction => ({ type: INCREMENT_DRAWS })
 
 const CHANGE_THEME = '@@game-state/change-theme'
 type ChangeThemeAction = { type: typeof CHANGE_THEME; newTheme: ColorSchemeType }
 export const changeTheme = (newTheme: ColorSchemeType): ChangeThemeAction => ({ type: CHANGE_THEME, newTheme })
 
-export type GameStateActions = DecrementDrawsAction | IncrementScoreAction | InitializeAction | ChangeThemeAction
+export type GameStateActions = IncrementDrawsAction | IncrementScoreAction | InitializeAction | ChangeThemeAction
 
 const initialState: GameStateStore = {
-  draws: Infinity,
+  draws: 0,
   number: 0,
   score: 0,
   scoringType: ScoringType.regular,
@@ -74,14 +74,14 @@ const initialState: GameStateStore = {
 const reducers: Reducer<GameStateStore, StoreActions> = {
   [INITIALIZE]: (state, action) => ({
     ...state,
-    draws: action.scoringType === ScoringType.vegas ? 2 : Infinity,
+    draws: 0,
     number: action.number,
     score: action.scoringType === ScoringType.vegas ? retrieve(PersistanceType.score, 0) - 52 : 0,
     scoringType: action.scoringType,
     showing: 3,
   }),
   [CHANGE_THEME]: (state, action) => ({ ...state, theme: action.newTheme }),
-  [DECREMENT_DRAWS]: (state) => ({ ...state, draws: state.draws - 1 }),
+  [INCREMENT_DRAWS]: (state) => ({ ...state, draws: state.draws + 1 }),
   [INCREMENT_SCORE]: (state, action) => ({
     ...state,
     score: state.score + getScoreChange(state.scoringType, action.scoreType),

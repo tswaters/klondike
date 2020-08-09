@@ -19,7 +19,7 @@ import {
   getTheme,
 } from './selectors'
 import { checkpoint } from './undoable'
-import { incrementScore, ScoreType, ScoringType, decrementDraws } from './game-state'
+import { incrementScore, ScoreType, ScoringType, incrementDraws } from './game-state'
 import { initialize as initializeGame } from './init'
 import { ColorSchemeType } from '../drawing/ColorScheme'
 
@@ -124,7 +124,7 @@ export const clickCard: CardClickAction = (cardSelection) => (dispatch, getState
       dispatch(throwStock(stock, waste))
     } else {
       dispatch(recycleWaste(waste, stock))
-      dispatch(decrementDraws())
+      dispatch(incrementDraws())
     }
   }
 }
