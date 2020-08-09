@@ -4,6 +4,7 @@ import { getType, getTheme, getNumber } from '../redux/selectors'
 import { ScoringType, changeTheme } from '../redux/game-state'
 import { newNumber, newType } from '../redux/thunks'
 import { ColorSchemeType } from '../drawing/ColorScheme'
+import { StoreState } from '../redux'
 
 type OptionContextType = {
   add: (cb: () => void) => void
@@ -15,7 +16,7 @@ export const OptionCtx = React.createContext<OptionContextType | null>(null)
 type OptionType<T = number> = React.HTMLAttributes<HTMLFieldSetElement> & {
   name: string
   label: string
-  selector: (arg0: unknown) => T
+  selector: (arg0: StoreState) => T
   action: (arg0: T) => void
   options?: [string, T][]
 }

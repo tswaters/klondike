@@ -27,7 +27,7 @@ export type UndoableActions = DestroyAction | UndoAction | RedoAction | Checkpoi
 export const undoable = <S, A extends AnyAction = UndoableActions>(reducer: Reducer<S, A>) => {
   const initialState: History<S> = {
     past: [],
-    present: reducer(undefined, {} as A),
+    present: reducer(void 0, {} as A),
     future: [],
   }
 

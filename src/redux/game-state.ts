@@ -5,6 +5,7 @@ import { undoable } from './undoable'
 import { INITIALIZE, InitializeAction } from './init'
 import { retrieve, PersistanceType } from '../lib/Persist'
 import { ColorSchemeType } from '../drawing/ColorScheme'
+import { Reducer } from '.'
 
 export enum ScoringType {
   vegas,
@@ -70,34 +71,23 @@ const initialState: GameStateStore = {
   theme: ColorSchemeType.dark,
 }
 
-const reducer = (state: GameStateStore = initialState, action: StoreActions): GameStateStore => {
-  if (action.type === INITIALIZE) {
-    return {
-      ...state,
-      draws: action.scoringType === ScoringType.vegas ? 2 : Infinity,
-      number: action.number,
-      score: action.scoringType === ScoringType.vegas ? retrieve(PersistanceType.score, 0) - 52 : 0,
-      scoringType: action.scoringType,
-      showing: 3,
-    }
-  }
-
-  if (action.type === CHANGE_THEME) {
-    return {
-      ...state,
-      theme: action.newTheme,
-    }
-  }
-
-  if (action.type === DECREMENT_DRAWS) {
-    return {
-      ...state,
-      draws: state.draws - 1,
-    }
-  }
-
-  if (action.type === MOVE_CARDS) {
-    return action.to.type === StackType.waste || (action.from && action.from.type === StackType.waste)
+const reducers: Reducer<GameStateStore, StoreActions> = {
+  [INITIALIZE]: (state, action) => ({
+    ...state,
+    draws: action.scoringType === ScoringType.vegas ? 2 : Infinity,
+    number: action.number,
+    score: action.scoringType === ScoringType.vegas ? retrieve(PersistanceType.score, 0) - 52 : 0,
+    scoringType: action.scoringType,
+    showing: 3,
+  }),
+  [CHANGE_THEME]: (state, action) => ({ ...state, theme: action.newTheme }),
+  [DECREMENT_DRAWS]: (state) => ({ ...state, draws: state.draws - 1 }),
+  [INCREMENT_SCORE]: (state, action) => ({
+    ...state,
+    score: state.score + getScoreChange(state.scoringType, action.scoreType),
+  }),
+  [MOVE_CARDS]: (state, action) =>
+    action.to.type === StackType.waste || (action.from && action.from.type === StackType.waste)
       ? {
           ...state,
           showing:
@@ -105,15 +95,12 @@ const reducer = (state: GameStateStore = initialState, action: StoreActions): Ga
               ? Math.min(action.to.cards.length + action.cards.length, 3)
               : Math.max(1, state.showing - 1),
         }
-      : state
-  }
+      : state,
+}
 
-  if (action.type === INCREMENT_SCORE) {
-    return {
-      ...state,
-      score: state.score + getScoreChange(state.scoringType, action.scoreType),
-    }
-  }
+const reducer = (state: GameStateStore = initialState, action: StoreActions): GameStateStore => {
+  const reducer = reducers[action.type]
+  if (reducer) return reducer(state, action as never) // that's fucked, you're fucked
   return state
 }
 

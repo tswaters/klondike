@@ -1,7 +1,8 @@
 import { Stack, StackCard, StackType, StackDirection } from '../lib/Card'
 import { stackContainsCard, sumConsecutive, sameStack, sameCard } from '../lib/util'
 import { undoable } from './undoable'
-import { INITIALIZE, InitializeAction } from './init'
+import { INITIALIZE } from './init'
+import { Reducer, StoreActions } from '.'
 
 export const SELECT = '@@global/select-card'
 export type SelectAction = { type: typeof SELECT; stack: Stack; card: StackCard }
@@ -16,7 +17,7 @@ export type RevealTopCardAction = { type: typeof REVEAL_TOP; stack: Stack }
 export const reveal = (stack: Stack): RevealTopCardAction => ({ type: REVEAL_TOP, stack })
 
 export const MOVE_CARDS = '@@global/move-cards'
-export type MoveCardAction = { type: typeof MOVE_CARDS; from?: Stack; to: Stack; cards: StackCard[]; hidden: boolean }
+export type MoveCardAction = { type: typeof MOVE_CARDS; from: Stack; to: Stack; cards: StackCard[]; hidden: boolean }
 
 // move 3 cards from the stock to the waste
 export const throwStock = (stock: Stack, waste: Stack): MoveCardAction => ({
@@ -47,10 +48,8 @@ export const moveCards = (from: Stack, to: Stack, from_card: StackCard | null): 
 
 export type CardActions = SelectAction | DeselectAction | RevealTopCardAction | MoveCardAction
 
-const reducers: {
-  [key: string]: (state: StackStore, action: CardActions | InitializeAction) => StackStore
-} = {
-  [INITIALIZE]: (state, action: InitializeAction) => ({
+const reducers: Reducer<StackStore, StoreActions> = {
+  [INITIALIZE]: (state, action) => ({
     ...state,
     stacks: state.stacks.map((stack) => {
       switch (stack.type) {
@@ -69,7 +68,7 @@ const reducers: {
       }
     }),
   }),
-  [SELECT]: (state, action: SelectAction) => ({
+  [SELECT]: (state, action) => ({
     ...state,
     stacks: state.stacks.map((stack) =>
       sameStack(stack, action.stack) && stackContainsCard(stack.cards, action.card)
@@ -97,7 +96,7 @@ const reducers: {
         : stack,
     ),
   }),
-  [MOVE_CARDS]: (state, action: MoveCardAction) =>
+  [MOVE_CARDS]: (state, action) =>
     state.stacks.some((stack) => sameStack(action.to, stack) || (action.from && sameStack(action.from, stack)))
       ? {
           ...state,
@@ -119,7 +118,7 @@ const reducers: {
           ),
         }
       : state,
-  [REVEAL_TOP]: (state, action: RevealTopCardAction) => ({
+  [REVEAL_TOP]: (state, action) => ({
     ...state,
     stacks: state.stacks.map((stack) =>
       sameStack(stack, action.stack)
@@ -171,9 +170,9 @@ const initialState: StackStore = {
   ],
 }
 
-const reducer = (state: StackStore = initialState, action: CardActions): StackStore => {
+const reducer = (state: StackStore = initialState, action: StoreActions): StackStore => {
   const r = reducers[action.type]
-  if (r) return r(state, action)
+  if (r) return r(state, action as never) // that's fucked. you're fucked.
   return state
 }
 

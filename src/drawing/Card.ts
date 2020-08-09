@@ -15,10 +15,6 @@ type Glyph = {
   font: string
 }
 
-interface GetCard {
-  (context: DrawingContext, card?: StackCard): ImageData
-}
-
 export const getBoxPath = ({ x, y, width, height }: Box, radius = 10, smaller = 0) => {
   const path = new Path2D()
 
@@ -213,7 +209,7 @@ export const getGlyphLocations = (context: DrawingContext, { card, hidden }: Sta
   return positions
 }
 
-export const getEmptyImageData: GetCard = (context: DrawingContext) => {
+export const getEmptyImageData = (context: DrawingContext) => {
   const { ctx, colorScheme } = context
   const { width, height } = getCardDimensions(context)
   const box = { x: 0, y: 0, width, height }
@@ -226,7 +222,7 @@ export const getEmptyImageData: GetCard = (context: DrawingContext) => {
   return ctx.getImageData(box.x, box.y, box.width, box.height)
 }
 
-export const getHiddenImageData: GetCard = (context: DrawingContext) => {
+export const getHiddenImageData = (context: DrawingContext) => {
   const { ctx, colorScheme } = context
   const { width, height } = getCardDimensions(context)
   const box = { x: 0, y: 0, width, height }
@@ -265,7 +261,7 @@ export const getHiddenImageData: GetCard = (context: DrawingContext) => {
   return ctx.getImageData(box.x, box.y, box.width, box.height)
 }
 
-export const getCardImageData: GetCard = (context: DrawingContext, card: StackCard) => {
+export const getCardImageData = (context: DrawingContext, card: StackCard) => {
   const { ctx, colorScheme } = context
   const { width, height } = getCardDimensions(context)
   const box = { x: 0, y: 0, width, height }
@@ -294,7 +290,7 @@ export const getCardImageData: GetCard = (context: DrawingContext, card: StackCa
   return ctx.getImageData(box.x, box.y, box.width, box.height)
 }
 
-export const getErrorImageData: GetCard = (context: DrawingContext) => {
+export const getErrorImageData = (context: DrawingContext) => {
   const { ctx, colorScheme } = context
   const { width, height } = getCardDimensions(context)
   const box = { x: 0, y: 0, width, height }

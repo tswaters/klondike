@@ -4,6 +4,7 @@
     "sourceMap": true,
     "locale": "en-ca",
     "target": "es6",
+    "strict": true,
     "skipLibCheck": true,
     "declaration": false,
     "strictNullChecks": true,

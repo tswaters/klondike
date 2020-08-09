@@ -77,7 +77,7 @@ const checkAndPerformCardReveal: CardClickAction = (selection) => (dispatch) => 
 }
 
 const checkAndPerformFoundationMove: CardClickAction = (selection) => (dispatch, getState) => {
-  const foundation = (selection.stackCard && getFoundationStack(getState(), selection.stackCard.card)) || null
+  const foundation = selection.stackCard && getFoundationStack(getState(), selection.stackCard)
   if (foundation && selection.stackCard) {
     dispatch(deselectCard())
     dispatch(checkpoint())
@@ -105,7 +105,7 @@ export const clickCard: CardClickAction = (cardSelection) => (dispatch, getState
       dispatch(incrementScore(ScoreType.revealCard))
       dispatch(reveal(clickedStack))
     }
-    if (selection && selection.stackCard && isValidTableauMove(selection.stackCard.card, clickedCard)) {
+    if (selection && selection.stackCard && isValidTableauMove(selection.stackCard, clickedCard)) {
       dispatch(deselectCard())
       dispatch(checkpoint())
       if (selection.stack.type === StackType.waste) dispatch(incrementScore(ScoreType.wasteToTableau))

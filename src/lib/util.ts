@@ -9,7 +9,7 @@ export const rnd = (s: number) => {
 
 export const sumConsecutive = (i: number) => (i * (i + 1)) / 2
 
-export const getTopCard = (cards: StackCard[]): StackCard | null => cards[cards.length - 1]
+export const getTopCard = (stack: Stack): StackCard | null => stack.cards[stack.cards.length - 1] || null
 
 export const random = (min: number, max: number): number => Math.floor(Math.random() * max) + min
 
@@ -35,16 +35,16 @@ export const isBlack = (card: Card) => [SuitType.club, SuitType.spade].includes(
 export const isBig = (card: Card) =>
   [ValueType.ace, ValueType.jack, ValueType.queen, ValueType.king].includes(card.value)
 
-export const isValidFoundationMove = (card: Card, desintation: StackCard | null) =>
+export const isValidFoundationMove = (stackCard: StackCard, desintation: StackCard | null) =>
   desintation == null
-    ? card.value === ValueType.ace
-    : desintation.card.suit === card.suit && isSequential(card, desintation.card)
+    ? stackCard.card.value === ValueType.ace
+    : desintation.card.suit === stackCard.card.suit && isSequential(stackCard.card, desintation.card)
 
-export const isValidTableauMove = (card: Card, destination?: StackCard) => {
+export const isValidTableauMove = (stackCard: StackCard, destination: StackCard | null) => {
   return destination == null
-    ? card.value === ValueType.king
-    : isSequential(destination.card, card) &&
-        ((isRed(card) && isBlack(destination.card)) || (isBlack(card) && isRed(destination.card)))
+    ? stackCard.card.value === ValueType.king
+    : isSequential(destination.card, stackCard.card) &&
+        ((isRed(stackCard.card) && isBlack(destination.card)) || (isBlack(stackCard.card) && isRed(destination.card)))
 }
 
 const valueToInt = (value: ValueType): number => {
