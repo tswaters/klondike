@@ -17,9 +17,6 @@ export const useCanvasSize = (): CanvasSizeReturn => {
   const [size, setSize] = React.useState<Dimensions>()
 
   React.useEffect(() => {
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (ctx == null) return
     let tid: number
     const handleSize = () => {
       if (tid) clearTimeout(tid)
