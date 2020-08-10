@@ -1,30 +1,18 @@
+import { createAction } from '@reduxjs/toolkit'
 import { Reducer, AnyAction } from 'redux'
 
-export type History<State> = {
+type History<State> = {
   past: State[]
   present: State
   future: State[]
 }
 
-const DESTROY = '@@undoable/destroy'
-export type DestroyAction = { type: typeof DESTROY }
-export const destroy = (): DestroyAction => ({ type: DESTROY })
+export const destroy = createAction('destroy')
+export const undo = createAction('undo')
+export const redo = createAction('redo')
+export const checkpoint = createAction('checkpoint')
 
-const UNDO = '@@undoable/undo'
-type UndoAction = { type: typeof UNDO }
-export const undo = (): UndoAction => ({ type: UNDO })
-
-const REDO = '@@undoable/redo'
-type RedoAction = { type: typeof REDO }
-export const redo = (): RedoAction => ({ type: REDO })
-
-const CHECKPOINT = '@@undoable/checkpoint'
-type CheckpointAction = { type: typeof CHECKPOINT }
-export const checkpoint = (): CheckpointAction => ({ type: CHECKPOINT })
-
-export type UndoableActions = DestroyAction | UndoAction | RedoAction | CheckpointAction
-
-export const undoable = <S, A extends AnyAction = UndoableActions>(reducer: Reducer<S, A>) => {
+export const undoable = <S, A extends AnyAction>(reducer: Reducer<S, A>) => {
   const initialState: History<S> = {
     past: [],
     present: reducer(void 0, {} as A),
@@ -34,7 +22,7 @@ export const undoable = <S, A extends AnyAction = UndoableActions>(reducer: Redu
   return (state = initialState, action: A) => {
     const { past, present, future } = state
 
-    if (action.type === UNDO) {
+    if (undo.match(action)) {
       const previous = past[past.length - 1]
       if (!previous) {
         return state
@@ -48,7 +36,7 @@ export const undoable = <S, A extends AnyAction = UndoableActions>(reducer: Redu
       }
     }
 
-    if (action.type === REDO) {
+    if (redo.match(action)) {
       const next = future[0]
       if (!next) {
         return state
@@ -64,7 +52,7 @@ export const undoable = <S, A extends AnyAction = UndoableActions>(reducer: Redu
 
     const newPresent = reducer(present, action)
 
-    if (action.type === DESTROY) {
+    if (destroy.match(action)) {
       return {
         past: [],
         present: newPresent,
@@ -72,7 +60,7 @@ export const undoable = <S, A extends AnyAction = UndoableActions>(reducer: Redu
       }
     }
 
-    if (action.type === CHECKPOINT) {
+    if (checkpoint.match(action)) {
       return {
         past: [...past, present],
         present: newPresent,

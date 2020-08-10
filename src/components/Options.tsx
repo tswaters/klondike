@@ -1,10 +1,11 @@
 import * as React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { getType, getTheme, getNumber } from '../redux/selectors'
-import { ScoringType, changeTheme } from '../redux/game-state'
-import { newNumber, newType } from '../redux/thunks'
+import { ScoringType } from '../lib/Scoring'
 import { ColorSchemeType } from '../drawing/ColorScheme'
 import { StoreState } from '../redux'
+import { getType, getTheme, getNumber } from '../redux/selectors'
+import { changeTheme } from '../redux/game-state'
+import { newNumber, newType } from '../redux/thunks'
 
 type OptionContextType = {
   add: (cb: () => void) => void

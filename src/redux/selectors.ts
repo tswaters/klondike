@@ -1,10 +1,8 @@
 import { createSelector } from 'reselect'
-import { StoreState } from './index'
-import { Stack, StackType, StackCard } from '../lib/Card'
+import { StackType, StackCard } from '../lib/Card'
 import { getTopCard, isValidFoundationMove } from '../lib/util'
-import { ScoringType } from './game-state'
-
-export type CardSelection = { stackCard: StackCard | null; stack: Stack }
+import { ScoringType } from '../lib/Scoring'
+import { StoreState, CardSelection } from './index'
 
 export const getStacks = createSelector(
   (state: StoreState) => state.stacks.present.stacks,
@@ -71,10 +69,12 @@ export const getScore = createSelector(getGameState, (gameState) => gameState.sc
 
 export const getType = createSelector(getGameState, (gameState) => gameState.scoringType)
 
-const VEGAS_DRAW_LIMIT = 2
+export const getDraws = createSelector(getGameState, (gameState) => gameState.draws)
+
+const VEGAS_DRAW_LIMIT = 3
 export const getOverDrawn = createSelector(
-  getGameState,
-  ({ draws, scoringType }) => scoringType === ScoringType.vegas && draws >= VEGAS_DRAW_LIMIT,
+  [getDraws, getType],
+  (draws, scoringType) => scoringType === ScoringType.vegas && draws + 1 > VEGAS_DRAW_LIMIT,
 )
 
 export const getShowing = createSelector(getGameState, ({ showing }) => showing)

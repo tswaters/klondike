@@ -1,10 +1,11 @@
-import { ThunkAction, ThunkDispatch as ReduxThunkDispatch } from 'redux-thunk'
-
-import { StoreState, StoreActions } from '.'
+import { AppThunk, CardSelection } from '.'
 import { isValidTableauMove, rnd } from '../lib/util'
 import { StackType, Card, Cards } from '../lib/Card'
+import { ScoringType, ScoreType } from '../lib/Scoring'
+import { ColorSchemeType } from '../drawing/ColorScheme'
 
-import { moveCards, deselectCard, selectCard, reveal, throwStock, recycleWaste } from './stacks'
+import { initialize } from './init'
+import { moveCards, deselectCard, selectCard, revealTop, drawStockCards, recycleWaste } from './stacks'
 import {
   getSelection,
   getFoundationStack,
@@ -13,34 +14,24 @@ import {
   getStock,
   getType,
   getMovableToFoundation,
-  CardSelection,
   getHiddenCard,
   getNumber,
   getTheme,
 } from './selectors'
 import { checkpoint } from './undoable'
-import { incrementScore, ScoreType, ScoringType, incrementDraws } from './game-state'
-import { initialize as initializeGame } from './init'
-import { ColorSchemeType } from '../drawing/ColorScheme'
+import { incrementScore, incrementDraws } from './game-state'
 
-export type ThunkResult<R, E = null> = ThunkAction<R, StoreState, E, StoreActions>
-export type ThunkDispatch<E = null> = ReduxThunkDispatch<StoreState, E, StoreActions>
+export const newType = (newType?: ScoringType): AppThunk => (dispatch) =>
+  dispatch(initializeGame({ newNumber: Math.floor(Math.random() * 1000), newType }))
 
-interface CardClickAction<T = void> {
-  (selection: CardSelection): ThunkResult<T>
-}
-
-export const newType = (newType?: ScoringType): ThunkResult<void> => (dispatch) =>
-  dispatch(initialize({ newNumber: Math.floor(Math.random() * 1000), newType }))
-
-export const newNumber = (newNumber?: number): ThunkResult<void> => (dispatch) =>
-  dispatch(initialize({ newNumber: newNumber == null ? Math.floor(Math.random() * 1000) : newNumber }))
+export const newNumber = (newNumber?: number): AppThunk => (dispatch) =>
+  dispatch(initializeGame({ newNumber: newNumber == null ? Math.floor(Math.random() * 1000) : newNumber }))
 
 interface Initialize {
-  (arg0: { newType?: ScoringType; newNumber?: number; newTheme?: ColorSchemeType }): ThunkResult<void>
+  (arg0: { newType?: ScoringType; newNumber?: number; newTheme?: ColorSchemeType }): AppThunk
 }
 
-export const initialize: Initialize = ({ newType, newNumber, newTheme }) => (dispatch, getState) => {
+export const initializeGame: Initialize = ({ newType, newNumber, newTheme }) => (dispatch, getState) => {
   const number = newNumber == null ? getNumber(getState()) : newNumber
   const scoringType = newType == null ? getType(getState()) : newType
   const theme = newTheme == null ? getTheme(getState()) : newTheme
@@ -50,15 +41,16 @@ export const initialize: Initialize = ({ newType, newNumber, newTheme }) => (dis
 
   const rando = rnd(number)
 
-  for (let i = 0; i < 52; i++) {
+  for (let i = 0; i < 52; i += 1) {
     const index = rando(0, availableCards.length)
-    cards.push(...availableCards.splice(index, 1))
+    const [card] = availableCards.splice(index, 1)
+    cards.push(card)
   }
 
-  dispatch(initializeGame({ scoringType, cards, number, theme }))
+  dispatch(initialize({ scoringType, cards, number, theme }))
 }
 
-export const performMoves = (): ThunkResult<void> => (dispatch, getState) => {
+export const performMoves = (): AppThunk => (dispatch, getState) => {
   let movable: CardSelection | null
   while ((movable = getMovableToFoundation(getState()) || getHiddenCard(getState()))) {
     if (movable.stackCard?.hidden ?? false) {
@@ -69,14 +61,14 @@ export const performMoves = (): ThunkResult<void> => (dispatch, getState) => {
   }
 }
 
-const checkAndPerformCardReveal: CardClickAction = (selection) => (dispatch) => {
+const checkAndPerformCardReveal = (selection: CardSelection): AppThunk => (dispatch) => {
   if (selection == null) return
   dispatch(checkpoint())
   dispatch(incrementScore(ScoreType.revealCard))
-  dispatch(reveal(selection.stack))
+  dispatch(revealTop(selection.stack))
 }
 
-const checkAndPerformFoundationMove: CardClickAction = (selection) => (dispatch, getState) => {
+const checkAndPerformFoundationMove = (selection: CardSelection): AppThunk => (dispatch, getState) => {
   const foundation = selection.stackCard && getFoundationStack(getState(), selection.stackCard)
   if (foundation && selection.stackCard) {
     dispatch(deselectCard())
@@ -87,7 +79,7 @@ const checkAndPerformFoundationMove: CardClickAction = (selection) => (dispatch,
   }
 }
 
-export const clickCard: CardClickAction = (cardSelection) => (dispatch, getState) => {
+export const clickCard = (cardSelection: CardSelection): AppThunk => (dispatch, getState) => {
   const { stackCard: clickedCard, stack: clickedStack } = cardSelection
   if (clickedCard != null && clickedCard.selected) return dispatch(deselectCard())
 
@@ -103,7 +95,7 @@ export const clickCard: CardClickAction = (cardSelection) => (dispatch, getState
     if (selection == null && clickedCard && clickedCard.hidden) {
       dispatch(checkpoint())
       dispatch(incrementScore(ScoreType.revealCard))
-      dispatch(reveal(clickedStack))
+      dispatch(revealTop(clickedStack))
     }
     if (selection && selection.stackCard && isValidTableauMove(selection.stackCard, clickedCard)) {
       dispatch(deselectCard())
@@ -121,15 +113,15 @@ export const clickCard: CardClickAction = (cardSelection) => (dispatch, getState
     const stock = getStock(getState())
     dispatch(checkpoint())
     if (stock.cards.length > 0) {
-      dispatch(throwStock(stock, waste))
+      dispatch(drawStockCards({ stock, waste }))
     } else {
-      dispatch(recycleWaste(waste, stock))
+      dispatch(recycleWaste({ stock, waste }))
       dispatch(incrementDraws())
     }
   }
 }
 
-export const doubleClickCard: CardClickAction = (cardSelection) => (dispatch) => {
+export const doubleClickCard = (cardSelection: CardSelection): AppThunk => (dispatch) => {
   const { stack, stackCard } = cardSelection
   if (
     stack.type === StackType.foundation ||
