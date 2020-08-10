@@ -21,17 +21,15 @@ import {
 import { checkpoint } from './undoable'
 import { incrementScore, incrementDraws } from './game-state'
 
-export const newType = (newType?: ScoringType): AppThunk => (dispatch) =>
-  dispatch(initializeGame({ newNumber: Math.floor(Math.random() * 1000), newType }))
+export const newType = (newType?: ScoringType) =>
+  initializeGame({ newNumber: Math.floor(Math.random() * 1000), newType })
 
-export const newNumber = (newNumber?: number): AppThunk => (dispatch) =>
-  dispatch(initializeGame({ newNumber: newNumber == null ? Math.floor(Math.random() * 1000) : newNumber }))
+export const newNumber = (newNumber?: number) =>
+  initializeGame({ newNumber: newNumber == null ? Math.floor(Math.random() * 1000) : newNumber })
 
-interface Initialize {
-  (arg0: { newType?: ScoringType; newNumber?: number; newTheme?: ColorSchemeType }): AppThunk
-}
+type InitOptions = { newType?: ScoringType; newNumber?: number; newTheme?: ColorSchemeType }
 
-export const initializeGame: Initialize = ({ newType, newNumber, newTheme }) => (dispatch, getState) => {
+export const initializeGame = ({ newType, newNumber, newTheme }: InitOptions): AppThunk => (dispatch, getState) => {
   const number = newNumber == null ? getNumber(getState()) : newNumber
   const scoringType = newType == null ? getType(getState()) : newType
   const theme = newTheme == null ? getTheme(getState()) : newTheme
