@@ -18,26 +18,23 @@ const gameStateSlice = createSlice({
     theme: ColorSchemeType.dark,
   },
   reducers: {
-    incrementDraws: (state) => ({
-      ...state,
-      draws: state.draws + 1,
-    }),
-    incrementScore: (state, action: PayloadAction<ScoreType>) => ({
-      ...state,
-      score: state.score + getScoreChange(state.scoringType, action.payload),
-    }),
-    changeTheme: (state, action: PayloadAction<ColorSchemeType>) => ({
-      ...state,
-      theme: action.payload,
-    }),
+    incrementDraws(state) {
+      state.draws = state.draws + 1
+    },
+    incrementScore(state, { payload }: PayloadAction<ScoreType>) {
+      state.score = state.score + getScoreChange(state.scoringType, payload)
+    },
+    changeTheme(state, { payload }: PayloadAction<ColorSchemeType>) {
+      state.theme = payload
+    },
   },
   extraReducers: (builder) =>
     builder
-      .addCase(initialize, (state, action) => {
+      .addCase(initialize, (state, { payload }) => {
         state.draws = 0
-        state.number = action.payload.number
-        state.score = action.payload.scoringType === ScoringType.vegas ? retrieve(PersistanceType.score, 0) - 52 : 0
-        state.scoringType = action.payload.scoringType
+        state.number = payload.number
+        state.score = payload.scoringType === ScoringType.vegas ? retrieve(PersistanceType.score, 0) - 52 : 0
+        state.scoringType = payload.scoringType
         state.showing = 3
       })
       .addMatcher(
@@ -45,11 +42,9 @@ const gameStateSlice = createSlice({
           shiftCards.match(action) &&
           (action.payload.to.type === StackType.waste ||
             (action.payload.from && action.payload.from.type === StackType.waste)),
-        (state, action) => {
+        (state, { payload: { to, cards } }) => {
           state.showing =
-            action.payload.to.type === StackType.waste
-              ? Math.min(action.payload.to.cards.length + action.payload.cards.length, 3)
-              : Math.max(1, state.showing - 1)
+            to.type === StackType.waste ? Math.min(to.cards.length + cards.length, 3) : Math.max(1, state.showing - 1)
         },
       ),
 })

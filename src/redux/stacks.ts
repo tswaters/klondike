@@ -42,24 +42,24 @@ const stacksSlice = createSlice({
     ],
   },
   reducers: {
-    shiftCards: (state, { payload }: PayloadAction<MoveCardPayload>) => {
+    shiftCards: (state, { payload: { from, to, cards, hidden } }: PayloadAction<MoveCardPayload>) => {
       state.stacks = state.stacks.map((stack) =>
-        sameStack(stack, payload.to)
+        sameStack(stack, to)
           ? {
               ...stack,
               cards: [
                 ...stack.cards,
-                ...payload.cards.map((card) => ({
+                ...cards.map((card) => ({
                   ...card,
                   selected: false,
-                  hidden: payload.hidden,
+                  hidden,
                 })),
               ],
             }
-          : payload.from && sameStack(stack, payload.from)
+          : from && sameStack(stack, from)
           ? {
               ...stack,
-              cards: stack.cards.filter((stackCard) => !stackContainsCard(payload.cards, stackCard)),
+              cards: stack.cards.filter((stackCard) => !stackContainsCard(cards, stackCard)),
             }
           : stack,
       )
