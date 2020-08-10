@@ -43,67 +43,36 @@ const stacksSlice = createSlice({
   },
   reducers: {
     shiftCards: (state, { payload: { from, to, cards, hidden } }: PayloadAction<MoveCardPayload>) => {
-      state.stacks = state.stacks.map((stack) =>
-        sameStack(stack, to)
-          ? {
-              ...stack,
-              cards: [
-                ...stack.cards,
-                ...cards.map((card) => ({
-                  ...card,
-                  selected: false,
-                  hidden,
-                })),
-              ],
-            }
-          : from && sameStack(stack, from)
-          ? {
-              ...stack,
-              cards: stack.cards.filter((stackCard) => !stackContainsCard(cards, stackCard)),
-            }
-          : stack,
-      )
+      const toStack = state.stacks.find((stack) => sameStack(to, stack))
+      const fromStack = state.stacks.find((stack) => sameStack(from, stack))
+      if (toStack) toStack.cards.push(...cards.map((card) => ({ ...card, selected: false, hidden })))
+      if (fromStack) fromStack.cards = fromStack.cards.filter((stackCard) => !stackContainsCard(cards, stackCard))
     },
     revealTop: (state, { payload }: PayloadAction<Stack>) => {
-      state.stacks = state.stacks.map((stack) =>
-        sameStack(stack, payload)
-          ? {
-              ...stack,
-              cards: stack.cards.map((card, index) =>
-                index < stack.cards.length - 1 ? card : { ...card, hidden: false },
-              ),
-            }
-          : stack,
-      )
+      const thisStack = state.stacks.find((stack) => sameStack(stack, payload))
+      if (thisStack) {
+        const topCard = thisStack.cards[thisStack.cards.length - 1]
+        if (topCard) topCard.hidden = false
+      }
     },
     selectCard: {
       prepare: (stack: Stack, card: StackCard) => ({ payload: { stack, card } }),
       reducer: (state, { payload }: PayloadAction<{ stack: Stack; card: StackCard }>) => {
-        state.stacks = state.stacks.map((stack) =>
-          sameStack(stack, payload.stack) && stackContainsCard(stack.cards, payload.card)
-            ? {
-                ...stack,
-                selection: payload.card,
-                cards: stack.cards.map((stackCard) =>
-                  !sameCard(stackCard, payload.card) ? stackCard : { ...stackCard, selected: true },
-                ),
-              }
-            : stack,
-        )
+        const thisStack = state.stacks.find((stack) => sameStack(stack, payload.stack))
+        if (thisStack) {
+          thisStack.selection = payload.card
+          const thisCard = thisStack.cards.find((stackCard) => sameCard(stackCard, payload.card))
+          if (thisCard) thisCard.selected = true
+        }
       },
     },
     deselectCard: (state) => {
-      state.stacks = state.stacks.map((stack) =>
-        stack.selection != null
-          ? {
-              ...stack,
-              selection: null,
-              cards: stack.cards.map((stackCard) =>
-                !stackCard.selected ? stackCard : { ...stackCard, selected: false },
-              ),
-            }
-          : stack,
-      )
+      const thisStack = state.stacks.find((stack) => stack.selection != null)
+      if (thisStack) {
+        thisStack.selection = null
+        const selectedCard = thisStack.cards.find((stackCard) => stackCard.selected)
+        if (selectedCard) selectedCard.selected = false
+      }
     },
   },
   extraReducers: (builder) =>
