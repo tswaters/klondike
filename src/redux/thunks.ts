@@ -80,33 +80,33 @@ const checkAndPerformFoundationMove = (selection: CardSelection): AppThunk => (d
 }
 
 export const clickCard = (cardSelection: CardSelection): AppThunk => (dispatch, getState) => {
-  const { stackCard: clickedCard, stack: clickedStack } = cardSelection
-  if (clickedCard != null && clickedCard.selected) return dispatch(deselectCard())
+  const { stackCard, stack } = cardSelection
+  if (stackCard != null && stackCard.selected) return dispatch(deselectCard())
 
   const selection = getSelection(getState())
-  if (selection == null && clickedCard && !clickedCard.hidden) return dispatch(selectCard(clickedStack, clickedCard))
+  if (selection == null && stackCard && !stackCard.hidden) return dispatch(selectCard({ stack, stackCard }))
 
-  if (clickedStack.type === StackType.foundation && selection) {
+  if (stack.type === StackType.foundation && selection) {
     dispatch(checkAndPerformFoundationMove(selection))
     return
   }
 
-  if (clickedStack.type === StackType.tableau) {
-    if (selection == null && clickedCard && clickedCard.hidden) {
+  if (stack.type === StackType.tableau) {
+    if (selection == null && stackCard && stackCard.hidden) {
       dispatch(checkpoint())
       dispatch(incrementScore(ScoreType.revealCard))
-      dispatch(revealTop(clickedStack))
+      dispatch(revealTop(stack))
     }
-    if (selection && selection.stackCard && isValidTableauMove(selection.stackCard, clickedCard)) {
+    if (selection && selection.stackCard && isValidTableauMove(selection.stackCard, stackCard)) {
       dispatch(deselectCard())
       dispatch(checkpoint())
       if (selection.stack.type === StackType.waste) dispatch(incrementScore(ScoreType.wasteToTableau))
       if (selection.stack.type === StackType.foundation) dispatch(incrementScore(ScoreType.foundationToTableau))
-      dispatch(moveCards(selection.stack, clickedStack, selection.stackCard))
+      dispatch(moveCards(selection.stack, stack, selection.stackCard))
     }
   }
 
-  if (clickedStack.type === StackType.stock) {
+  if (stack.type === StackType.stock) {
     if (disallowClickStock(getState())) return
     if (selection) dispatch(deselectCard())
     const waste = getWaste(getState())

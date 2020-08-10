@@ -55,16 +55,13 @@ const stacksSlice = createSlice({
         if (topCard) topCard.hidden = false
       }
     },
-    selectCard: {
-      prepare: (stack: Stack, card: StackCard) => ({ payload: { stack, card } }),
-      reducer: (state, { payload }: PayloadAction<{ stack: Stack; card: StackCard }>) => {
-        const thisStack = state.stacks.find((stack) => sameStack(stack, payload.stack))
-        if (thisStack) {
-          thisStack.selection = payload.card
-          const thisCard = thisStack.cards.find((stackCard) => sameCard(stackCard, payload.card))
-          if (thisCard) thisCard.selected = true
-        }
-      },
+    selectCard: (state, { payload }: PayloadAction<{ stack: Stack; stackCard: StackCard }>) => {
+      const thisStack = state.stacks.find((stack) => sameStack(stack, payload.stack))
+      if (thisStack) {
+        thisStack.selection = payload.stackCard
+        const thisCard = thisStack.cards.find((stackCard) => sameCard(stackCard, payload.stackCard))
+        if (thisCard) thisCard.selected = true
+      }
     },
     deselectCard: (state) => {
       const thisStack = state.stacks.find((stack) => stack.selection != null)
