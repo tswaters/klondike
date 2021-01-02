@@ -17,8 +17,8 @@ declare module 'csstype' {
 }
 
 export enum ColorSchemeType {
-  dark,
-  light,
+  dark = 'dark',
+  light = 'light',
 }
 
 export type ColorScheme = {

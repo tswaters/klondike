@@ -1,6 +1,6 @@
 export enum ScoringType {
-  vegas,
-  regular,
+  vegas = 'vegas',
+  regular = 'regular',
 }
 
 export enum ScoreType {

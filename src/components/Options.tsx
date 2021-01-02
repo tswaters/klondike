@@ -2,45 +2,35 @@ import * as React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { ScoringType } from '../lib/Scoring'
 import { ColorSchemeType } from '../drawing/ColorScheme'
-import { StoreState } from '../redux'
 import { getType, getTheme, getNumber } from '../redux/selectors'
 import { changeTheme } from '../redux/game-state'
 import { newNumber, newType } from '../redux/thunks'
 
-type OptionContextType = {
-  add: (cb: () => void) => void
-  remove: (cb: () => void) => void
-}
+const submitCallbacks: Set<() => void> = new Set()
+export const OptionCtx = React.createContext(submitCallbacks)
 
-export const OptionCtx = React.createContext<OptionContextType | null>(null)
-
-type OptionType<T = number> = React.HTMLAttributes<HTMLFieldSetElement> & {
+type OptionType = React.HTMLAttributes<HTMLFieldSetElement> & {
   name: string
   label: string
-  selector: (arg0: StoreState) => T
-  action: (arg0: T) => void
-  options?: [string, T][]
+  value: unknown
+  onChange: (arg0: unknown) => void
+  options?: [string, unknown][]
 }
 
-const Option: React.FC<OptionType> = React.memo(({ name, options = [], label, selector, action, ...props }) => {
-  const optionCtx = React.useContext(OptionCtx)
-  const dispatch = useDispatch()
-  const thing = useSelector(selector)
-  const [newThing, setNewThing] = React.useState(thing)
+const Option: React.FC<OptionType> = React.memo(({ value, onChange, name, options = [], label, ...props }) => {
+  const [newValue, setValue] = React.useState(value)
 
-  const handleChangeThing = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setNewThing(parseInt(e.target.value, 10)),
-    [],
-  )
+  const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value), [])
 
   const handleSubmit = React.useCallback(() => {
-    if (newThing !== thing) dispatch(action(newThing))
-  }, [dispatch, action, thing, newThing])
+    if (newValue !== value) onChange(newValue)
+  }, [value, newValue, onChange])
 
   React.useEffect(() => {
-    if (optionCtx == null) return
-    optionCtx.add(handleSubmit)
-    return () => optionCtx.remove(handleSubmit)
+    submitCallbacks.add(handleSubmit)
+    return () => {
+      submitCallbacks.delete(handleSubmit)
+    }
   })
 
   return (
@@ -51,7 +41,7 @@ const Option: React.FC<OptionType> = React.memo(({ name, options = [], label, se
           <label htmlFor={`option-${name}`} style={{ display: 'none' }}>
             {label}
           </label>
-          <input type="text" id={`option-${name}`} value={newThing} onChange={handleChangeThing} />
+          <input type="text" id={`option-${name}`} value={String(newValue)} onChange={handleChange} />
         </div>
       ) : (
         options.map(([label, option]) => (
@@ -59,9 +49,9 @@ const Option: React.FC<OptionType> = React.memo(({ name, options = [], label, se
             <input
               type="radio"
               id={`${name}-${label}`}
-              checked={newThing === option}
-              value={option}
-              onChange={handleChangeThing}
+              checked={newValue === option}
+              value={String(option)}
+              onChange={handleChange}
             />
             <label htmlFor={`${name}-${label}`}>{label}</label>
           </div>
@@ -86,32 +76,29 @@ const colorSchemeOptions: [string, ColorSchemeType][] = [
 type OptionContainerProps = { onClose(): void } & React.HTMLAttributes<HTMLFormElement>
 
 const Options: React.FC<OptionContainerProps> = React.memo(({ onClose, ...props }) => {
-  const options = React.useRef<Set<() => void>>(new Set())
-
-  const value = React.useMemo(
-    () => ({
-      add: (cb: () => void) => options.current.add(cb),
-      remove: (cb: () => void) => options.current.delete(cb),
-    }),
-    [],
-  )
-
   const handleSubmit = React.useCallback(
     (e: React.FormEvent) => {
       e.preventDefault()
-      options.current.forEach((cb) => cb())
+      submitCallbacks.forEach((cb) => cb())
       onClose()
     },
     [onClose],
   )
 
+  const dispatch = useDispatch()
+  const type = useSelector(getType)
+  const theme = useSelector(getTheme)
+  const gameNumber = useSelector(getNumber)
+
+  const handleNewNumber = React.useCallback((number) => dispatch(newNumber(parseInt(number, 10))), [dispatch])
+  const handleNewType = React.useCallback((type) => dispatch(newType(type)), [dispatch])
+  const handleNewTheme = React.useCallback((theme) => dispatch(changeTheme(theme)), [dispatch])
+
   return (
     <form onSubmit={handleSubmit} {...props}>
-      <OptionCtx.Provider value={value}>
-        <Option name="game-number" label="Game Number" selector={getNumber} action={newNumber} />
-        <Option name="type" label="Game Type" selector={getType} action={newType} options={typeOptions} />
-        <Option name="theme" label="Theme" selector={getTheme} action={changeTheme} options={colorSchemeOptions} />
-      </OptionCtx.Provider>
+      <Option name="game-number" label="Game Number" value={gameNumber} onChange={handleNewNumber} />
+      <Option name="type" label="Game Type" value={type} onChange={handleNewType} options={typeOptions} />
+      <Option name="theme" label="Theme" value={theme} onChange={handleNewTheme} options={colorSchemeOptions} />
       <button type="submit">Save</button>
     </form>
   )
