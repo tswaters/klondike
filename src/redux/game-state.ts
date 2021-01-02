@@ -36,6 +36,7 @@ const gameStateSlice = createSlice({
         state.score = payload.scoringType === ScoringType.vegas ? retrieve(PersistanceType.score, 0) - 52 : 0
         state.scoringType = payload.scoringType
         state.showing = 3
+        state.theme = payload.theme
       })
       .addMatcher(
         (action: AnyAction): action is PayloadAction<MoveCardPayload> =>
