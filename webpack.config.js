@@ -4,7 +4,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CircularDependencyPlugin = require('circular-dependency-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const OfflinePlugin = require('offline-plugin')
+const OfflinePlugin = require('@lcdp/offline-plugin')
 const { DefinePlugin } = require('webpack')
 const path = require('path')
 const packageJson = require('./package.json')
@@ -26,7 +26,7 @@ module.exports = (env, argv) => {
       splitChunks: {
         chunks: 'all',
       },
-      minimizer: [new TerserPlugin({ sourceMap: true })],
+      minimizer: [new TerserPlugin()],
     },
     resolve: {
       extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js', 'css'],
@@ -53,8 +53,9 @@ module.exports = (env, argv) => {
               options: {
                 sourceMap: true,
                 esModule: true,
-                localsConvention: 'camelCaseOnly',
-                modules: true,
+                modules: {
+                  exportLocalsConvention: 'camelCaseOnly',
+                },
               },
             },
           ],

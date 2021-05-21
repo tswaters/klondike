@@ -5,12 +5,10 @@
     "**/.git": true,
     "**/.DS_Store": true,
     "node_modules": true,
-    "public": true
+    "dist": true
   },
   "search.exclude": {
-    "**/node_modules": true,
-    "reports": true
+    "**/node_modules": true
   },
-  "eslint.enable": true,
   "editor.formatOnSave": true
 }

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import * as offline from 'offline-plugin/runtime'
+import * as offline from '@lcdp/offline-plugin/runtime'
 
 import App from './components/App'
 
