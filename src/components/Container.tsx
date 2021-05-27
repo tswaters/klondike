@@ -84,15 +84,21 @@ const Container: React.FC = () => {
       )}
       <div className={topBar}>
         <div>
-          <button tabIndex={1} onClick={handleNewGame} className={button}>
-            🔄︎
+          <button title="New Game" tabIndex={1} onClick={handleNewGame} className={button}>
+            <span aria-hidden="true">🔄︎</span>
+            <span style={{ display: 'none' }}>New Game</span>
           </button>
-          <span className={label}>{String(number).padStart(4, '0')}</span>
+          <span title="Game Number" className={label}>
+            {String(number).padStart(4, '0')}
+          </span>
         </div>
         <div>
-          <span className={label}>{score}</span>
-          <button tabIndex={1} onClick={handleShowOptions} className={button}>
-            ☰︎
+          <span title="Score" className={label}>
+            {score}
+          </span>
+          <button title="Main Menu" tabIndex={1} onClick={handleShowOptions} className={button}>
+            <span aria-hidden="true">☰︎</span>
+            <span style={{ display: 'none' }}>Main Menu</span>
           </button>
         </div>
       </div>
