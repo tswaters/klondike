@@ -15,7 +15,7 @@ const Fireworks: React.FC = () => {
     fireworksObj.current = new FireworksCanvas(ref.current)
 
     const handleDocumentKeyDown = (ev: KeyboardEvent) => {
-      if (ev.keyCode === 27) fireworksObj.current?.stop()
+      if (ev.key === 'Escape') fireworksObj.current?.stop()
     }
 
     document.addEventListener('keydown', handleDocumentKeyDown)

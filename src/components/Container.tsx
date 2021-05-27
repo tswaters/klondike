@@ -55,12 +55,12 @@ const Container: React.FC = () => {
       dispatch(performMoves())
     }
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.keyCode === 113) dispatch(newNumber())
-      if (e.keyCode === 27) setShowOptions((prev) => !prev)
-      if (e.keyCode === 90) {
-        if (e.ctrlKey && e.shiftKey) {
+      if (e.code === 'F2') dispatch(newNumber())
+      if (e.code === 'Escape') setShowOptions((prev) => !prev)
+      if (e.code === 'KeyZ' && e.ctrlKey) {
+        if (e.shiftKey) {
           dispatch(redo())
-        } else if (e.ctrlKey) {
+        } else {
           dispatch(undo())
         }
       }
