@@ -11,7 +11,9 @@ export const sumConsecutive = (i: number) => (i * (i + 1)) / 2
 
 export const getTopCard = (stack: Stack): StackCard | null => stack.cards[stack.cards.length - 1] || null
 
-export const random = (min: number, max: number): number => Math.floor(Math.random() * max) + min
+const random = (min: number, max: number) => Math.floor(Math.random() * max) + min
+
+export const newGameNumber = () => random(1, 5000)
 
 // for simplicity, these routines would just use strict object comparison
 // however, if doing that, any changes to the store in a thunk would invalidate variable reference

@@ -8,9 +8,10 @@ import { ScoringType } from '../lib/Scoring'
 import { ColorSchemeType } from '../drawing/ColorScheme'
 import store from '../redux'
 import { initializeGame } from '../redux/thunks'
+import { newGameNumber } from '../lib/util'
 
 const App: React.FC = () => {
-  const newNumber = retrieve(PersistanceType.number, 0)
+  const newNumber = retrieve(PersistanceType.number, newGameNumber())
   const newType = retrieve<ScoringType>(PersistanceType.type, ScoringType.regular)
   const newTheme = retrieve<ColorSchemeType>(PersistanceType.theme, ColorSchemeType.dark)
 

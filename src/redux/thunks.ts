@@ -1,5 +1,5 @@
 import { AppThunk, CardSelection } from '.'
-import { isValidTableauMove, rnd } from '../lib/util'
+import { isValidTableauMove, newGameNumber, rnd } from '../lib/util'
 import { StackType, Card, Cards } from '../lib/Card'
 import { ScoringType, ScoreType } from '../lib/Scoring'
 import { ColorSchemeType } from '../drawing/ColorScheme'
@@ -22,10 +22,10 @@ import { checkpoint } from './undoable'
 import { incrementScore, incrementDraws } from './game-state'
 
 export const newType = (newType?: ScoringType) =>
-  initializeGame({ newNumber: Math.floor(Math.random() * 1000), newType })
+  initializeGame({ newNumber: newGameNumber(), newType })
 
 export const newNumber = (newNumber?: number) =>
-  initializeGame({ newNumber: newNumber == null ? Math.floor(Math.random() * 1000) : newNumber })
+  initializeGame({ newNumber: newNumber == null ? newGameNumber() : newNumber })
 
 type InitOptions = { newType?: ScoringType; newNumber?: number; newTheme?: ColorSchemeType }
 
