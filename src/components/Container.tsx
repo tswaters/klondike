@@ -87,7 +87,7 @@ const Container: React.FC = () => {
           <button tabIndex={1} onClick={handleNewGame} className={button}>
             🔄︎
           </button>
-          <span className={label}>{number}</span>
+          <span className={label}>{String(number).padStart(4, '0')}</span>
         </div>
         <div>
           <span className={label}>{score}</span>

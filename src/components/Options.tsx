@@ -15,51 +15,63 @@ type OptionType = React.HTMLAttributes<HTMLFieldSetElement> & {
   value: unknown
   onChange: (arg0: unknown) => void
   options?: [string, unknown][]
+  type?: string
+  min?: number
+  max?: number
 }
 
-const Option: React.FC<OptionType> = React.memo(({ value, onChange, name, options = [], label, ...props }) => {
-  const [newValue, setValue] = React.useState(value)
+const Option: React.FC<OptionType> = React.memo(
+  ({ value, onChange, name, options = [], label, min, max, type = 'text', ...props }) => {
+    const [newValue, setValue] = React.useState(value)
 
-  const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value), [])
+    const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value), [])
 
-  const handleSubmit = React.useCallback(() => {
-    if (newValue !== value) onChange(newValue)
-  }, [value, newValue, onChange])
+    const handleSubmit = React.useCallback(() => {
+      if (newValue !== value) onChange(newValue)
+    }, [value, newValue, onChange])
 
-  React.useEffect(() => {
-    submitCallbacks.add(handleSubmit)
-    return () => {
-      submitCallbacks.delete(handleSubmit)
-    }
-  })
+    React.useEffect(() => {
+      submitCallbacks.add(handleSubmit)
+      return () => {
+        submitCallbacks.delete(handleSubmit)
+      }
+    })
 
-  return (
-    <fieldset {...props}>
-      <legend>{label}</legend>
-      {options.length === 0 ? (
-        <div>
-          <label htmlFor={`option-${name}`} style={{ display: 'none' }}>
-            {label}
-          </label>
-          <input type="text" id={`option-${name}`} value={String(newValue)} onChange={handleChange} />
-        </div>
-      ) : (
-        options.map(([label, option]) => (
-          <div key={label.toString()}>
+    return (
+      <fieldset {...props}>
+        <legend>{label}</legend>
+        {options.length === 0 ? (
+          <div>
+            <label htmlFor={`option-${name}`} style={{ display: 'none' }}>
+              {label}
+            </label>
             <input
-              type="radio"
-              id={`${name}-${label}`}
-              checked={newValue === option}
-              value={String(option)}
+              type={type}
+              id={`option-${name}`}
+              value={String(newValue)}
               onChange={handleChange}
+              {...(min && { min })}
+              {...(max && { max })}
             />
-            <label htmlFor={`${name}-${label}`}>{label}</label>
           </div>
-        ))
-      )}
-    </fieldset>
-  )
-})
+        ) : (
+          options.map(([label, option]) => (
+            <div key={label.toString()}>
+              <input
+                type="radio"
+                id={`${name}-${label}`}
+                checked={newValue === option}
+                value={String(option)}
+                onChange={handleChange}
+              />
+              <label htmlFor={`${name}-${label}`}>{label}</label>
+            </div>
+          ))
+        )}
+      </fieldset>
+    )
+  },
+)
 
 Option.displayName = 'Option'
 
@@ -96,7 +108,15 @@ const Options: React.FC<OptionContainerProps> = React.memo(({ onClose, ...props 
 
   return (
     <form onSubmit={handleSubmit} {...props}>
-      <Option name="game-number" label="Game Number" value={gameNumber} onChange={handleNewNumber} />
+      <Option
+        name="game-number"
+        label="Game Number"
+        type="number"
+        min={1}
+        max={9999}
+        value={gameNumber}
+        onChange={handleNewNumber}
+      />
       <Option name="type" label="Game Type" value={type} onChange={handleNewType} options={typeOptions} />
       <Option name="theme" label="Theme" value={theme} onChange={handleNewTheme} options={colorSchemeOptions} />
       <button type="submit">Save</button>

@@ -13,7 +13,7 @@ export const getTopCard = (stack: Stack): StackCard | null => stack.cards[stack.
 
 const random = (min: number, max: number) => Math.floor(Math.random() * max) + min
 
-export const newGameNumber = () => random(1, 5000)
+export const newGameNumber = () => random(1, 9999)
 
 // for simplicity, these routines would just use strict object comparison
 // however, if doing that, any changes to the store in a thunk would invalidate variable reference
