@@ -27,13 +27,13 @@ const Fireworks: React.FC = () => {
 
   React.useEffect(() => {
     if (active) {
-      fireworksObj.current?.stop()
-    } else {
       fireworksObj.current?.start()
+    } else {
+      fireworksObj.current?.stop()
     }
   }, [active])
 
-  return <div className={fireworks} style={{ display }} ref={ref} />
+  return <div className={fireworks} style={{ display, zIndex: 5 }} ref={ref} />
 }
 
 export default React.memo(Fireworks)
