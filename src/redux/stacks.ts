@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { Stack, StackCard, StackType, StackDirection } from '../lib/Card'
-import { stackContainsCard, sumConsecutive, sameStack, sameCard } from '../lib/util'
+import { contains, sumConsecutive, sameStack, sameCard } from '../lib/util'
 import { undoable } from './undoable'
 import { initialize } from './init'
 
@@ -46,7 +46,7 @@ const stacksSlice = createSlice({
       const toStack = state.stacks.find((stack) => sameStack(to, stack))
       const fromStack = state.stacks.find((stack) => sameStack(from, stack))
       if (toStack) toStack.cards.push(...cards.map((card) => ({ ...card, selected: false, hidden })))
-      if (fromStack) fromStack.cards = fromStack.cards.filter((stackCard) => !stackContainsCard(cards, stackCard))
+      if (fromStack) fromStack.cards = fromStack.cards.filter((stackCard) => !contains(cards, stackCard.card))
     },
     revealTop: (state, { payload }: PayloadAction<Stack>) => {
       const thisStack = state.stacks.find((stack) => sameStack(stack, payload))
@@ -55,11 +55,11 @@ const stacksSlice = createSlice({
         if (topCard) topCard.hidden = false
       }
     },
-    selectCard: (state, { payload }: PayloadAction<{ stack: Stack; stackCard: StackCard }>) => {
-      const thisStack = state.stacks.find((stack) => sameStack(stack, payload.stack))
+    selectCard: (state, { payload: { stack, stackCard } }: PayloadAction<{ stack: Stack; stackCard: StackCard }>) => {
+      const thisStack = state.stacks.find((src) => sameStack(src, stack))
       if (thisStack) {
-        thisStack.selection = payload.stackCard
-        const thisCard = thisStack.cards.find((stackCard) => sameCard(stackCard, payload.stackCard))
+        thisStack.selection = stackCard
+        const thisCard = thisStack.cards.find((src) => sameCard(src.card, stackCard.card))
         if (thisCard) thisCard.selected = true
       }
     },
@@ -99,7 +99,7 @@ export const moveCards = (from: Stack, to: Stack, from_card: StackCard | null) =
   shiftCards({
     from,
     to,
-    cards: from.cards.slice(from.cards.findIndex((card) => from_card && sameCard(card, from_card))),
+    cards: from.cards.slice(from.cards.findIndex((card) => from_card && sameCard(card.card, from_card.card))),
     hidden: false,
   })
 
