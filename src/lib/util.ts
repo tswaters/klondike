@@ -30,7 +30,7 @@ export const isSequential = (card: Card, card1: Card) => valueToInt(card1.value)
 
 export const isRed = (card: Card) => [SuitType.diamond, SuitType.heart].includes(card.suit)
 
-export const isBlack = (card: Card) => [SuitType.club, SuitType.spade].includes(card.suit)
+export const isDifferentColor = (src: Card, dest: Card) => +isRed(src) ^ +isRed(dest)
 
 export const isBig = (card: Card) =>
   [ValueType.ace, ValueType.jack, ValueType.queen, ValueType.king].includes(card.value)
@@ -40,12 +40,10 @@ export const isValidFoundationMove = (stackCard: StackCard, desintation: StackCa
     ? stackCard.card.value === ValueType.ace
     : desintation.card.suit === stackCard.card.suit && isSequential(stackCard.card, desintation.card)
 
-export const isValidTableauMove = (stackCard: StackCard, destination: StackCard | null) => {
-  return destination == null
+export const isValidTableauMove = (stackCard: StackCard, destination: StackCard | null) =>
+  destination == null
     ? stackCard.card.value === ValueType.king
-    : isSequential(destination.card, stackCard.card) &&
-        ((isRed(stackCard.card) && isBlack(destination.card)) || (isBlack(stackCard.card) && isRed(destination.card)))
-}
+    : isSequential(destination.card, stackCard.card) && isDifferentColor(stackCard.card, destination.card)
 
 const valueToInt = (value: ValueType): number => {
   if (value === ValueType.ace) return 1
